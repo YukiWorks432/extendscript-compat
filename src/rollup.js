@@ -136,11 +136,6 @@ export function extendscriptCompat() {
           if (!asset || asset.type !== "asset")
             this.error("ExtendScript source map asset is missing: " + mapFile);
           asset.source = map.toString();
-          const mapName = mapFile.slice(mapFile.lastIndexOf("/") + 1);
-          chunk.code = updateSourceMappingUrl(
-            chunk.code,
-            options.sourcemap === "hidden" ? undefined : mapName,
-          );
         }
       }
     },

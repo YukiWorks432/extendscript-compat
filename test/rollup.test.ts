@@ -99,6 +99,24 @@ describe("Rollupで生成した最終コードの保護", () => {
     },
   );
 
+  it("外部ソースマップの配信URLと出力サブディレクトリを保持する", async () => {
+    const output: OutputOptions = {
+      sourcemap: true,
+      sourcemapBaseUrl: "https://example.com/maps/",
+      sourcemapFileNames: "nested/[name].map",
+    };
+    const original = await build(source, [], output);
+    const protectedOutput = await build(source, [extendscriptCompat()], output);
+    const originalChunk = original.output[0] as OutputChunk;
+    const protectedChunk = protectedOutput.output[0] as OutputChunk;
+    const url = (code: string) => code.match(/sourceMappingURL=([^\r\n]+)/)![1];
+    expect(url(protectedChunk.code)).toBe(url(originalChunk.code));
+    expect(url(protectedChunk.code)).toMatch(/^https:\/\/example\.com\/maps\//);
+    const asset = protectedOutput.output.find(
+      (file) => file.fileName === protectedChunk.sourcemapFileName,
+    );
+    expect(asset?.type === "asset" && asset.source).toBe(protectedChunk.map!.toString());
+  });
   it("構文エラーがあるコードを成功した成果物として出力しない", async () => {
     await expect(
       build("export var value = 1;", [
