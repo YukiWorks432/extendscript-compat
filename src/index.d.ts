@@ -14,8 +14,6 @@ export interface ProtectedCode {
 }
 
 /** 通常のJavaScriptとして生成済みのコードへ括弧だけを挿入する。 */
-export function protectExtendscriptExpressionPrecedence(source: string): ProtectedCode;
-export function findUnprotectedExtendscriptExpressionPrecedence(
-  source: string,
-): PrecedenceDiagnostic[];
-export function assertExtendscriptExpressionPrecedenceProtected(source: string): void;
+export function protectPrecedence(source: string): ProtectedCode;
+export function findPrecedenceIssues(source: string): PrecedenceDiagnostic[];
+export function assertPrecedenceProtected(source: string): void;

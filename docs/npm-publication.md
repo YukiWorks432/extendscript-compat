@@ -14,18 +14,22 @@
 
 初回登録は、二要素認証を有効にした所有者の端末で行う。実行するのは公開が承認され、固定コミットから梱包し直した後とする。
 
+認証状態・接続・登録情報・梱包内容の確認はpnpm 12.11.2で実行できる。package.jsonがpnpmを指定する利用側のディレクトリでも、これらの確認にnpm CLIを直接使う必要はない。
+
 ```sh
-npm login
-npm whoami
-npm view extendscript-compat name version
+pnpm login
+pnpm whoami
+pnpm ping
+pnpm profile get tfa --json
+pnpm view extendscript-compat name version
 pnpm install --frozen-lockfile
 pnpm check
 pnpm pack --pack-destination artifacts
 npm publish ./artifacts/extendscript-compat-0.1.0.tgz --access public
-npm view extendscript-compat@0.1.0 version dist.integrity
+pnpm view extendscript-compat@0.1.0 version dist.integrity
 ```
 
-名前の照会で404になることは、公開時の名前の取得を保証しない。梱包物の一覧はnpm pack --dry-run --jsonで事前確認する。filesはsrc、README.md、LICENSEへ限定しているが、package.jsonなどnpmが自動的に含めるファイルも確認する。npm登録自体には料金のかからない公開パッケージを想定する。
+名前の照会で404になることは、公開時の名前の取得を保証しない。梱包物の一覧はpnpm pack --dry-run --jsonで事前確認する。filesはsrc、README.md、LICENSEへ限定しているが、package.jsonなどnpmが自動的に含めるファイルも確認する。npm登録自体には料金のかからない公開パッケージを想定する。
 
 ## 継続的な公開方法
 
@@ -46,3 +50,6 @@ Trusted Publisherにはnpm CLI 11.5.1以降とNode.js 22.14.0以降が必要。�
 - [公開パッケージの作成と登録](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages/)
 - [Trusted Publisherの設定と制約](https://docs.npmjs.com/trusted-publishers/)
 - [出所証明の生成](https://docs.npmjs.com/generating-provenance-statements/)
+
+- [pnpmによる梱包内容の事前確認](https://pnpm.io/cli/pack)
+- [pnpmによる認証設定の確認](https://pnpm.io/cli/profile)

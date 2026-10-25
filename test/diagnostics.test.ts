@@ -2,14 +2,11 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { expect, it } from "vitest";
-import {
-  findUnprotectedExtendscriptExpressionPrecedence,
-  protectExtendscriptExpressionPrecedence,
-} from "../src/index.js";
+import { findPrecedenceIssues, protectPrecedence } from "../src/index.js";
 
 it("診断を元コードの文字位置と種類で返す", () => {
   const code = "var result =\n  a ? b : c ? d : e;";
-  const diagnostics = findUnprotectedExtendscriptExpressionPrecedence(code);
+  const diagnostics = findPrecedenceIssues(code);
   expect(diagnostics).toEqual([
     {
       kind: "nested-conditional",
@@ -30,7 +27,7 @@ it("呼び出し元のBabel設定が補正処理へ混入しない", () => {
       '{"plugins":["missing-build-plugin"]}',
     );
     process.chdir(directory);
-    expect(protectExtendscriptExpressionPrecedence("a || b && c").code).toBe("a || (b && c)");
+    expect(protectPrecedence("a || b && c").code).toBe("a || (b && c)");
   } finally {
     process.chdir(previous);
     rmSync(directory, { recursive: true });

@@ -9,21 +9,16 @@
 Node.js 22以降で動作します。Babelを解析に使いますが、コード全体を再生成せず、元の文字列へ括弧だけを挿入します。
 
 ```js
-import {
-  protectExtendscriptExpressionPrecedence,
-  assertExtendscriptExpressionPrecedenceProtected,
-} from "extendscript-compat";
+import { protectPrecedence, assertPrecedenceProtected } from "extendscript-compat";
 
-const result = protectExtendscriptExpressionPrecedence(
-  "var value = a || b && c; var other = a ? b : c ? d : e;",
-);
+const result = protectPrecedence("var value = a || b && c; var other = a ? b : c ? d : e;");
 // var value = a || (b && c); var other = a ? b : (c ? d : e);
-assertExtendscriptExpressionPrecedenceProtected(result.code);
+assertPrecedenceProtected(result.code);
 ```
 
-protectExtendscriptExpressionPrecedenceは補正後のcodeと、元の文字列に対する括弧1文字ごとの挿入位置insertionsを返します。同じコードへ繰り返し適用しても、括弧を追加し続けません。
+protectPrecedenceは補正後のcodeと、元の文字列に対する括弧1文字ごとの挿入位置insertionsを返します。同じコードへ繰り返し適用しても、括弧を追加し続けません。
 
-findUnprotectedExtendscriptExpressionPrecedenceは、未保護箇所の種類・文字位置・行・列を返します。行は1始まり、列と文字位置は0始まりです。公開する診断情報にはBabelのAST型を含めません。
+findPrecedenceIssuesは、未保護箇所の種類・文字位置・行・列を返します。行は1始まり、列と文字位置は0始まりです。公開する診断情報にはBabelのAST型を含めません。
 
 ## Rollupへの組み込み
 

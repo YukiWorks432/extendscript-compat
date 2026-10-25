@@ -1,7 +1,7 @@
 import { parse, traverse } from "@babel/core";
 
 /** @param {string} source @returns {import("./index.d.ts").PrecedenceDiagnostic[]} */
-export function findUnprotectedExtendscriptExpressionPrecedence(source) {
+export function findPrecedenceIssues(source) {
   // 呼び出し元のBabel設定によって括弧の解析方法が変わることを防ぐ。
   const program = parse(source, {
     babelrc: false,
@@ -49,8 +49,8 @@ export function findUnprotectedExtendscriptExpressionPrecedence(source) {
 }
 
 /** @param {string} source */
-export function protectExtendscriptExpressionPrecedence(source) {
-  const insertions = findUnprotectedExtendscriptExpressionPrecedence(source)
+export function protectPrecedence(source) {
+  const insertions = findPrecedenceIssues(source)
     .flatMap(({ start, end }) => [
       { position: start, text: "(" },
       { position: end, text: ")" },
@@ -75,8 +75,8 @@ export function protectExtendscriptExpressionPrecedence(source) {
 }
 
 /** @param {string} source */
-export function assertExtendscriptExpressionPrecedenceProtected(source) {
-  const operands = findUnprotectedExtendscriptExpressionPrecedence(source);
+export function assertPrecedenceProtected(source) {
+  const operands = findPrecedenceIssues(source);
   if (operands.length > 0) {
     const positions = operands.map(({ line, column }) => line + ":" + column).join(", ");
     throw new Error(

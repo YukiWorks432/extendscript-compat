@@ -1,9 +1,6 @@
 import { addSegment, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 import { eachMapping, TraceMap } from "@jridgewell/trace-mapping";
-import {
-  protectExtendscriptExpressionPrecedence,
-  assertExtendscriptExpressionPrecedenceProtected,
-} from "./index.js";
+import { protectPrecedence, assertPrecedenceProtected } from "./index.js";
 
 /** @param {string} source */
 const lineStarts = (source) => {
@@ -114,8 +111,8 @@ export function extendscriptCompat() {
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;
         const source = chunk.code;
-        const result = protectExtendscriptExpressionPrecedence(source);
-        assertExtendscriptExpressionPrecedenceProtected(result.code);
+        const result = protectPrecedence(source);
+        assertPrecedenceProtected(result.code);
         chunk.code = result.code;
         if (!options.sourcemap || result.insertions.length === 0) continue;
         if (!chunk.map)

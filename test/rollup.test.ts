@@ -5,7 +5,7 @@ import type { Plugin, OutputChunk, OutputOptions } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { originalPositionFor, TraceMap } from "@jridgewell/trace-mapping";
 import { extendscriptCompat } from "../src/rollup.js";
-import { assertExtendscriptExpressionPrecedenceProtected } from "../src/index.js";
+import { assertPrecedenceProtected } from "../src/index.js";
 
 const source = "export var result = a || b && c; export var selected = a ? 10 : b ? 20 : 30;";
 async function build(input = source, plugins: Plugin[] = [], output: OutputOptions = {}) {
@@ -40,7 +40,7 @@ describe("Rollupで生成した最終コードの保護", () => {
     const result = await build(source, [terser(), extendscriptCompat()]);
     const chunk = result.output[0] as OutputChunk;
     expect(chunk.fileName).toBe("custom.jsx");
-    expect(() => assertExtendscriptExpressionPrecedenceProtected(chunk.code)).not.toThrow();
+    expect(() => assertPrecedenceProtected(chunk.code)).not.toThrow();
     for (const [a, b, c, value, selected] of [
       [true, false, false, true, 10],
       [false, true, 7, 7, 20],
