@@ -1,33 +1,36 @@
-# npmへの登録計画
+# npmへの公開手順
 
-初期版は0.1.0とし、式の優先順位補正とRollup 4への組み込みを提供する。現時点ではGitHubリポジトリを非公開に保ち、npmへは公開しない。package.jsonのprivateも有効のままにする。
+初期版は0.1.0とし、式の優先順位補正とRollup 4への組み込みをnpmの一般公開パッケージとして提供する。2026年10月26日に公開の許可を得た。GitHubリポジトリの公開範囲は非公開のままとし、npmの配布物にはsrcのJavaScript、型定義、README、MITライセンスを含める。
 
-2026年10月25日の確認では、extendscript-compatへのnpm照会は404だった。名前は予約できていないため、実際の公開直前に再確認する。取得済みになっていた場合は、所有するnpmアカウントのスコープ配下の名前へ切り替え、利用側の依存指定と使用例を同時に更新する。
+2026年10月26日の公開前確認では、extendscript-compatへのnpm照会は404だった。名前は予約できていないため、実際の公開直前に再確認する。取得済みになっていた場合は登録を止め、所有するnpmアカウントのスコープ配下への変更を確認する。名前を変更する場合は、利用側の依存指定と使用例も同時に更新する。
 
 ## 公開までの順序
 
 1. ライブラリと利用側の検証・独立レビューを完了し、公開するコミットを固定する。
 2. GitHubリポジトリの公開範囲、npmの所有者、パッケージ名、MITライセンスを確認する。npmの一般公開パッケージにはsrcのJavaScriptと型定義も含まれる。GitHubを非公開のままにすることは可能だが、出所証明を付ける運用には公開リポジトリが必要になる。
-3. 公開準備のPRでprivateを削除し、publishConfig.accessをpublicにする。内容を確認したうえで統合し、そのコミットから再検証・再梱包する。開発段階で作ったprivate付きのtarballは公開に流用しない。
+3. 公開準備のPRでprivateを削除し、publishConfig.accessをpublic、publishConfig.registryをhttps://registry.npmjs.org/にする。内容を確認したうえで統合し、そのコミットから再検証・再梱包する。開発段階で作ったprivate付きのtarballは公開に流用しない。
 4. 初回は所有者がnpmへログインし、二要素認証を使って確認済みのtarballを登録する。登録後、別の空ディレクトリから導入し、本体とRollup用の入口を再確認する。
 5. adobe-cepの同梱tarballをnpm依存へ置き換え、公開テンプレート側の導入PRを提出する。その後、Bolt-CEPへの統合を提案する。
 
 初回登録は、二要素認証を有効にした所有者の端末で行う。実行するのは公開が承認され、固定コミットから梱包し直した後とする。
 
-認証状態・接続・登録情報・梱包内容の確認はpnpm 12.15.0で実行できる。package.jsonがpnpmを指定する利用側のディレクトリでも、これらの確認にnpm CLIを直接使う必要はない。
+接続・登録情報・梱包内容の確認はpnpm 12.15.0で実行できる。初回公開では、このライブラリのディレクトリでnpm CLIへログインし、同じCLIから確認済みのtarballを登録する。ログイン後はnpm whoamiとpnpm whoamiの両方で所有者を照合する。
 
 ```sh
-pnpm login
+npm login
+npm whoami
 pnpm whoami
 pnpm ping
-pnpm profile get tfa --json
+npm profile get tfa --json
 pnpm view extendscript-compat name version
 pnpm install --frozen-lockfile
 pnpm check
 pnpm pack --pack-destination artifacts
-npm publish ./artifacts/extendscript-compat-0.1.0.tgz --access public
+npm publish ./artifacts/extendscript-compat-0.1.0.tgz --access public --registry=https://registry.npmjs.org/
 pnpm view extendscript-compat@0.1.0 version dist.integrity
 ```
+
+公開直前に固定コミット、梱包物のSHA-256、privateが含まれないこと、配布対象7ファイルを照合する。公開後はレジストリのdist.integrityと取得したtarballを照合し、空の利用側へ導入して公開APIとRollup連携を確認する。登録が受理された後の通信切断では、同じ版を再公開せず、先にレジストリ上の状態を確認する。
 
 名前の照会で404になることは、公開時の名前の取得を保証しない。梱包物の一覧はpnpm pack --dry-run --jsonで事前確認する。filesはsrc、README.md、LICENSEへ限定しているが、package.jsonなどnpmが自動的に含めるファイルも確認する。npm登録自体には料金のかからない公開パッケージを想定する。
 
