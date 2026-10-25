@@ -1,0 +1,2 @@
+# extendscript-compat
+ExtendScript向け生成JavaScriptの演算子優先順位を保護するビルド時ライブラリ
