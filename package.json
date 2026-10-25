@@ -1,7 +1,6 @@
 {
   "name": "extendscript-compat",
   "version": "0.1.0",
-  "private": true,
   "description": "Build-time expression precedence protection for Adobe ExtendScript",
   "homepage": "https://github.com/YukiWorks432/extendscript-compat#readme",
   "bugs": {
@@ -29,6 +28,10 @@
       "default": "./src/rollup.js"
     },
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "check": "pnpm fmt:check && pnpm lint && pnpm typecheck && pnpm test",

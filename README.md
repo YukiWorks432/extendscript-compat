@@ -2,7 +2,13 @@
 
 生成済みのJavaScriptへ括弧を挿入し、Adobe ExtendScriptの演算子優先順位による誤動作を防ぐ、ビルド時のライブラリです。混在する論理演算子と入れ子の三項演算子を対象にします。
 
-現在は非公開リポジトリでの開発段階です。npmには未登録で、package.jsonのprivateを有効にしています。登録の計画と操作方法は[公開計画](docs/npm-publication.md)を参照してください。
+## インストール
+
+ビルド用の開発依存として追加します。
+
+```sh
+pnpm add -D extendscript-compat@0.1.0
+```
 
 ## 使用例
 
@@ -45,6 +51,18 @@ export default {
 入力は通常のJavaScriptとして生成されたコードです。TypeScriptの変換やES3構文への変換は、Babelなど既存のビルド処理へ委ねます。ExtendScript固有のE4Xや未展開のプリプロセッサー指示を含む生のJSXファイルは対象にしません。構文解析に失敗した場合は例外を返し、無変換のまま成功扱いにはしません。
 
 混在する&&と||の境界、および三項演算子の条件部・真側・偽側に直接入れ子になった三項演算子を括弧で保護します。値、短絡評価、this、arguments、evalから見える束縛を保ち、関数や一時変数を追加しません。JSON実装、文字コード、Adobe製品APIなどの検査は利用側で行ってください。
+
+After Effects 26.5x89 / ExtendScript 4.5.6で言語回帰22件と利用側の製品回帰96件を確認しています。IllustratorやPhotoshopなど、ほかの製品での実機確認は行っていません。
+
+## 関連する実装
+
+同じ不具合への対処は既存のツールにもあります。2026年10月26日時点で、次の実装を確認しました。
+
+- [babel-preset-extendscript](https://github.com/fusepilot/babel-preset-extendscript): Babelのプリセットとして、入れ子の三項演算子を括弧で囲みます。多くの構文変換や互換機能も含みます。
+- [UglifyJS](https://github.com/mishoo/UglifyJS#output-options): `output.extendscript: true` で入れ子の三項演算子を保護します。npmの3.19.3で、`a || b && c` への括弧追加は行われないことを確認しました。
+- [extendscript-minimizer](https://github.com/gmeeker/extendscript-minimizer/blob/master/transforms/transform.precedence.js): Closure Compilerとjscodeshiftを使うツールで、両方の不具合を明示的な括弧で保護します。今回の調査時点ではnpmの同名パッケージを取得できませんでした。
+
+extendscript-compatは生成済みコードへの括弧挿入、診断・検査API、Rollupでのソースマップ更新をまとめて提供します。既存の変換処理や圧縮器と組み合わせ、生成処理の最後に組み込む用途を想定しています。
 
 ## 開発
 
