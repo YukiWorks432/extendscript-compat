@@ -82,10 +82,10 @@ splitにはes5-shim v4.6.7の実装を取り込み、ExtendScript向けの補正
 
 0.2.0では、RollupのextendscriptCompat()が優先順位保護に加え、次を行います。
 
-- EC-03: switchをまたいで外側のループへ進む、ラベルのないcontinueを通知します。内側のループのcontinueとラベル付きcontinueは警告しません。対象ループへラベルを付けて回避してください。圧縮後に省かれたラベル付きcontinueの末尾のセミコロンは自動で補います。
+- EC-03: switchをまたいで外側のループへ進む、ラベルのないcontinueを自動補正します。対象ループの既存ラベルを再利用し、ラベルがなければ衝突しない名前で追加します。同じループには一つのラベルを共有します。内側のループを対象とするcontinueは変えません。圧縮後に省かれたラベル付きcontinueの末尾のセミコロンも補います。
 - EC-06: g・i・mのみを使う正規表現リテラルの文字クラス内で、`\x2D`・`\u002D`を`\-`へ置き換えます。小文字の16進数字にも対応します。動的なRegExpコンストラクタの文字列や、文字クラス外のエスケープは変更しません。
 
-EC-03の通知は既定で警告です。CIで手動対応を必須にする場合は停止を選べます。
+EC-03は既定で自動補正し、補正した箇所を警告として通知します。元のコードにEC-03を含めない方針をCIで強制する場合は、補正できる場合も停止するerrorを選べます。通知を省いて自動補正する場合はoffを選びます。
 
 ```js
 extendscriptCompat({ diagnostics: "error" });
@@ -98,13 +98,13 @@ extendscriptCompat({ diagnostics: "error" });
 import { findCompatibilityIssues, protectCompatibility } from "extendscript-compat";
 
 const result = protectCompatibility(source);
-// result.code: 優先順位・EC-06・ラベル付きcontinueのセミコロンを補正したコード
+// result.code: 優先順位・EC-06・continueの自動ラベル・セミコロンを補正したコード
 // result.edits: 元の入力に対する挿入と置換（start / end / text）
-// result.diagnostics: 自動補正できないEC-03の診断
+// result.diagnostics: 自動補正したEC-03の通知（元の入力上の位置）
 const issues = findCompatibilityIssues(source);
 ```
 
-findCompatibilityIssuesは補正前のEC-03・EC-06を返します。各診断はcode、kind、start、end、line、column、messageを持ちます。行は1始まり、列と文字位置はUTF-16のコード単位で0始まりです。統合APIのeditsと診断の位置はいずれも元の入力を指します。正規表現のsourceやtoString()には補正後の表記が現れます。照合する文字集合は維持します。
+findCompatibilityIssuesは補正前のEC-03・EC-06を返します。protectCompatibilityのdiagnosticsは元のコードにあったEC-03の通知であり、補正後に未解決の不具合が残っていることを表すものではありません。各診断はcode、kind、start、end、line、column、messageを持ちます。行は1始まり、列と文字位置はUTF-16のコード単位で0始まりです。統合APIのeditsと診断の位置はいずれも元の入力を指します。正規表現のsourceやtoString()には補正後の表記が現れます。照合する文字集合は維持します。
 
 ## EC-10・EC-11のUnitValue補助API
 

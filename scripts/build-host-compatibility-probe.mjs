@@ -8,12 +8,32 @@ import { extendscriptCompat } from "../src/rollup.js";
 import { findCompatibilityIssues } from "../src/index.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const contract = readFileSync(
+let contract = readFileSync(
   new URL("../test/fixtures/compatibility-contract.js", import.meta.url),
   "utf8",
 )
   .trim()
   .replace(/;$/, "");
+const continueCases = JSON.parse(
+  readFileSync(new URL("../test/fixtures/continue-cases.json", import.meta.url), "utf8"),
+);
+const continueChecks = continueCases
+  .map(
+    ({ name, code, expected }) =>
+      "check(" +
+      JSON.stringify("EC-03: " + name) +
+      ",function(){return " +
+      code +
+      ";}," +
+      JSON.stringify(expected) +
+      ");",
+  )
+  .join("\n");
+const returnReport =
+  "  return { total: total, passed: total - failures.length, failures: failures };";
+if (!contract.includes(returnReport)) throw new Error("Missing host contract result");
+contract = contract.replace(returnReport, continueChecks + "\n" + returnReport);
+
 const runtimeContract = readFileSync(
   new URL("../test/fixtures/runtime-contract.js", import.meta.url),
   "utf8",
@@ -46,7 +66,7 @@ for (const minified of [false, true]) {
         },
       },
       ...(minified ? [terser({ format: { ascii_only: true, comments: /^!/ } })] : []),
-      extendscriptCompat({ diagnostics: "error" }),
+      extendscriptCompat({ diagnostics: "off" }),
     ],
   });
   try {

@@ -66,9 +66,60 @@ export function assertPrecedenceProtected(source) {
 
 /** @param {string} source @returns {import("./index.d.ts").CompatibilityDiagnostic[]} */
 export function findCompatibilityIssues(source) {
+  return analyzeCompatibility(source).diagnostics;
+}
+
+/** @param {string} source @returns {import("./index.d.ts").CompatibilityProtection} */
+export function protectCompatibility(source) {
+  const { diagnostics, continueEdits } = analyzeCompatibility(source);
+  /** @type {import("./index.d.ts").SourceEdit[]} */
+  const edits = findPrecedenceIssues(source).flatMap(({ start, end }) => [
+    { start, end: start, text: "(" },
+    { start: end, end, text: ")" },
+  ]);
+  edits.push(...continueEdits);
+  for (const diagnostic of diagnostics) {
+    if (diagnostic.code === "EC-06") {
+      edits.push({ start: diagnostic.start, end: diagnostic.end, text: "\\-" });
+    } else if (diagnostic.kind === "labeled-continue-semicolon") {
+      edits.push({ start: diagnostic.end, end: diagnostic.end, text: ";" });
+    }
+  }
+  edits.sort((left, right) => {
+    if (left.start !== right.start) return left.start - right.start;
+    if (left.end !== right.end) return left.end - right.end;
+    return left.text === ")" ? -1 : 1;
+  });
+  let code = "";
+  let cursor = 0;
+  for (const edit of edits) {
+    code += source.slice(cursor, edit.start) + edit.text;
+    cursor = edit.end;
+  }
+  return {
+    code: code + source.slice(cursor),
+    edits,
+    diagnostics: diagnostics.filter(({ kind }) => kind === "continue-through-switch"),
+  };
+}
+
+/** @param {string} source */
+function analyzeCompatibility(source) {
   const program = parseScript(source);
   /** @type {import("./index.d.ts").CompatibilityDiagnostic[]} */
   const diagnostics = [];
+  // 後から現れるラベルや識別子との衝突も避けるため、先に名前を収集する。
+  const usedNames = new Set();
+  traverse(program, {
+    Identifier({ node }) {
+      usedNames.add(node.name);
+    },
+  });
+  /** @type {Map<import("@babel/core").Node, string>} */
+  const loopLabels = new Map();
+  /** @type {import("./index.d.ts").SourceEdit[]} */
+  const continueEdits = [];
+  let nextLabel = 0;
   traverse(program, {
     ContinueStatement(path) {
       // ラベル付きcontinueは、圧縮で省略されたセミコロンを最終出力へ戻す。
@@ -84,19 +135,40 @@ export function findCompatibilityIssues(source) {
         }
         return;
       }
-      for (const parent of path.getAncestry().slice(1)) {
-        if (parent.isLoop()) break;
-        if (!parent.isSwitchStatement()) continue;
-        const position = sourcePosition(path.node);
-        diagnostics.push({
-          code: "EC-03",
-          kind: "continue-through-switch",
-          ...position,
-          message:
-            "switchをまたぐcontinueはExtendScriptで誤動作します。対象ループにラベルを付け、continueで明示してください。",
-        });
-        break;
+      let crossesSwitch = false;
+      const loop = path.findParent((parent) => {
+        if (parent.isSwitchStatement()) crossesSwitch = true;
+        return parent.isLoop();
+      });
+      if (!crossesSwitch || !loop) return;
+      const position = sourcePosition(path.node);
+      let label = loopLabels.get(loop.node);
+      if (!label) {
+        if (loop.parentPath?.isLabeledStatement()) {
+          label = loop.parentPath.node.label.name;
+        } else {
+          do {
+            label = "__extendscriptCompatLoop" + nextLabel++;
+          } while (usedNames.has(label));
+          usedNames.add(label);
+          const target = sourcePosition(loop.node);
+          continueEdits.push({ start: target.start, end: target.start, text: label + ": " });
+        }
+        loopLabels.set(loop.node, label);
       }
+      // コメントと元のセミコロンを残し、ASIで終わるcontinueにはセミコロンも補う。
+      const insertion = position.start + "continue".length;
+      continueEdits.push({
+        start: insertion,
+        end: insertion,
+        text: " " + label + (source[position.end - 1] === ";" ? "" : ";"),
+      });
+      diagnostics.push({
+        code: "EC-03",
+        kind: "continue-through-switch",
+        ...position,
+        message: "switchをまたぐcontinueを、対象ループのラベルを指定する形へ自動補正します。",
+      });
     },
     RegExpLiteral(path) {
       const node = path.node;
@@ -135,39 +207,9 @@ export function findCompatibilityIssues(source) {
       }
     },
   });
-  return diagnostics.toSorted((left, right) => left.start - right.start);
-}
-
-/** @param {string} source @returns {import("./index.d.ts").CompatibilityProtection} */
-export function protectCompatibility(source) {
-  const diagnostics = findCompatibilityIssues(source);
-  /** @type {import("./index.d.ts").SourceEdit[]} */
-  const edits = findPrecedenceIssues(source).flatMap(({ start, end }) => [
-    { start, end: start, text: "(" },
-    { start: end, end, text: ")" },
-  ]);
-  for (const diagnostic of diagnostics) {
-    if (diagnostic.code === "EC-06") {
-      edits.push({ start: diagnostic.start, end: diagnostic.end, text: "\\-" });
-    } else if (diagnostic.kind === "labeled-continue-semicolon") {
-      edits.push({ start: diagnostic.end, end: diagnostic.end, text: ";" });
-    }
-  }
-  edits.sort((left, right) => {
-    if (left.start !== right.start) return left.start - right.start;
-    if (left.end !== right.end) return left.end - right.end;
-    return left.text === ")" ? -1 : 1;
-  });
-  let code = "";
-  let cursor = 0;
-  for (const edit of edits) {
-    code += source.slice(cursor, edit.start) + edit.text;
-    cursor = edit.end;
-  }
   return {
-    code: code + source.slice(cursor),
-    edits,
-    diagnostics: diagnostics.filter(({ kind }) => kind === "continue-through-switch"),
+    diagnostics: diagnostics.toSorted((left, right) => left.start - right.start),
+    continueEdits,
   };
 }
 

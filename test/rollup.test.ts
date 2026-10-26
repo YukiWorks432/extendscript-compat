@@ -187,10 +187,10 @@ export var mark = label || flag && next;`;
   },
 );
 
-it("圧縮で省かれたラベル付きcontinueのセミコロンを最終出力で復元する", async () => {
+it("圧縮後の無名continueをラベル付きへ自動補正する", async () => {
   const input =
-    "export function run(){var out=[];outer:for(var i=0;i<3;i++){switch(i){case 1:case 2:continue outer;}out.push(i);}return out.join(',');}";
-  const result = await build(input, [terser(), extendscriptCompat({ diagnostics: "error" })]);
+    "export function run(){var out=[];for(var i=0;i<3;i++){switch(i){case 1:case 2:continue;}out.push(i);}return out.join(',');}";
+  const result = await build(input, [terser(), extendscriptCompat()]);
   const chunk = result.output[0] as OutputChunk;
   expect(chunk.code).toMatch(/continue\s+[A-Za-z_$][\w$]*;/);
   expect(runInNewContext(chunk.code + ";compiled.run()")).toBe("0");
@@ -211,3 +211,28 @@ it("同じ行にある正規表現の短縮後も後続の名前の元位置を�
     expect(position.column).toBe(input.indexOf(token));
   }
 });
+
+it.each([true, "inline", "hidden"] as const)(
+  "自動ラベル挿入後もソースマップ %s の元位置を保つ",
+  async (sourcemap) => {
+    const input =
+      "export function run(){var marker=0;for(var i=0;i<3;i++){switch(i){case 1:continue;}marker+=i;}return marker;}";
+    const result = await build(input, [extendscriptCompat()], { sourcemap });
+    const chunk = result.output[0] as OutputChunk;
+    expect(runInNewContext(chunk.code + ";compiled.run()")).toBe(2);
+    for (const offset of [chunk.code.search(/\bmarker\s*\+=/), chunk.code.lastIndexOf("marker")]) {
+      expect(offset).toBeGreaterThan(0);
+      const prefix = chunk.code.slice(0, offset).split("\n");
+      const position = originalPositionFor(new TraceMap(chunk.map!.toString()), {
+        line: prefix.length,
+        column: prefix.at(-1)!.length,
+      });
+      expect(position.line).toBe(1);
+      expect(position.column).toBe(
+        offset === chunk.code.lastIndexOf("marker")
+          ? input.lastIndexOf("marker")
+          : input.indexOf("marker+="),
+      );
+    }
+  },
+);

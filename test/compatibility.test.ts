@@ -1,8 +1,9 @@
+import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import { expect, it } from "vitest";
 import { findCompatibilityIssues, protectCompatibility, protectPrecedence } from "../src/index.js";
 
-it("switchから最も内側のループへ抜ける無名continueだけを診断する", () => {
+it("switchから最も内側のループへ抜ける無名continueを検出して補正する", () => {
   const source = [
     "outer: for(var i=0;i<3;i++){",
     " switch(i){",
@@ -23,7 +24,7 @@ it("switchから最も内側のループへ抜ける無名continueだけを診�
   for (const diagnostic of diagnostics)
     expect(source.slice(diagnostic.start, diagnostic.end)).toBe("continue;");
   const result = protectCompatibility(source);
-  expect(result.code).toBe(source);
+  expect(findCompatibilityIssues(result.code)).toEqual([]);
   expect(result.diagnostics).toEqual(diagnostics);
 });
 
@@ -116,4 +117,25 @@ it("ラベル付きcontinueの省略セミコロンを圧縮後へ戻し、回�
   expect(result.code).toContain("continue outer;");
   expect(runInNewContext(result.code)).toBe("0");
   expect(protectCompatibility(result.code).edits).toEqual([]);
+});
+
+const continueCases = JSON.parse(
+  readFileSync(new URL("./fixtures/continue-cases.json", import.meta.url), "utf8"),
+) as { name: string; code: string; expected: string }[];
+
+it.each(continueCases)("EC-03を自動補正して$nameを保つ", ({ code, expected }) => {
+  expect(runInNewContext(code)).toBe(expected);
+  const result = protectCompatibility(code);
+  expect(runInNewContext(result.code)).toBe(expected);
+  expect(findCompatibilityIssues(result.code)).toEqual([]);
+  expect(protectCompatibility(result.code).edits).toEqual([]);
+});
+
+it("既存のループラベルとコメントを保ち、生成するラベルは同じループで共有する", () => {
+  const code = "outer:for(var i=0;i<3;i++){switch(i){case 1:continue /*keep*/;case 2:continue;}}";
+  const result = protectCompatibility(code);
+  expect(result.code).toContain("continue outer /*keep*/;");
+  expect(result.code).toContain("continue outer;");
+  expect(result.code.match(/outer:/g)).toHaveLength(1);
+  expect(result.diagnostics).toHaveLength(2);
 });
