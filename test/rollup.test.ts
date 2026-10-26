@@ -1,14 +1,19 @@
 import { runInNewContext } from "node:vm";
 import { describe, expect, it } from "vitest";
 import { rollup } from "rollup";
-import type { Plugin, OutputChunk, OutputOptions } from "rollup";
+import type { Plugin, OutputChunk, OutputOptions, RollupLog } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { originalPositionFor, TraceMap } from "@jridgewell/trace-mapping";
 import { extendscriptCompat } from "../src/rollup.js";
 import { assertPrecedenceProtected } from "../src/index.js";
 
 const source = "export var result = a || b && c; export var selected = a ? 10 : b ? 20 : 30;";
-async function build(input = source, plugins: Plugin[] = [], output: OutputOptions = {}) {
+async function build(
+  input = source,
+  plugins: Plugin[] = [],
+  output: OutputOptions = {},
+  warnings: RollupLog[] = [],
+) {
   const bundle = await rollup({
     input: "fixture.js",
     plugins: [
@@ -20,6 +25,8 @@ async function build(input = source, plugins: Plugin[] = [], output: OutputOptio
       ...plugins,
     ],
     onwarn(warning, defaultHandler) {
+      warnings.push(warning);
+      if (warning.pluginCode === "EC-03") return;
       if (warning.code !== "MISSING_GLOBAL_NAME") defaultHandler(warning);
     },
   });
@@ -133,3 +140,99 @@ describe("Rollupで生成した最終コードの保護", () => {
     ).rejects.toThrow();
   });
 });
+
+it("EC-03を既定で通知し、選択に応じてビルド停止または通知省略する", async () => {
+  const input = "export function run(){for(var i=0;i<3;i++){switch(i){case 1:continue;}return i;}}";
+  const warnings: RollupLog[] = [];
+  await build(input, [extendscriptCompat()], {}, warnings);
+  expect(warnings.filter(({ pluginCode }) => pluginCode === "EC-03")).toHaveLength(1);
+  expect(warnings[0].loc?.file).toBe("custom.jsx");
+  await expect(build(input, [extendscriptCompat({ diagnostics: "error" })])).rejects.toThrow(
+    /continue/,
+  );
+  const silent: RollupLog[] = [];
+  await build(input, [extendscriptCompat({ diagnostics: "off" })], {}, silent);
+  expect(silent.filter(({ pluginCode }) => pluginCode === "EC-03")).toEqual([]);
+});
+
+it.each([true, "inline", "hidden"] as const)(
+  "正規表現の短縮置換と括弧挿入の後もソースマップ %s の位置を保つ",
+  async (sourcemap) => {
+    const input = String.raw`export var pattern=/[a\u002Dz]/;
+export var mark = label || flag && next;`;
+    const result = await build(input, [extendscriptCompat()], { sourcemap });
+    const chunk = result.output[0] as OutputChunk;
+    expect(
+      runInNewContext(chunk.code + ";compiled.pattern.test('b')", { label: 0, flag: 0, next: 0 }),
+    ).toBe(false);
+    for (const token of ["label", "flag", "next"]) {
+      const offset = chunk.code.indexOf(token);
+      const prefix = chunk.code.slice(0, offset).split("\n");
+      const position = originalPositionFor(new TraceMap(chunk.map!.toString()), {
+        line: prefix.length,
+        column: prefix.at(-1)!.length,
+      });
+      expect(position.line).toBe(2);
+      expect(position.column).toBe(input.split("\n")[1].indexOf(token));
+    }
+    if (sourcemap === "inline") {
+      const encoded = chunk.code.match(/sourceMappingURL=data:[^,]+,([^\r\n]+)/)![1];
+      expect(Buffer.from(encoded, "base64").toString()).toBe(chunk.map!.toString());
+    } else {
+      const map = result.output.find(
+        (item) => item.type === "asset" && item.fileName.endsWith(".map"),
+      );
+      expect(map?.type === "asset" && map.source).toBe(chunk.map!.toString());
+    }
+  },
+);
+
+it("圧縮後の無名continueをラベル付きへ自動補正する", async () => {
+  const input =
+    "export function run(){var out=[];for(var i=0;i<3;i++){switch(i){case 1:case 2:continue;}out.push(i);}return out.join(',');}";
+  const result = await build(input, [terser(), extendscriptCompat()]);
+  const chunk = result.output[0] as OutputChunk;
+  expect(chunk.code).toMatch(/continue\s+[A-Za-z_$][\w$]*;/);
+  expect(runInNewContext(chunk.code + ";compiled.run()")).toBe("0");
+});
+
+it("同じ行にある正規表現の短縮後も後続の名前の元位置を保つ", async () => {
+  const input = String.raw`export var pattern=/[a\u002Dz]/; export var mark=label || flag && next;`;
+  const result = await build(input, [extendscriptCompat()], { sourcemap: true });
+  const chunk = result.output[0] as OutputChunk;
+  for (const token of ["label", "flag", "next"]) {
+    const offset = chunk.code.indexOf(token);
+    const prefix = chunk.code.slice(0, offset).split("\n");
+    const position = originalPositionFor(new TraceMap(chunk.map!.toString()), {
+      line: prefix.length,
+      column: prefix.at(-1)!.length,
+    });
+    expect(position.line).toBe(1);
+    expect(position.column).toBe(input.indexOf(token));
+  }
+});
+
+it.each([true, "inline", "hidden"] as const)(
+  "自動ラベル挿入後もソースマップ %s の元位置を保つ",
+  async (sourcemap) => {
+    const input =
+      "export function run(){var marker=0;for(var i=0;i<3;i++){switch(i){case 1:continue;}marker+=i;}return marker;}";
+    const result = await build(input, [extendscriptCompat()], { sourcemap });
+    const chunk = result.output[0] as OutputChunk;
+    expect(runInNewContext(chunk.code + ";compiled.run()")).toBe(2);
+    for (const offset of [chunk.code.search(/\bmarker\s*\+=/), chunk.code.lastIndexOf("marker")]) {
+      expect(offset).toBeGreaterThan(0);
+      const prefix = chunk.code.slice(0, offset).split("\n");
+      const position = originalPositionFor(new TraceMap(chunk.map!.toString()), {
+        line: prefix.length,
+        column: prefix.at(-1)!.length,
+      });
+      expect(position.line).toBe(1);
+      expect(position.column).toBe(
+        offset === chunk.code.lastIndexOf("marker")
+          ? input.lastIndexOf("marker")
+          : input.indexOf("marker+="),
+      );
+    }
+  },
+);

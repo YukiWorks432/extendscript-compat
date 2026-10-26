@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-26T07:10:30Z",
+  "transport": "aftereffects_kumo/eval.run",
+  "source": "compatibility-investigation.jsx",
+  "result": {
+    "hostVersion": "26.5x89",
+    "engineVersion": "4.5.6",
+    "engineBuild": "80.1060872",
+    "continueNative": "0,1,2",
+    "continueLabeled": "0",
+    "continueSemicolons": [
+      {
+        "error": "SyntaxError: Expected: ;"
+      },
+      {
+        "value": "0"
+      }
+    ],
+    "regex": {
+      "hex": true,
+      "unicode": true,
+      "escaped": false
+    },
+    "unitOperatorOverride": {
+      "direct": 8,
+      "afterNativeLookup": -8,
+      "nativeType": "function"
+    },
+    "unitSubtraction": {
+      "before": -8,
+      "corrected": 8,
+      "pixelValue": -10,
+      "pixelInches": -0.10416666666667,
+      "inputValue": 20,
+      "inputInches": 0.20833333333333
+    },
+    "unitNull": {
+      "before": true,
+      "corrected": false,
+      "actualNull": true
+    },
+    "projectPreserved": true
+  },
+  "context": {
+    "project": {
+      "numItems": 0,
+      "dirty": true,
+      "file": null
+    },
+    "instance": null,
+    "activeComp": null,
+    "selectedLayers": []
+  },
+  "durationMs": 341,
+  "sourceSha256": "085394cd1b81ec203025b684737c2ac621f979bcc596cb7361877bc9bc8bd38b",
+  "evalBodySha256": "069dfc4f28a7ad9f09fee287f9e9c3b7cde55850daec61b1379bce504ac64a01"
+}

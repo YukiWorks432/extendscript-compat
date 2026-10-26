@@ -1,0 +1,87 @@
+[
+  {
+    "name": "forの更新とfinally",
+    "code": "(function(){var trace=[];for(var i=0;i<3;trace.push(\"update\"+i),i++){try{switch(i){case 1:continue;}trace.push(\"body\"+i);}finally{trace.push(\"finally\"+i);}}return trace.join(\",\");}())",
+    "expected": "body0,finally0,update0,finally1,update1,body2,finally2,update2"
+  },
+  {
+    "name": "whileの条件評価",
+    "code": "(function(){var out=[],i=0;while(++i<4){switch(i){case 2:continue;}out.push(i);}return out.join(\",\");}())",
+    "expected": "1,3"
+  },
+  {
+    "name": "do-whileの条件評価",
+    "code": "(function(){var out=[],i=0;do{switch(++i){case 2:continue;}out.push(i);}while(i<3);return out.join(\",\");}())",
+    "expected": "1,3"
+  },
+  {
+    "name": "for-inの対象",
+    "code": "(function(){var out=[];for(var key in {a:1,b:2,c:3}){switch(key){case \"b\":continue;}out.push(key);}return out.sort().join(\",\");}())",
+    "expected": "a,c"
+  },
+  {
+    "name": "同じループの複数continue",
+    "code": "(function(){var out=[];for(var i=0;i<4;i++){switch(i){case 1:continue;case 2:continue;}out.push(i);}return out.join(\",\");}())",
+    "expected": "0,3"
+  },
+  {
+    "name": "二重ループそれぞれの対象",
+    "code": "(function(){var out=[];for(var i=0;i<3;i++){switch(i){case 1:continue;}for(var j=0;j<3;j++){switch(j){case 1:continue;}out.push(i+\":\"+j);}}return out.join(\",\");}())",
+    "expected": "0:0,0:2,2:0,2:2"
+  },
+  {
+    "name": "入れ子switch",
+    "code": "(function(){var out=[];for(var i=0;i<3;i++){switch(i){default:switch(i){case 1:continue;}}out.push(i);}return out.join(\",\");}())",
+    "expected": "0,2"
+  },
+  {
+    "name": "内側ループへのcontinueを維持",
+    "code": "(function(){var out=[];for(var i=0;i<3;i++){switch(i){case 0:for(var j=0;j<3;j++){if(j===1)continue;out.push(j);}break;default:out.push(i);}}return out.join(\",\");}())",
+    "expected": "0,2,1,2"
+  },
+  {
+    "name": "既存ループラベルの再利用",
+    "code": "(function(){var out=[];outer:for(var i=0;i<3;i++){switch(i){case 1:continue;case 2:continue outer;}out.push(i);}return out.join(\",\");}())",
+    "expected": "0"
+  },
+  {
+    "name": "複数の既存ループラベル",
+    "code": "(function(){var out=[];first:second:for(var i=0;i<3;i++){switch(i){case 1:continue;}out.push(i);}return out.join(\",\");}())",
+    "expected": "0,2"
+  },
+  {
+    "name": "外側ブロックのラベルと衝突しない",
+    "code": "(function(){var out=[];__extendscriptCompatLoop0:{for(var i=0;i<3;i++){switch(i){case 1:continue;}out.push(i);}}return out.join(\",\");}())",
+    "expected": "0,2"
+  },
+  {
+    "name": "後から現れる内側ラベルと衝突しない",
+    "code": "(function(){var out=[];for(var i=0;i<3;i++){switch(i){case 1:continue;}__extendscriptCompatLoop0:{out.push(i);break __extendscriptCompatLoop0;}}return out.join(\",\");}())",
+    "expected": "0,2"
+  },
+  {
+    "name": "コメントとASIを保持",
+    "code": "(function(){var out=[];for(var i=0;i<3;i++){switch(i){case 1:continue /* 分岐の注記 */\ndefault:out.push(i);}}return out.join(\",\");}())",
+    "expected": "0,2"
+  },
+  {
+    "name": "行コメントとelseを保持",
+    "code": "(function(){var out=[];for(var i=0;i<3;i++){switch(i){case 1:if(i)continue // 次の反復\nelse out.push(\"never\");}out.push(i);}return out.join(\",\");}())",
+    "expected": "0,2"
+  },
+  {
+    "name": "ブロックなしのループとelse",
+    "code": "(function(){var out=[];if(true)for(var i=0;i<3;i++)switch(i){case 1:continue;default:out.push(i);}else out.push(\"else\");return out.join(\",\");}())",
+    "expected": "0,2"
+  },
+  {
+    "name": "無限forのbreakを維持",
+    "code": "(function(){var out=[],i=0;for(;;){switch(++i){case 1:continue;}out.push(i);if(i===3)break;}return out.join(\",\");}())",
+    "expected": "2,3"
+  },
+  {
+    "name": "this・arguments・直接evalの束縛",
+    "code": "(function(arg){var out=[],local=3;for(var i=0;i<3;i++){switch(i){case 1:continue;}out.push(this.tag+\":\"+arguments[0]+\":\"+eval(\"local\"));}return out.join(\",\");}).call({tag:\"receiver\"},7)",
+    "expected": "receiver:7:3,receiver:7:3"
+  }
+]
