@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-26T04:38:39.030059200+00:00",
+  "requestId": "req-18e1fa77c7c8f698-10184-7",
+  "sourceSha256": "14168611b037421252c9fce4ce9b5da4f1b03f067fda87651e0c59a20524b21e",
+  "sourceSizeBytes": 19389,
+  "status": "completed",
+  "result": {
+    "after": {
+      "failures": [],
+      "passed": 71,
+      "total": 71
+    },
+    "before": {
+      "failures": [
+        {
+          "actual": "10",
+          "expected": "NaN",
+          "name": "parseInt: invalid first digit"
+        },
+        {
+          "actual": "13",
+          "expected": "NaN",
+          "name": "parseInt: invalid hex first digit"
+        },
+        {
+          "actual": "175",
+          "expected": "10",
+          "name": "parseInt: invalid suffix"
+        },
+        {
+          "actual": "175",
+          "expected": "10",
+          "name": "parseInt: auto hex prefix"
+        },
+        {
+          "actual": "-255",
+          "expected": "-15",
+          "name": "parseInt: signed hex prefix"
+        },
+        {
+          "actual": "-15",
+          "expected": "0",
+          "name": "parseInt: signed zero"
+        },
+        {
+          "actual": "15",
+          "expected": "NaN",
+          "name": "parseInt: empty prefix"
+        },
+        {
+          "actual": "175",
+          "expected": "10",
+          "name": "parseInt: radix ToInt32"
+        },
+        {
+          "actual": "175,input,radix",
+          "expected": "10,input,radix",
+          "name": "parseInt: coercion order once"
+        },
+        {
+          "actual": "",
+          "expected": " ",
+          "name": "charAt: NUL"
+        },
+        {
+          "actual": "",
+          "expected": " ",
+          "name": "charAt: boxed string"
+        },
+        {
+          "actual": ",1",
+          "expected": " ,1",
+          "name": "charAt: generic receiver once"
+        },
+        {
+          "actual": "a",
+          "expected": "a,",
+          "name": "split: trailing empty regex"
+        },
+        {
+          "actual": "a,",
+          "expected": "a,,",
+          "name": "split: repeated delimiter"
+        },
+        {
+          "actual": "",
+          "expected": "",
+          "name": "split: empty input"
+        },
+        {
+          "actual": "",
+          "expected": "",
+          "name": "split: empty input nonmatching"
+        },
+        {
+          "actual": "a,-,-,b",
+          "expected": "a,-,,b",
+          "name": "split: nonparticipating capture"
+        },
+        {
+          "actual": "a",
+          "expected": "a,",
+          "name": "split: negative limit"
+        },
+        {
+          "actual": "a ",
+          "expected": "a ,",
+          "name": "split: NUL in source"
+        },
+        {
+          "actual": "a,1",
+          "expected": "a,,1",
+          "name": "split: caller lastIndex"
+        },
+        {
+          "actual": "a,1",
+          "expected": "a,,1",
+          "name": "split: string coercion once"
+        },
+        {
+          "actual": "undefinedb",
+          "expected": "b",
+          "name": "replace: nonparticipating capture"
+        },
+        {
+          "actual": "$01",
+          "expected": "a",
+          "name": "replace: leading zero group"
+        },
+        {
+          "actual": "0",
+          "expected": "$20",
+          "name": "replace: absent group stays literal"
+        },
+        {
+          "actual": "a",
+          "expected": "a ",
+          "name": "replace: replacement NUL"
+        },
+        {
+          "actual": "undefinedbaundefinedundefinedb",
+          "expected": "bab",
+          "name": "replace: global"
+        },
+        {
+          "actual": "a$1/$&c",
+          "expected": "a$1/bc",
+          "name": "replace: string search"
+        },
+        {
+          "actual": "01,b:undefined:b:0:bb,b:undefined:b:1:0b",
+          "expected": "01,b:undefined:b:0:bb,b:undefined:b:1:bb",
+          "name": "replace: callback args and count"
+        },
+        {
+          "actual": "axc,input,replacement,search",
+          "expected": "axc,input,search,replacement",
+          "name": "replace: coercion order once"
+        },
+        {
+          "actual": "false",
+          "expected": "true",
+          "name": "parseInt: not constructible"
+        },
+        {
+          "actual": "a",
+          "expected": "a,",
+          "name": "split: ignore case"
+        },
+        {
+          "actual": "xxxxxxxx,0:bb,4:xxxxb",
+          "expected": "xxxxxxxx,0:bb,1:bb",
+          "name": "replace: callback length changes"
+        },
+        {
+          "actual": "-a-b",
+          "expected": "-a-b-",
+          "name": "replace: zero width global"
+        }
+      ],
+      "passed": 38,
+      "total": 71
+    },
+    "defaultsPreserved": true,
+    "engineBuild": "80.1060872",
+    "engineVersion": "4.5.6",
+    "hostVersion": "26.5x89",
+    "idempotent": true,
+    "repeated": {
+      "failures": [],
+      "passed": 71,
+      "total": 71
+    },
+    "restored": true,
+    "runtimeSha256": "9235c8d4bfaa334ea381f822756a0c89ae58a40fa1e7cb46cd41345c2da77af3"
+  }
+}

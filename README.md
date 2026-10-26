@@ -64,6 +64,18 @@ After Effects 26.5x89 / ExtendScript 4.5.6で言語回帰22件と利用側の製
 
 extendscript-compatは生成済みコードへの括弧挿入、診断・検査API、Rollupでのソースマップ更新をまとめて提供します。既存の変換処理や圧縮器と組み合わせ、生成処理の最後に組み込む用途を想定しています。
 
+## 組み込み関数の実行時補正
+
+必要なホスト用バンドルで、既存のes5-shimなどの後、利用するコードの前に読み込みます。
+
+```js
+import "extendscript-compat/runtime";
+```
+
+EC-04・05・07・08に対応し、parseInt、String.prototype.charAt・split・replaceを既存の関数がある場合も置き換えます。同じエンジンのほかのスクリプトにも影響します。共有エンジンでの再評価を防ぎ、通常のNode.js用入口とRollup用入口は変更しません。型変換・分割数・置換文字列・コールバックを含む利用範囲と制限は[実行時補正の説明](runtime/README.md)を参照してください。
+
+splitにはes5-shim v4.6.7の実装を取り込み、ExtendScript向けの補正を加えています。[第三者ライセンス](THIRD-PARTY-LICENSES.txt)を同梱します。
+
 ## 開発
 
 ```sh

@@ -15,7 +15,9 @@
   "files": [
     "src",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "runtime",
+    "THIRD-PARTY-LICENSES.txt"
   ],
   "type": "module",
   "exports": {
@@ -27,7 +29,11 @@
       "types": "./src/rollup.d.ts",
       "default": "./src/rollup.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./runtime": {
+      "types": "./runtime/index.d.ts",
+      "default": "./runtime/index.js"
+    }
   },
   "publishConfig": {
     "access": "public",
