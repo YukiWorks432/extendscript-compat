@@ -1,6 +1,6 @@
 import { addSegment, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 import { eachMapping, TraceMap } from "@jridgewell/trace-mapping";
-import { protectPrecedence, assertPrecedenceProtected } from "./index.js";
+import { protectCompatibility, assertPrecedenceProtected } from "./index.js";
 
 /** @param {string} source */
 const lineStarts = (source) => {
@@ -16,24 +16,35 @@ const lineStarts = (source) => {
   return starts;
 };
 
-/** @param {string} before @param {string} after @param {number[]} insertions @param {import("rollup").SourceMap} original @param {string} filename @returns {import("rollup").SourceMap} */
-function shiftSourceMap(before, after, insertions, original, filename) {
+/** @param {string} before @param {string} after @param {import("./index.d.ts").SourceEdit[]} edits @param {import("rollup").SourceMap} original @param {string} filename @returns {import("rollup").SourceMap} */
+function shiftSourceMap(before, after, edits, original, filename) {
   const input = new TraceMap(original.toString());
   const map = new GenMapping({ file: filename });
   const oldStarts = lineStarts(before);
   const newStarts = lineStarts(after);
+  let delta = 0;
+  const changes = edits.map((edit) => {
+    const newStart = edit.start + delta;
+    delta += edit.text.length - (edit.end - edit.start);
+    return { ...edit, newStart, delta };
+  });
   eachMapping(input, (mapping) => {
     const oldLine = oldStarts[mapping.generatedLine - 1];
     if (oldLine === undefined) throw new Error("Invalid generated line in ExtendScript source map");
     const offset = oldLine + mapping.generatedColumn;
     let low = 0;
-    let high = insertions.length;
+    let high = changes.length;
     while (low < high) {
       const middle = Math.floor((low + high) / 2);
-      if (insertions[middle] <= offset) low = middle + 1;
+      if (changes[middle].start <= offset) low = middle + 1;
       else high = middle;
     }
-    const shifted = offset + low;
+    const change = changes[low - 1];
+    const shifted = !change
+      ? offset
+      : offset >= change.end
+        ? offset + change.delta
+        : change.newStart + Math.min(offset - change.start, change.text.length);
     let line = 0;
     let end = newStarts.length;
     while (line + 1 < end) {
@@ -103,27 +114,36 @@ function updateSourceMappingUrl(code, url) {
   return url && !found ? result + "\n//# sourceMappingURL=" + url : result;
 }
 
-/** @returns {import("rollup").Plugin} */
-export function extendscriptCompat() {
+/** @param {import("./rollup.d.ts").CompatibilityOptions} [options] @returns {import("rollup").Plugin} */
+export function extendscriptCompat(options = {}) {
+  const diagnostics = options.diagnostics ?? "warn";
+  if (!["warn", "error", "off"].includes(diagnostics)) {
+    throw new TypeError("Unknown ExtendScript diagnostics mode: " + diagnostics);
+  }
   return {
     name: "extendscript-compat",
     generateBundle(options, bundle) {
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;
         const source = chunk.code;
-        const result = protectPrecedence(source);
+        const result = protectCompatibility(source);
+        if (diagnostics !== "off") {
+          for (const diagnostic of result.diagnostics) {
+            const warning = {
+              code: diagnostic.code,
+              message: diagnostic.message,
+              loc: { file: chunk.fileName, line: diagnostic.line, column: diagnostic.column },
+            };
+            if (diagnostics === "error") this.error(warning);
+            else this.warn(warning);
+          }
+        }
         assertPrecedenceProtected(result.code);
         chunk.code = result.code;
-        if (!options.sourcemap || result.insertions.length === 0) continue;
+        if (!options.sourcemap || result.edits.length === 0) continue;
         if (!chunk.map)
           this.error("ExtendScript compatibility pass requires the preceding source map");
-        const map = shiftSourceMap(
-          source,
-          result.code,
-          result.insertions,
-          chunk.map,
-          chunk.fileName,
-        );
+        const map = shiftSourceMap(source, result.code, result.edits, chunk.map, chunk.fileName);
         chunk.map = map;
         if (options.sourcemap === "inline") {
           chunk.code = updateSourceMappingUrl(chunk.code, map.toUrl());

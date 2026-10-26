@@ -3,33 +3,12 @@ import { parse, traverse } from "@babel/core";
 /** @param {string} source @returns {import("./index.d.ts").PrecedenceDiagnostic[]} */
 export function findPrecedenceIssues(source) {
   // 呼び出し元のBabel設定によって括弧の解析方法が変わることを防ぐ。
-  const program = parse(source, {
-    babelrc: false,
-    configFile: false,
-    sourceType: "script",
-    parserOpts: {
-      allowReturnOutsideFunction: true,
-      createParenthesizedExpressions: true,
-      errorRecovery: false,
-    },
-  });
-  if (!program) throw new Error("ExtendScript expression precedence pass received an empty AST");
+  const program = parseScript(source);
   /** @type {import("./index.d.ts").PrecedenceDiagnostic[]} */
   const operands = [];
   /** @param {import("@babel/core").Node} node @param {import("./index.d.ts").PrecedenceDiagnostic["kind"]} kind */
   const collect = (node, kind) => {
-    if (node.start == null || node.end == null || !node.loc) {
-      throw new Error(
-        "ExtendScript expression precedence pass found a node without source positions",
-      );
-    }
-    operands.push({
-      kind,
-      start: node.start,
-      end: node.end,
-      line: node.loc.start.line,
-      column: node.loc.start.column,
-    });
+    operands.push({ kind, ...sourcePosition(node) });
   };
   traverse(program, {
     LogicalExpression(path) {
@@ -83,4 +62,140 @@ export function assertPrecedenceProtected(source) {
       "ExtendScript host bundle contains unprotected expression precedence at " + positions,
     );
   }
+}
+
+/** @param {string} source @returns {import("./index.d.ts").CompatibilityDiagnostic[]} */
+export function findCompatibilityIssues(source) {
+  const program = parseScript(source);
+  /** @type {import("./index.d.ts").CompatibilityDiagnostic[]} */
+  const diagnostics = [];
+  traverse(program, {
+    ContinueStatement(path) {
+      // ラベル付きcontinueは、圧縮で省略されたセミコロンを最終出力へ戻す。
+      if (path.node.label) {
+        const position = sourcePosition(path.node);
+        if (source[position.end - 1] !== ";") {
+          diagnostics.push({
+            code: "EC-03",
+            kind: "labeled-continue-semicolon",
+            ...position,
+            message: "ラベル付きcontinueの末尾へ、ExtendScriptで必要なセミコロンを補います。",
+          });
+        }
+        return;
+      }
+      for (const parent of path.getAncestry().slice(1)) {
+        if (parent.isLoop()) break;
+        if (!parent.isSwitchStatement()) continue;
+        const position = sourcePosition(path.node);
+        diagnostics.push({
+          code: "EC-03",
+          kind: "continue-through-switch",
+          ...position,
+          message:
+            "switchをまたぐcontinueはExtendScriptで誤動作します。対象ループにラベルを付け、continueで明示してください。",
+        });
+        break;
+      }
+    },
+    RegExpLiteral(path) {
+      const node = path.node;
+      if (/[^gim]/.test(node.flags)) return;
+      const position = sourcePosition(node);
+      const pattern = node.pattern;
+      let inClass = false;
+      for (let index = 0; index < pattern.length; index++) {
+        const character = pattern[index];
+        if (character === "\\") {
+          const hex = pattern.slice(index, index + 4);
+          const unicode = pattern.slice(index, index + 6);
+          let length = 0;
+          if (hex.slice(0, 2) === "\\x" && hex.slice(2).toLowerCase() === "2d") length = 4;
+          if (unicode.slice(0, 2) === "\\u" && unicode.slice(2).toLowerCase() === "002d")
+            length = 6;
+          if (inClass && length) {
+            diagnostics.push({
+              code: "EC-06",
+              kind: "regexp-escaped-hyphen",
+              start: position.start + 1 + index,
+              end: position.start + 1 + index + length,
+              line: position.line,
+              column: position.column + 1 + index,
+              message: "文字クラス内の16進表記のハイフンを明示的なエスケープへ補正します。",
+            });
+            index += length - 1;
+          } else {
+            index++;
+          }
+        } else if (character === "[") {
+          inClass = true;
+        } else if (character === "]") {
+          inClass = false;
+        }
+      }
+    },
+  });
+  return diagnostics.toSorted((left, right) => left.start - right.start);
+}
+
+/** @param {string} source @returns {import("./index.d.ts").CompatibilityProtection} */
+export function protectCompatibility(source) {
+  const diagnostics = findCompatibilityIssues(source);
+  /** @type {import("./index.d.ts").SourceEdit[]} */
+  const edits = findPrecedenceIssues(source).flatMap(({ start, end }) => [
+    { start, end: start, text: "(" },
+    { start: end, end, text: ")" },
+  ]);
+  for (const diagnostic of diagnostics) {
+    if (diagnostic.code === "EC-06") {
+      edits.push({ start: diagnostic.start, end: diagnostic.end, text: "\\-" });
+    } else if (diagnostic.kind === "labeled-continue-semicolon") {
+      edits.push({ start: diagnostic.end, end: diagnostic.end, text: ";" });
+    }
+  }
+  edits.sort((left, right) => {
+    if (left.start !== right.start) return left.start - right.start;
+    if (left.end !== right.end) return left.end - right.end;
+    return left.text === ")" ? -1 : 1;
+  });
+  let code = "";
+  let cursor = 0;
+  for (const edit of edits) {
+    code += source.slice(cursor, edit.start) + edit.text;
+    cursor = edit.end;
+  }
+  return {
+    code: code + source.slice(cursor),
+    edits,
+    diagnostics: diagnostics.filter(({ kind }) => kind === "continue-through-switch"),
+  };
+}
+
+/** @param {string} source */
+function parseScript(source) {
+  const program = parse(source, {
+    babelrc: false,
+    configFile: false,
+    sourceType: "script",
+    parserOpts: {
+      allowReturnOutsideFunction: true,
+      createParenthesizedExpressions: true,
+      errorRecovery: false,
+    },
+  });
+  if (!program) throw new Error("ExtendScript expression precedence pass received an empty AST");
+  return program;
+}
+
+/** @param {import("@babel/core").Node} node */
+function sourcePosition(node) {
+  if (node.start == null || node.end == null || !node.loc) {
+    throw new Error("ExtendScript compatibility pass found a node without source positions");
+  }
+  return {
+    start: node.start,
+    end: node.end,
+    line: node.loc.start.line,
+    column: node.loc.start.column,
+  };
 }

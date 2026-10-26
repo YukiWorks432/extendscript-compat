@@ -56,3 +56,11 @@ Trusted Publisherにはnpm CLI 11.5.1以降とNode.js 22.14.0以降が必要。�
 
 - [pnpmによる梱包内容の事前確認](https://pnpm.io/cli/pack)
 - [pnpmによる認証設定の確認](https://pnpm.io/cli/profile)
+
+## 0.2.0の公開準備
+
+0.2.0にはEC-04・05・07・08の実行時補正に加え、EC-03の診断とラベル付きcontinueのセミコロン補完、EC-06の正規表現リテラル補正、EC-10・11の明示的なUnitValue補助APIを含める。今回は版番号・文書・実装を準備するPRであり、npm公開、タグ作成、GitHubリリースは行わない。
+
+公開するコミットを固定した後、pnpm check、実機検証用の生成物のハッシュ照合、pnpm pack、空の利用側への導入を再確認する。配布物にはruntime/index.jsと型宣言、runtime/unit-value.jsと型宣言、実行時の利用文書、第三者ライセンスを含める。初期版の7ファイルという記載を0.2.0へ流用せず、梱包時の一覧を正本として確認する。
+
+公開後の確認では、通常入口・Rollup入口・runtime入口・unit-value入口のすべてを取得したパッケージから読み込む。runtimeは明示的に読み込むまで共有関数を置換せず、unit-valueの入口は読込だけではホストのクラスや関数を変更しない。
