@@ -19,7 +19,7 @@ These observations rule out rewriting every subtraction or comparison of unknown
 
 ## Final-output validation
 
-Rollup generated non-minified and Terser-minified versions from the implementation and shared test fixtures; `extendscriptCompat` was applied after each output was generated. Each version was installed independently after restoring the original four functions, and reloading the same version was also checked.
+Rollup generated non-minified and Terser-minified versions from the 0.2.0 implementation and shared test fixtures; `extendscriptCompat` was applied after each output was generated. Each version was installed independently after restoring the original four functions, and reloading the same version was also checked.
 
 | Output                  | First run                        | Reload                           |
 | ----------------------- | -------------------------------- | -------------------------------- |

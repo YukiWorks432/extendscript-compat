@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-27T11:40:21.780Z",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "templateSource": "5fdc02dc818f8263a368166c180b9e4ed93a9453",
+  "manifest": {
+    "rawSha256": "eacf073e978ec549d530fab6e2e925405b663ff79007543bb1fe20137af49a6a",
+    "minifiedSha256": "3df55488d9e902fa60c0ac1880d72f174dde10f6ceca24dbd1239da90f28939f",
+    "templateProbeSha256": "019542afea86f18ccb6c834b981593a46753cd7bd00db90e056d6b912a00aa8f",
+    "polyfillFixtureSha256": "d9b89659bfdefb68e8a5697cd940acb26b6c6f45779b40f79f08fe49c7af374e",
+    "correctionFixtureSha256": "eca8cb7390199aa4625ded0a2c5e1e76a1d467615f311a673bab815503767126"
+  },
+  "setup": "同じ共有エンジンで初回実行後、修正済み版を評価する前に統合用マーカーだけを解除した。ES5・ES6のキャッシュと先に適用した関数は残っている。",
+  "initialObservation": "既存のJSON.parseとJSON.stringifyが変換用コールバックを無視し、22項目中1件が失敗。機能検査による置換を追加した。",
+  "raw": {
+    "polyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "corrections": {
+      "passed": 71,
+      "total": 71
+    },
+    "repeatedPolyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "idempotent": true,
+    "projectPreserved": true
+  },
+  "minified": {
+    "polyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "corrections": {
+      "passed": 71,
+      "total": 71
+    },
+    "repeatedPolyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "idempotent": true,
+    "projectPreserved": true
+  },
+  "templateTests": {
+    "passed": 48,
+    "total": 48,
+    "projectPreserved": true
+  },
+  "project": {
+    "itemsBefore": 6,
+    "itemsAfter": 6,
+    "dirtyBefore": true,
+    "dirtyAfter": true
+  },
+  "limitations": "再起動後の未導入エンジンで通常版の初回適用を検証した。圧縮版は先にshimを導入した共有エンジンで統合用マーカーのみ解除して検証した。",
+  "templateBuild": {
+    "sourceCommit": "5fdc02dc818f8263a368166c180b9e4ed93a9453",
+    "packageSha256": "c0435afc0f3573143e2e09fa74307cfadc4240a7a42c95dac15feeb6b8e2c3dc",
+    "testBundleSha256": "9ea867a76724b159157b4717a44c086983f15ecab3f774d7294fa820cf88ea43",
+    "adaptations": "一時コピーでinitをruntime単一読込へ変更し、テスト結果のダイアログ表示を結果取得へ置き換えた。",
+    "typecheck": "pass",
+    "builds": ["aeft/example", "ilst/example", "phxs/example", "tests"],
+    "hostTests": {
+      "passed": 48,
+      "total": 48,
+      "projectPreserved": true
+    }
+  },
+  "freshRaw": {
+    "checkedAt": "2026-10-27T11:50:57.891Z",
+    "initialMarkers": {
+      "runtime": "undefined",
+      "polyfills": "undefined",
+      "es5Cache": "undefined",
+      "es6Cache": "undefined"
+    },
+    "polyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "corrections": {
+      "passed": 71,
+      "total": 71
+    },
+    "repeatedPolyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "idempotent": true,
+    "project": {
+      "itemsBefore": 6,
+      "itemsAfter": 6,
+      "dirtyBefore": false,
+      "dirtyAfter": false
+    },
+    "projectPreserved": true
+  }
+}

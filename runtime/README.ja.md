@@ -2,11 +2,11 @@
 
 [English](README.md) | 日本語（正本）
 
-`extendscript-compat/runtime`は、読み込んだエンジンの`parseInt`、`String.prototype.charAt`、`split`、`replace`を置き換える、副作用専用の入口です。関数が存在する場合も補正を適用します。
+`extendscript-compat/runtime`は、JSONとES5・ES6の一部を補完し、`parseInt`、`String.prototype.charAt`、`split`、`replace`の不具合を補正する副作用専用の入口です。4関数は存在する場合も置き換えます。
 
 ## 導入と読み込み順
 
-es5-shimなど既存の互換コードの後、アプリケーションや依存ライブラリの初期化前に読み込んでください。
+アプリケーションや依存ライブラリの初期化前に読み込んでください。JSON、ES5、ES6の順に補完し、その後に4関数を補正します。別の互換コードを併用する場合も、最後の互換補正として読み込んでください。
 
 ```js
 import "extendscript-compat/runtime";
@@ -15,6 +15,8 @@ import "extendscript-compat/runtime";
 Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の後に`extendscriptCompat()`を適用してください。引用した互換コード自身も優先順位保護の対象です。Node.js用の通常入口と`/rollup`は、この実行時補正を自動では読み込みません。
 
 `runtime/index.js`をそのままJSXへ含めることもできます。コードはES3構文で記述しており、Adobeでは`$.global`へ適用します。Node.jsで明示的に読み込んだ場合は`globalThis`が対象です。
+
+配布する`runtime/index.js`はASCIIだけで構成されます。ただし、利用側のバンドラや圧縮器が文字列や正規表現にUnicode文字を再出力する場合があります。最終的なJSXでも文字列と正規表現をエスケープする設定を使用し、必要に応じてASCIIのみになっていることを確認してください。`extendscriptCompat()`自体はUnicodeのエスケープを保証しません。
 
 同じエンジンを利用する別のスクリプトにも補正が及びます。適用前に別の変数へ保存された関数への参照は変わりません。同じエンジンでの再評価は内部の版付き印で省略し、関数を重ねて包みません。後から別のライブラリが対象関数を書き換えた場合、その書き換えを監視したり自動で取り消したりはしません。
 
@@ -27,9 +29,13 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 | EC-07 / split    | 正規表現で分割した末尾の空要素を保持します。キャプチャ、空一致、分割数の上限、呼び出し元のlastIndexを扱います。                                                                                                 |
 | EC-08 / replace  | 未参加キャプチャを空文字列にし、置換文字列のドル記号・一致全体・前後の文脈・1〜99番のキャプチャを展開します。コールバックにも元の入力と位置を渡します。                                                         |
 
+`String.prototype.trim`は現在のECMAScriptで定義された空白と改行を両端から取り除き、U+180EやU+200Bなどの非空白文字は保持します。対応済みの既存実装は維持し、不足または不完全な場合に置き換えます。従来の`parseInt`の基数ごとの扱いは維持します。`Number.parseInt`は補正後のグローバル`parseInt`と同じ関数です。
+
+AE 26.5ではグローバルの`Number`自体を置き換えられないため、`Number("0b101")`などの文字列変換はホストの挙動のままです。`Number.parseInt`の補正とは別の制限です。
+
 AE固有の挙動として、グローバルな正規表現が空の入力に一致しない問題をsplit内で補っています。replaceでは、文字列検索でコールバックが実行されない問題、連続置換時に途中の結果がコールバックへ渡る問題、末尾の空一致が省略される問題も補っています。
 
-この入口では、ES5メソッドの新規追加や、正規表現エンジン自体のキャプチャ消失・停止には対応しません。UnitValueの演算や厳密比較も対象外のため、以下の明示的な補助APIを使ってください。後年の正規表現フラグや名前付きキャプチャも対象にしません。JavaScriptで実装したメソッドの関数オブジェクトや、非strictモードのES3における`call(null)` / `call(undefined)`のthis変換は、純正関数と完全には同じになりません。
+移行元のテンプレートと同様に、JSON、`Array.prototype.map`、`Object.keys`、`Array.from`などを補完します。JSONの既存実装が変換用コールバックを無視する場合も補完版へ置き換えます。補完版の`JSON.parse`は検査後に`eval`を使い、末尾のカンマなど一部の不正なJSONを受け入れるため、厳密な入力検証には使えません。ES5・ES6のすべてを保証するものではなく、`Symbol`や`Promise`は対象外です。正規表現エンジン自体のキャプチャ消失・停止にも対応しません。UnitValueの演算や厳密比較も対象外のため、以下の明示的な補助APIを使ってください。後年の正規表現フラグや名前付きキャプチャも対象にしません。JavaScriptで実装したメソッドの関数オブジェクトや、非strictモードのES3における`call(null)` / `call(undefined)`のthis変換は、純正関数と完全には同じになりません。
 
 ## UnitValueの明示的な補助API
 
@@ -75,7 +81,7 @@ splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es
 
 parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
 
-参考にした[extendscript-ts-template](https://github.com/YukiWorks432/extendscript-ts-template/tree/473d32798631aba0926e0bf094557e8b84c2f5ff)には、es5-shimの共有エンジン用キャッシュと空白処理の改変があります。[Issue #1と対応コメント](https://github.com/YukiWorks432/extendscript-ts-template/issues/1)を踏まえ、今回のparseIntはUnicodeの空白をまとめた正規表現を生成せず、文字コードで判定しています。同テンプレートから実装を複製したり、テンプレート本体を変更したりはしていません。
+[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。無効だったESNext補完は含めていません。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
 
 ## 検証
 

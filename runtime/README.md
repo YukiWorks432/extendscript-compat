@@ -2,11 +2,11 @@
 
 [日本語（正本）](README.ja.md) | English
 
-`extendscript-compat/runtime` is a side-effect-only entry point that replaces `parseInt`, `String.prototype.charAt`, `split`, and `replace` in the engine where it is loaded. The corrections apply even if the functions already exist.
+`extendscript-compat/runtime` is a side-effect-only entry point that adds JSON and selected ES5 and ES6 polyfills and corrects `parseInt`, `String.prototype.charAt`, `split`, and `replace`. The four functions are replaced even when they already exist.
 
 ## Installation and load order
 
-Load it after existing compatibility code such as es5-shim and before initializing the application or its dependencies:
+Load it before initializing the application or its dependencies. It applies JSON, ES5, and ES6 polyfills in that order, followed by the four corrections. When using other compatibility code, load this entry after it:
 
 ```js
 import "extendscript-compat/runtime";
@@ -15,6 +15,8 @@ import "extendscript-compat/runtime";
 Bundle it into ordinary host JavaScript with Rollup, and apply `extendscriptCompat()` after minification and include expansion. Imported compatibility code also needs precedence protection. The normal Node.js and `/rollup` entry points do not automatically load these runtime corrections.
 
 You can also include `runtime/index.js` directly in JSX. It uses ES3 syntax and applies the corrections to `$.global` in Adobe hosts. An explicit import in Node.js targets `globalThis`.
+
+The distributed `runtime/index.js` contains only ASCII. A consumer's bundler or minifier may reintroduce Unicode characters in string or regular-expression literals. Configure the final JSX output to escape those literals and, when appropriate, verify that it contains only ASCII. `extendscriptCompat()` itself does not guarantee Unicode escaping.
 
 The corrections also affect other scripts sharing the engine. References saved to another variable before installation remain unchanged. A versioned internal marker prevents repeated evaluation from wrapping the functions again. If another library subsequently replaces one of the functions, this package does not monitor or automatically undo that change.
 
@@ -27,9 +29,13 @@ The corrections also affect other scripts sharing the engine. References saved t
 | EC-07 / `split`    | Preserves trailing empty elements when splitting with a regular expression. Handles captures, empty matches, the limit, and the caller's `lastIndex`.                                                                                                             |
 | EC-08 / `replace`  | Converts nonparticipating captures to empty strings, and expands replacement-string dollar tokens for the match, surrounding context, and captures 1–99. Callbacks receive the original input and position.                                                       |
 
+`String.prototype.trim` removes the whitespace and line terminators defined by current ECMAScript from both ends and preserves non-whitespace characters such as U+180E and U+200B. Existing conforming implementations are retained; missing or incomplete ones are replaced. The existing radix-dependent behavior of `parseInt` is retained. `Number.parseInt` is the same function as the corrected global `parseInt`.
+
+In AE 26.5, the global `Number` constructor itself cannot be replaced, so string conversions such as `Number("0b101")` retain host behavior. This is a separate limitation from the `Number.parseInt` correction.
+
 For additional AE differences, `split` handles the failure of a global regular expression to match empty input. `replace` also handles missing callback calls for string searches, intermediate rather than original input passed to callbacks during consecutive replacements, and omitted empty matches at the end.
 
-The side-effect entry point does not add ES5 methods, repair capture loss or hangs inside the regular-expression engine, or correct `UnitValue` arithmetic and strict comparisons. Use the explicit `UnitValue` helpers below for the latter. Later regular-expression flags and named captures are also outside its scope. Function objects implemented in JavaScript and `this` conversion for `call(null)` / `call(undefined)` in non-strict ES3 do not exactly match native functions.
+Like the source template, the runtime supplies JSON, `Array.prototype.map`, `Object.keys`, `Array.from`, and other selected methods. Existing JSON functions that ignore reviver or replacer callbacks are replaced. The fallback `JSON.parse` validates input and then uses `eval`, and accepts some invalid JSON such as trailing commas; do not rely on it for strict input validation. It does not guarantee complete ES5 or ES6 support; `Symbol` and `Promise` are outside its scope. It does not repair capture loss or hangs inside the regular-expression engine or correct `UnitValue` arithmetic and strict comparisons. Use the explicit `UnitValue` helpers below for the latter. Later regular-expression flags and named captures are also outside its scope. Function objects implemented in JavaScript and `this` conversion for `call(null)` / `call(undefined)` in non-strict ES3 do not exactly match native functions.
 
 ## Explicit UnitValue helper APIs
 
@@ -75,7 +81,7 @@ Changes from the original cover ES3 flags, forced replacement, shared-engine re-
 
 `parseInt`, `charAt`, and `replace` are implemented for ExtendScript-specific bugs observed in this investigation. es5-shim's `parseInt` delegates to the original function and does not fix EC-04; its existing `replace` correction does not cover the replacement-string issue addressed here, so those implementations were not adopted unchanged.
 
-The reference [extendscript-ts-template](https://github.com/YukiWorks432/extendscript-ts-template/tree/473d32798631aba0926e0bf094557e8b84c2f5ff) modifies es5-shim's shared-engine cache and whitespace handling. In light of [Issue #1 and its comments](https://github.com/YukiWorks432/extendscript-ts-template/issues/1), this `parseInt` checks whitespace by character code instead of generating a regular expression containing Unicode whitespace. No implementation was copied from that template and the template itself was not modified.
+The JSON, ES5, and ES6 polyfills are adapted from a [fixed extendscript-ts-template commit](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453). They retain its shared-engine cache, with corrections to ES5 whitespace checks, ES6 global lookup, and trim whitespace handling. The trim correction tests UTF-16 code units without relying on regular expressions. The template's disabled ESNext polyfill is not included. Copyright notices and license texts are in [third-party licenses](../THIRD-PARTY-LICENSES.txt). `runtime/index.js` is generated ES3 code. In a repository checkout, run `node scripts/build-runtime.mjs` to regenerate it from the internal sources.
 
 ## Validation
 

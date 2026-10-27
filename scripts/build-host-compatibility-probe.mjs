@@ -57,7 +57,7 @@ for (const minified of [false, true]) {
         name: "probe-input",
         resolveId(id) {
           if (id === "compatibility-probe") return id;
-          if (id === "extendscript-compat/runtime") return resolve(root, "runtime/index.js");
+          if (id === "extendscript-compat/runtime") return resolve(root, "runtime-src/fixes.js");
           if (id === "extendscript-compat/unit-value")
             return resolve(root, "runtime/unit-value.js");
         },
