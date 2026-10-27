@@ -31,7 +31,16 @@ The corrections also affect other scripts sharing the engine. References saved t
 
 `String.prototype.trim` removes the whitespace and line terminators defined by current ECMAScript from both ends and preserves non-whitespace characters such as U+180E and U+200B. Existing conforming implementations are retained; missing or incomplete ones are replaced. The existing radix-dependent behavior of `parseInt` is retained. `Number.parseInt` is the same function as the corrected global `parseInt`.
 
-In AE 26.5, the global `Number` constructor itself cannot be replaced, so string conversions such as `Number("0b101")` retain host behavior. This is a separate limitation from the `Number.parseInt` correction.
+In AE 26.5, the global `Number` constructor itself cannot be replaced, so string conversions such as `Number("0b101")` retain host behavior. This is a separate limitation from the `Number.parseInt` correction. For corrected number conversion, use the side-effect-free `extendscript-compat/number` entry point.
+
+```js
+import { toNumber } from "extendscript-compat/number";
+
+toNumber("0b101"); // 5
+toNumber(String.fromCharCode(0x200b) + "0"); // NaN
+```
+
+`toNumber` handles an absent argument, empty strings, surrounding whitespace, binary and octal strings, and object-to-number conversion. It does not modify the global `Number` or correct `Number()`, `new Number()`, `$.global.Number`, or other scripts. It returns a value and does not replace the constructor, its static properties, or `instanceof`. Check conversions of host-specific objects and behavior in other Adobe products in each target environment.
 
 For additional AE differences, `split` handles the failure of a global regular expression to match empty input. `replace` also handles missing callback calls for string searches, intermediate rather than original input passed to callbacks during consecutive replacements, and omitted empty matches at the end.
 

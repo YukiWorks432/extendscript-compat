@@ -37,6 +37,10 @@
       "types": "./runtime/index.d.ts",
       "default": "./runtime/index.js"
     },
+    "./number": {
+      "types": "./runtime/number.d.ts",
+      "default": "./runtime/number.js"
+    },
     "./unit-value": {
       "types": "./runtime/unit-value.d.ts",
       "default": "./runtime/unit-value.js"
