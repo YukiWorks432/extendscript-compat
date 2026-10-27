@@ -236,3 +236,75 @@ it.each([true, "inline", "hidden"] as const)(
     }
   },
 );
+
+it.each([true, "inline", "hidden"] as const)(
+  "Unicodeの置換と既存補正の後もソースマップ %s の後続位置を保つ",
+  async (sourcemap) => {
+    const input = `export var text="${String.fromCharCode(0x200c)}😀"; export var mark=label || flag && next;`;
+    const result = await build(input, [extendscriptCompat()], { sourcemap });
+    const chunk = result.output[0] as OutputChunk;
+    expect(runInNewContext(chunk.code + ";compiled.text", { label: 0, flag: 0, next: 0 })).toBe(
+      String.fromCharCode(0x200c) + "😀",
+    );
+    for (const token of ["label", "flag", "next"]) {
+      const offset = chunk.code.indexOf(token);
+      const prefix = chunk.code.slice(0, offset).split("\n");
+      const position = originalPositionFor(new TraceMap(chunk.map!.toString()), {
+        line: prefix.length,
+        column: prefix.at(-1)!.length,
+      });
+      expect(position.line).toBe(1);
+      expect(position.column).toBe(input.indexOf(token));
+    }
+    if (sourcemap === "inline") {
+      const encoded = chunk.code.match(/sourceMappingURL=data:[^,]+,([^\r\n]+)/)![1];
+      expect(Buffer.from(encoded, "base64").toString()).toBe(chunk.map!.toString());
+    } else {
+      const map = result.output.find(
+        (item) => item.type === "asset" && item.fileName.endsWith(".map"),
+      );
+      expect(map?.type === "asset" && map.source).toBe(chunk.map!.toString());
+    }
+  },
+);
+
+it("圧縮後と先行includeの文字もUnicode補正し、無変換の識別子は停止する", async () => {
+  const value = String.fromCharCode(0x200c, 0x200d, 0xfeff);
+  const result = await build(`export var text="${value}😀";`, [
+    terser({ format: { ascii_only: false } }),
+    extendscriptCompat(),
+  ]);
+  const chunk = result.output[0] as OutputChunk;
+  expect(runInNewContext(chunk.code + ";compiled.text")).toBe(value + "😀");
+  expect(chunk.code).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);
+  await expect(
+    build("export var text=1;", [
+      {
+        name: "include",
+        generateBundle(_options, bundle) {
+          for (const chunk of Object.values(bundle))
+            if (chunk.type === "chunk") chunk.code += `\nvar x${value[0]}y=1;`;
+        },
+      },
+      extendscriptCompat(),
+    ]),
+  ).rejects.toThrow(/identifier/);
+});
+
+it("先行includeが追加した文字列にもUnicode補正を適用する", async () => {
+  const affected = String.fromCharCode(0x200c, 0x200d, 0xfeff);
+  const result = await build("export var x=1;", [
+    {
+      name: "include-unicode",
+      generateBundle(_options, bundle) {
+        for (const chunk of Object.values(bundle)) {
+          if (chunk.type === "chunk") chunk.code += `\nvar included="${affected}";`;
+        }
+      },
+    },
+    extendscriptCompat(),
+  ]);
+  const chunk = result.output[0] as OutputChunk;
+  expect(runInNewContext(chunk.code + ";included")).toBe(affected);
+  expect(chunk.code).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);
+});

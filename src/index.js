@@ -71,13 +71,14 @@ export function findCompatibilityIssues(source) {
 
 /** @param {string} source @returns {import("./index.d.ts").CompatibilityProtection} */
 export function protectCompatibility(source) {
-  const { diagnostics, continueEdits } = analyzeCompatibility(source);
+  const { diagnostics, continueEdits, program } = analyzeCompatibility(source);
   /** @type {import("./index.d.ts").SourceEdit[]} */
   const edits = findPrecedenceIssues(source).flatMap(({ start, end }) => [
     { start, end: start, text: "(" },
     { start: end, end, text: ")" },
   ]);
   edits.push(...continueEdits);
+  edits.push(...findUnicodeEdits(source, program));
   for (const diagnostic of diagnostics) {
     if (diagnostic.code === "EC-06") {
       edits.push({ start: diagnostic.start, end: diagnostic.end, text: "\\-" });
@@ -101,6 +102,78 @@ export function protectCompatibility(source) {
     edits,
     diagnostics: diagnostics.filter(({ kind }) => kind === "continue-through-switch"),
   };
+}
+
+/**
+ * @param {string} source
+ * @returns {import("./index.d.ts").UnicodeProtection}
+ */
+export function protectUnicode(source) {
+  const edits = findUnicodeEdits(source);
+  let cursor = 0;
+  let code = "";
+  for (const edit of edits) {
+    code += source.slice(cursor, edit.start) + edit.text;
+    cursor = edit.end;
+  }
+  return { code: code + source.slice(cursor), edits };
+}
+
+/** @param {string} source @param {ReturnType<typeof parseScript>} [program] @returns {import("./index.d.ts").SourceEdit[]} */
+function findUnicodeEdits(source, program = parseScript(source)) {
+  /** @type {import("./index.d.ts").SourceEdit[]} */
+  const edits = [];
+  const covered = new Set();
+  /** @param {import("@babel/core").Node} node */
+  const escapeLiteral = (node) => {
+    const { start, end } = sourcePosition(node);
+    for (let index = start; index < end; index++) {
+      const code = source.charCodeAt(index);
+      if (code !== 0x200c && code !== 0x200d && code !== 0xfeff) continue;
+      covered.add(index);
+      let slash = index;
+      while (slash > start && source[slash - 1] === "\\") slash--;
+      // 直前が奇数個のバックスラッシュなら、最後の1個は元の文字のエスケープ。
+      const editStart = (index - slash) % 2 ? index - 1 : index;
+      edits.push({
+        start: editStart,
+        end: index + 1,
+        text: "\\u" + code.toString(16).padStart(4, "0"),
+      });
+    }
+  };
+  traverse(program, {
+    StringLiteral({ node }) {
+      escapeLiteral(node);
+    },
+    DirectiveLiteral({ node }) {
+      escapeLiteral(node);
+    },
+    RegExpLiteral({ node }) {
+      escapeLiteral(node);
+    },
+    Identifier({ node }) {
+      if (/(?:\u200c|\u200d|\ufeff)/.test(node.name)) {
+        const { line, column } = sourcePosition(node);
+        throw new SyntaxError(
+          "Unsupported Unicode character in identifier at " + line + ":" + column,
+        );
+      }
+    },
+  });
+  for (let index = 0; index < source.length; index++) {
+    const code = source.charCodeAt(index);
+    if ((code === 0x200c || code === 0x200d || code === 0xfeff) && !covered.has(index)) {
+      const before = source.slice(0, index).split(/\r\n|[\r\n\u2028\u2029]/);
+      throw new SyntaxError(
+        "Unsupported Unicode character outside a string or regular expression at " +
+          before.length +
+          ":" +
+          before[before.length - 1].length,
+      );
+    }
+  }
+  return edits.toSorted((a, b) => a.start - b.start);
 }
 
 /** @param {string} source */
@@ -210,6 +283,7 @@ function analyzeCompatibility(source) {
   return {
     diagnostics: diagnostics.toSorted((left, right) => left.start - right.start),
     continueEdits,
+    program,
   };
 }
 

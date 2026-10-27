@@ -68,9 +68,21 @@ export interface CompatibilityProtection {
 }
 
 export function findCompatibilityIssues(source: string): CompatibilityDiagnostic[];
+export interface UnicodeProtection {
+  code: string;
+  edits: SourceEdit[];
+}
+
 /**
- * Correct precedence, EC-06, continue labels and semicolons, and return EC-03 notifications.
+ * Escape U+200C, U+200D and U+FEFF in strings and regular expressions; reject unsafe contexts.
  *
- * 優先順位、EC-06、continueのラベルとセミコロンを補正し、EC-03の通知を返す。
+ * 文字列と正規表現のU+200C・U+200D・U+FEFFをエスケープし、安全に変換できない箇所は拒否する。
+ */
+export function protectUnicode(source: string): UnicodeProtection;
+
+/**
+ * Correct precedence, EC-06, continue labels, semicolons, and affected Unicode; return EC-03 notifications.
+ *
+ * 優先順位、EC-06、continueのラベル・セミコロンとUnicodeを補正し、EC-03の通知を返す。
  */
 export function protectCompatibility(source: string): CompatibilityProtection;

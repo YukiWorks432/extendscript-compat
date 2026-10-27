@@ -16,7 +16,7 @@ Bundle it into ordinary host JavaScript with Rollup, and apply `extendscriptComp
 
 You can also include `runtime/index.js` directly in JSX. It uses ES3 syntax and applies the corrections to `$.global` in Adobe hosts. An explicit import in Node.js targets `globalThis`.
 
-The distributed `runtime/index.js` contains only ASCII. A consumer's bundler or minifier may reintroduce Unicode characters in string or regular-expression literals. Configure the final JSX output to escape those literals and, when appropriate, verify that it contains only ASCII. `extendscriptCompat()` itself does not guarantee Unicode escaping.
+The distributed `runtime/index.js` contains only ASCII. A consumer's bundler or minifier may reintroduce Unicode characters, but a final `extendscriptCompat()` pass corrects U+200C, U+200D, and U+FEFF in strings and regular expressions. It does not guarantee ASCII-only output; verify that separately when needed. See [Unicode protection](../docs/build-compatibility.md#unicode-protection) for its scope and limitations.
 
 The corrections also affect other scripts sharing the engine. References saved to another variable before installation remain unchanged. A versioned internal marker prevents repeated evaluation from wrapping the functions again. If another library subsequently replaces one of the functions, this package does not monitor or automatically undo that change.
 
