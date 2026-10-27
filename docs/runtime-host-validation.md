@@ -17,7 +17,7 @@ The check also verified the identity of the four functions across reapplication,
 - Probe SHA-256: `14168611b037421252c9fce4ce9b5da4f1b03f067fda87651e0c59a20524b21e`
 - [Execution result](evidence/runtime-ae-26.5.json)
 
-The following command regenerates the same output and probe. Compare the generated hashes with the records above.
+The following command generates a probe for the four corrections from 0.2.0. It does not include the JSON, ES5, or ES6 polyfills.
 
 ```sh
 node scripts/build-host-runtime-probe.mjs
@@ -26,3 +26,13 @@ node scripts/build-host-runtime-probe.mjs
 File execution is governed by the MCP configuration. The file input for this run was rejected due to the worktree path restriction, so the file contents were read and the same code was executed inline. Since MCP trims surrounding whitespace from strings, the generator also removes the final newline to match the hash of the executed code. The permission configuration was not changed.
 
 This validates actual output generated from the implementation and shared test fixture; it is separate from Node mock-environment results. Other Adobe products and older versions were not tested on a host, and no existing template was modified. Regular-expression engine hangs and capture loss, and `UnitValue`, were outside this validation.
+
+## JSON, ES5, and ES6 polyfill validation
+
+On 2026-10-27, the integrated runtime was checked in After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.1060872). Both the unminified and minified outputs passed 22 polyfill checks and 71 checks for the existing four corrections. Repeated loading passed the 22 polyfill checks and preserved function identities. All 48 tests from the source template passed. In a temporary template copy, `init` was changed to the single `/runtime` import; type checking and all four script builds succeeded. The actual test build, with only the result display replaced for automation, also passed all 48 checks on the host.
+
+The first run found that an existing `JSON.parse` ignored its reviver, failing one of 22 checks; `JSON.stringify` also ignored its replacer. A feature check was added to replace these incomplete JSON functions.
+
+The corrected unminified and minified outputs were checked in the same shared engine after the first polyfill installation. The integration marker was cleared, but ES5/ES6 caches and installed functions remained. These are not fresh-engine first-install results for the corrected version. The project item count and dirty state did not change.
+
+The [validation record](evidence/polyfills-ae-26.5.json) contains the results and generated hashes. Run `node scripts/build-host-polyfill-probe.mjs` to regenerate the minified output and template test.

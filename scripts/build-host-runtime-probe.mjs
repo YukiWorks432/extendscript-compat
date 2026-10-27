@@ -6,7 +6,7 @@ import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { extendscriptCompat } from "../src/rollup.js";
 
-const runtimePath = fileURLToPath(new URL("../runtime/index.js", import.meta.url));
+const runtimePath = fileURLToPath(new URL("../runtime-src/fixes.js", import.meta.url));
 const bundle = await rollup({
   input: runtimePath,
   plugins: [terser({ format: { ascii_only: true, comments: /^!/ } }), extendscriptCompat()],

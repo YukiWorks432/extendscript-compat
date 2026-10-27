@@ -185,6 +185,9 @@ importers:
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
+      acorn:
+        specifier: ^8.19.0
+        version: 8.19.0
       oxfmt:
         specifier: ^0.74.0
         version: 0.74.0
@@ -194,6 +197,9 @@ importers:
       rollup:
         specifier: ^4.65.0
         version: 4.65.0
+      terser:
+        specifier: ^5.51.2
+        version: 5.51.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

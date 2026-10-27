@@ -2,10 +2,10 @@
 
 [日本語（正本）](README.ja.md) | English
 
-A library for known Adobe ExtendScript bugs, with build-time corrections and explicit runtime APIs.
+A library providing build-time bug corrections and runtime compatibility for Adobe ExtendScript.
 
 - Corrects expression precedence, `continue` across `switch` statements, and regular-expression hyphens at build time.
-- Corrects `parseInt` and three string methods when the runtime is explicitly imported.
+- Provides JSON, selected ES5 and ES6 polyfills, and corrections for `parseInt` and three string methods when explicitly imported.
 - Provides explicit helpers for `UnitValue` subtraction and `null` comparison.
 
 ## Installation
@@ -38,13 +38,13 @@ A later generator or minifier that removes parentheses can undo the precedence p
 
 ## Runtime corrections
 
-When needed, import the runtime after existing compatibility code and before initializing the application or its dependencies:
+Import the runtime before initializing the application or its dependencies. It applies JSON, ES5, and ES6 polyfills followed by the four function corrections:
 
 ```js
 import "extendscript-compat/runtime";
 ```
 
-This entry replaces existing built-in functions and also affects other scripts in the same engine. `UnitValue` arithmetic and comparisons are not corrected automatically; use `subtractUnitValues` and `isNull` at the affected sites. See [runtime compatibility](runtime/README.md) for load order and limitations.
+This entry adds and replaces built-in functions and also affects other scripts in the same engine. `UnitValue` arithmetic and comparisons are not corrected automatically; use `subtractUnitValues` and `isNull` at the affected sites. See [runtime compatibility](runtime/README.md) for load order and limitations.
 
 ## Scope and documentation
 

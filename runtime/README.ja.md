@@ -2,11 +2,11 @@
 
 [English](README.md) | 日本語（正本）
 
-`extendscript-compat/runtime`は、読み込んだエンジンの`parseInt`、`String.prototype.charAt`、`split`、`replace`を置き換える、副作用専用の入口です。関数が存在する場合も補正を適用します。
+`extendscript-compat/runtime`は、JSONとES5・ES6の一部を補完し、`parseInt`、`String.prototype.charAt`、`split`、`replace`の不具合を補正する副作用専用の入口です。4関数は存在する場合も置き換えます。
 
 ## 導入と読み込み順
 
-es5-shimなど既存の互換コードの後、アプリケーションや依存ライブラリの初期化前に読み込んでください。
+アプリケーションや依存ライブラリの初期化前に読み込んでください。JSON、ES5、ES6の順に補完し、その後に4関数を補正します。別の互換コードを併用する場合も、最後の互換補正として読み込んでください。
 
 ```js
 import "extendscript-compat/runtime";
@@ -29,7 +29,7 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 
 AE固有の挙動として、グローバルな正規表現が空の入力に一致しない問題をsplit内で補っています。replaceでは、文字列検索でコールバックが実行されない問題、連続置換時に途中の結果がコールバックへ渡る問題、末尾の空一致が省略される問題も補っています。
 
-この入口では、ES5メソッドの新規追加や、正規表現エンジン自体のキャプチャ消失・停止には対応しません。UnitValueの演算や厳密比較も対象外のため、以下の明示的な補助APIを使ってください。後年の正規表現フラグや名前付きキャプチャも対象にしません。JavaScriptで実装したメソッドの関数オブジェクトや、非strictモードのES3における`call(null)` / `call(undefined)`のthis変換は、純正関数と完全には同じになりません。
+移行元のテンプレートと同様に、JSON、`Array.prototype.map`、`Object.keys`、`Array.from`などを補完します。JSONの既存実装が変換用コールバックを無視する場合も補完版へ置き換えます。補完版の`JSON.parse`は検査後に`eval`を使い、末尾のカンマなど一部の不正なJSONを受け入れるため、厳密な入力検証には使えません。ES5・ES6のすべてを保証するものではなく、`Symbol`や`Promise`は対象外です。正規表現エンジン自体のキャプチャ消失・停止にも対応しません。UnitValueの演算や厳密比較も対象外のため、以下の明示的な補助APIを使ってください。後年の正規表現フラグや名前付きキャプチャも対象にしません。JavaScriptで実装したメソッドの関数オブジェクトや、非strictモードのES3における`call(null)` / `call(undefined)`のthis変換は、純正関数と完全には同じになりません。
 
 ## UnitValueの明示的な補助API
 
@@ -75,7 +75,7 @@ splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es
 
 parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
 
-参考にした[extendscript-ts-template](https://github.com/YukiWorks432/extendscript-ts-template/tree/473d32798631aba0926e0bf094557e8b84c2f5ff)には、es5-shimの共有エンジン用キャッシュと空白処理の改変があります。[Issue #1と対応コメント](https://github.com/YukiWorks432/extendscript-ts-template/issues/1)を踏まえ、今回のparseIntはUnicodeの空白をまとめた正規表現を生成せず、文字コードで判定しています。同テンプレートから実装を複製したり、テンプレート本体を変更したりはしていません。
+[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止と空白処理の改変を引き継ぎ、ES5の未定義だった空白判定値とES6のグローバル取得を補正しました。無効だったESNext補完は含めていません。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
 
 ## 検証
 

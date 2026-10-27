@@ -47,8 +47,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "check": "pnpm fmt:check && pnpm lint && pnpm typecheck && pnpm test",
-    "test": "vitest run",
+    "check": "node scripts/build-runtime.mjs --check && pnpm fmt:check && pnpm lint && pnpm typecheck && pnpm test",
+    "test": "vitest run --exclude \"tmp/**\"",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --max-warnings 0 .",
     "fmt": "oxfmt --write .",
@@ -63,9 +63,11 @@
     "@rollup/plugin-terser": "^1.0.0",
     "@types/babel__core": "7.20.5",
     "@types/node": "^24.19.2",
+    "acorn": "^8.19.0",
     "oxfmt": "^0.74.0",
     "oxlint": "^1.89.0",
     "rollup": "^4.65.0",
+    "terser": "^5.51.2",
     "typescript": "^5.9.3",
     "vitest": "5.0.5"
   },
