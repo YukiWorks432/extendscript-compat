@@ -10,6 +10,6 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["src", "test"],
+  "include": ["src", "test", "oxfmt.config.ts", "oxlint.config.ts"],
   "exclude": ["test/fixtures"]
 }
