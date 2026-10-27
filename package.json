@@ -15,6 +15,7 @@
   "files": [
     "src",
     "README.md",
+    "README.ja.md",
     "LICENSE",
     "runtime",
     "THIRD-PARTY-LICENSES.txt"

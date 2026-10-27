@@ -1,18 +1,30 @@
 # extendscript-compat
 
-Adobe ExtendScriptの既知の不具合を、ビルド時の補正・診断と明示的な実行時APIで扱うライブラリです。式の優先順位、正規表現のハイフン、switchをまたぐcontinue、組み込み文字列処理とUnitValueを対象にします。
+[日本語（正本）](README.ja.md) | English
 
-## インストール
+A library for known Adobe ExtendScript bugs, providing build-time corrections and diagnostics alongside explicit runtime APIs. It covers expression precedence, hyphens in regular expressions, `continue` across `switch` statements, built-in string operations, and `UnitValue`.
 
-ビルド用の開発依存として追加します。0.2.0は公開準備中です。公開前の検証には、この版のコミットから作成したtarballを使ってください。
+## Documentation languages
+
+Japanese is the authoritative version of the documentation; English is displayed first on GitHub and npm. If the two differ, the Japanese version takes precedence. When changing documentation, update the Japanese source and the corresponding English version in the same change. Each document links to its counterpart at the top.
+
+The repository also provides the [additional compatibility host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.md), [runtime host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md), and [npm publication procedure](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/npm-publication.md), each with a Japanese source. Both root and runtime READMEs are included in the npm package in both languages.
+
+## Installation
+
+This README describes the upcoming 0.2.0 release. Version 0.1.0 is available on npm, but provides only expression-precedence protection and Rollup integration. It does not include the runtime corrections or the EC-03, EC-06, EC-10, and EC-11 APIs described below.
+
+To try 0.2.0 before publication, run `pnpm pack --pack-destination artifacts` from the target repository commit and add the resulting tarball as a development dependency in the consuming project:
 
 ```sh
-pnpm add -D extendscript-compat@0.2.0
+pnpm add -D ./path/to/extendscript-compat-0.2.0.tgz
 ```
 
-## 使用例
+Replace the path with the tarball's location relative to the consuming project. To install the published 0.1.0 release, use `pnpm add -D extendscript-compat@0.1.0`.
 
-Node.js 22以降で動作します。Babelを解析に使いますが、コード全体を再生成せず、元の文字列へ括弧だけを挿入します。
+## Usage
+
+Node.js 22 or later is required. The library uses Babel for parsing. `protectPrecedence` inserts parentheses into the original source rather than regenerating the entire file.
 
 ```js
 import { protectPrecedence, assertPrecedenceProtected } from "extendscript-compat";
@@ -22,13 +34,13 @@ const result = protectPrecedence("var value = a || b && c; var other = a ? b : c
 assertPrecedenceProtected(result.code);
 ```
 
-protectPrecedenceは補正後のcodeと、元の文字列に対する括弧1文字ごとの挿入位置insertionsを返します。同じコードへ繰り返し適用しても、括弧を追加し続けません。
+`protectPrecedence` returns the corrected `code` and `insertions`, the positions of the individual inserted parentheses in the original input. Reapplying it to the same code does not keep adding parentheses.
 
-findPrecedenceIssuesは、未保護箇所の種類・文字位置・行・列を返します。行は1始まり、列と文字位置は0始まりです。公開する診断情報にはBabelのAST型を含めません。
+`findPrecedenceIssues` returns the kind, character positions, line and column for unprotected expressions. Lines are one-based; columns and character positions are zero-based. The public diagnostic data does not expose Babel AST types.
 
-## Rollupへの組み込み
+## Rollup integration
 
-Rollup 4のホスト用ビルドに追加します。圧縮、include展開、互換コードの追加が完了した後、JSXBinへ変換する前に配置してください。後続の生成器や圧縮器が括弧を除去すると、保護は失われます。
+Add the plugin to a Rollup 4 host build after minification, include expansion, and the addition of compatibility code, but before conversion to JSXBin. A later generator or minifier that removes parentheses can undo the protection.
 
 ```js
 import { extendscriptCompat } from "extendscript-compat/rollup";
@@ -37,95 +49,95 @@ export default {
   input: "src/index.js",
   output: { file: "dist/script.jsx", format: "iife", sourcemap: true },
   plugins: [
-    // Babel、Terser、include展開など
+    // Babel, Terser, include expansion, etc.
     extendscriptCompat(),
-    // 必要ならJSXBin化
+    // JSXBin conversion if needed
   ],
 };
 ```
 
-各出力チャンクへ補正と検査を行い、既存の有効なソースマップを括弧・セミコロンの挿入と正規表現の置換に合わせて更新します。外部ファイル、inline、hiddenの形式に対応します。先行プラグインがコードを変更したのにソースマップを更新していない場合、その情報の復元はできません。CEP固有のinclude処理への対応は利用側の組み込み処理で行ってください。
+The plugin corrects and checks each output chunk and updates an existing valid source map for inserted parentheses and semicolons and replaced regular-expression text. External, inline, and hidden source maps are supported. It cannot recover mapping information lost when an earlier plugin changed code without updating the map. Handle CEP-specific include expansion in the consuming build.
 
-## 対応範囲
+## Scope
 
-protectPrecedenceは従来どおり括弧だけを挿入します。protectCompatibilityとRollup用のextendscriptCompatは、下記のEC-03・EC-06も扱います。
+`protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03 and EC-06 below.
 
-入力は通常のJavaScriptとして生成されたコードです。TypeScriptの変換やES3構文への変換は、Babelなど既存のビルド処理へ委ねます。ExtendScript固有のE4Xや未展開のプリプロセッサー指示を含む生のJSXファイルは対象にしません。構文解析に失敗した場合は例外を返し、無変換のまま成功扱いにはしません。
+The input must be code already generated as ordinary JavaScript. Leave TypeScript and ES3 syntax conversion to an existing build step such as Babel. Raw JSX containing ExtendScript-specific E4X or unexpanded preprocessor directives is not supported. A parse failure throws rather than silently returning unmodified code.
 
-混在する&&と||の境界、および三項演算子の条件部・真側・偽側に直接入れ子になった三項演算子を括弧で保護します。値、短絡評価、this、arguments、evalから見える束縛を保ち、関数や一時変数を追加しません。JSON実装、文字コード、Adobe製品APIなどの検査は利用側で行ってください。
+The protection adds parentheses at boundaries between mixed `&&` and `||` operators and around ternary expressions directly nested in the condition, true branch, or false branch of another ternary. It preserves values, short-circuiting, and bindings visible to `this`, `arguments`, and `eval` without introducing functions or temporary variables. Check JSON implementations, character encoding, Adobe product APIs, and similar requirements in the consuming project.
 
-After Effects 26.5x89 / ExtendScript 4.5.6で言語回帰22件と利用側の製品回帰96件を確認しています。IllustratorやPhotoshopなど、ほかの製品での実機確認は行っていません。
+The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.5.6 with 22 language regressions and 96 consuming-product regressions. It has not been tested in other Adobe products such as Illustrator or Photoshop.
 
-## 関連する実装
+## Related implementations
 
-同じ不具合への対処は既存のツールにもあります。2026年10月26日時点で、次の実装を確認しました。
+Other tools address some of the same bugs. The following were checked on 2026-10-26:
 
-- [babel-preset-extendscript](https://github.com/fusepilot/babel-preset-extendscript): Babelのプリセットとして、入れ子の三項演算子を括弧で囲みます。多くの構文変換や互換機能も含みます。
-- [UglifyJS](https://github.com/mishoo/UglifyJS#output-options): `output.extendscript: true` で入れ子の三項演算子を保護します。npmの3.19.3で、`a || b && c` への括弧追加は行われないことを確認しました。
-- [extendscript-minimizer](https://github.com/gmeeker/extendscript-minimizer/blob/master/transforms/transform.precedence.js): Closure Compilerとjscodeshiftを使うツールで、両方の不具合を明示的な括弧で保護します。今回の調査時点ではnpmの同名パッケージを取得できませんでした。
+- [babel-preset-extendscript](https://github.com/fusepilot/babel-preset-extendscript) parenthesizes nested ternaries as a Babel preset and includes many other transformations and compatibility features.
+- [UglifyJS](https://github.com/mishoo/UglifyJS#output-options) protects nested ternaries with `output.extendscript: true`. Version 3.19.3 on npm did not add parentheses to `a || b && c` in the check.
+- [extendscript-minimizer](https://github.com/gmeeker/extendscript-minimizer/blob/master/transforms/transform.precedence.js) uses Closure Compiler and jscodeshift to protect both bugs with explicit parentheses. The npm package of the same name could not be obtained during the investigation.
 
-extendscript-compatは生成済みコードへの括弧挿入、診断・検査API、Rollupでのソースマップ更新をまとめて提供します。既存の変換処理や圧縮器と組み合わせ、生成処理の最後に組み込む用途を想定しています。
+extendscript-compat combines insertion into generated code, diagnostic and assertion APIs, and Rollup source-map updates. It is intended to run near the end of a build alongside existing transformations and minifiers.
 
-## 組み込み関数の実行時補正
+## Runtime corrections for built-in functions
 
-必要なホスト用バンドルで、既存のes5-shimなどの後、利用するコードの前に読み込みます。
+In host bundles that need the corrections, import the runtime after existing compatibility code such as es5-shim and before the application code:
 
 ```js
 import "extendscript-compat/runtime";
 ```
 
-EC-04・05・07・08に対応し、parseInt、String.prototype.charAt・split・replaceを既存の関数がある場合も置き換えます。同じエンジンのほかのスクリプトにも影響します。共有エンジンでの再評価を防ぎ、通常のNode.js用入口とRollup用入口は変更しません。型変換・分割数・置換文字列・コールバックを含む利用範囲と制限は[実行時補正の説明](runtime/README.md)を参照してください。
+For EC-04, EC-05, EC-07, and EC-08, this replaces `parseInt` and `String.prototype.charAt`, `split`, and `replace` even when those functions already exist. Other scripts in the same engine are also affected. Re-evaluation in a shared engine is prevented; the normal Node.js and Rollup entry points do not load the runtime automatically. See the [runtime guide](runtime/README.md) for behavior and limitations, including coercion, split limits, replacement strings, and callbacks.
 
-splitにはes5-shim v4.6.7の実装を取り込み、ExtendScript向けの補正を加えています。[第三者ライセンス](THIRD-PARTY-LICENSES.txt)を同梱します。
+The `split` implementation is adapted from es5-shim v4.6.7 with ExtendScript-specific corrections. The package includes the [third-party license](THIRD-PARTY-LICENSES.txt).
 
-## EC-03・EC-06のビルド時補正と診断
+## EC-03 and EC-06 build-time corrections and diagnostics
 
-0.2.0では、RollupのextendscriptCompat()が優先順位保護に加え、次を行います。
+In 0.2.0, Rollup's `extendscriptCompat()` also does the following:
 
-- EC-03: switchをまたいで外側のループへ進む、ラベルのないcontinueを自動補正します。対象ループの既存ラベルを再利用し、ラベルがなければ衝突しない名前で追加します。同じループには一つのラベルを共有します。内側のループを対象とするcontinueは変えません。圧縮後に省かれたラベル付きcontinueの末尾のセミコロンも補います。
-- EC-06: g・i・mのみを使う正規表現リテラルの文字クラス内で、`\x2D`・`\u002D`を`\-`へ置き換えます。小文字の16進数字にも対応します。動的なRegExpコンストラクタの文字列や、文字クラス外のエスケープは変更しません。
+- EC-03: Corrects an unlabeled `continue` that crosses a `switch` to reach an outer loop. It reuses the target loop's existing label or adds a collision-free label, sharing one label for each loop. A `continue` targeting an inner loop is unchanged. It also restores a trailing semicolon on labeled `continue` statements when a minifier has removed it.
+- EC-06: In regular-expression literals using only the ES3 `g`, `i`, and `m` flags, replaces `\x2D` and `\u002D` with `\-` inside character classes. Lowercase hexadecimal digits are also supported. Strings passed to a dynamic `RegExp` constructor and escapes outside character classes are unchanged.
 
-EC-03は既定で自動補正し、補正した箇所を警告として通知します。元のコードにEC-03を含めない方針をCIで強制する場合は、補正できる場合も停止するerrorを選べます。通知を省いて自動補正する場合はoffを選びます。
+EC-03 is corrected automatically with a warning by default. Select `error` to stop a build even when the issue can be corrected, for example to enforce a policy that source code contains no EC-03 issue. Select `off` to correct without a notification.
 
 ```js
 extendscriptCompat({ diagnostics: "error" });
-// "warn": 警告（既定値）、"error": ビルド停止、"off": 通知を省略
+// "warn": warning (default), "error": stop the build, "off": suppress notifications
 ```
 
-ビルドツールへ直接組み込む場合は、統合APIを使います。
+For direct integration into a build tool, use the combined API:
 
 ```js
 import { findCompatibilityIssues, protectCompatibility } from "extendscript-compat";
 
 const result = protectCompatibility(source);
-// result.code: 優先順位・EC-06・continueの自動ラベル・セミコロンを補正したコード
-// result.edits: 元の入力に対する挿入と置換（start / end / text）
-// result.diagnostics: 自動補正したEC-03の通知（元の入力上の位置）
+// result.code: precedence, EC-06, continue labels, and semicolons corrected
+// result.edits: insertions and replacements against the original input (start / end / text)
+// result.diagnostics: notifications for automatically corrected EC-03 issues in the original input
 const issues = findCompatibilityIssues(source);
 ```
 
-findCompatibilityIssuesは補正前のEC-03・EC-06を返します。protectCompatibilityのdiagnosticsは元のコードにあったEC-03の通知であり、補正後に未解決の不具合が残っていることを表すものではありません。各診断はcode、kind、start、end、line、column、messageを持ちます。行は1始まり、列と文字位置はUTF-16のコード単位で0始まりです。統合APIのeditsと診断の位置はいずれも元の入力を指します。正規表現のsourceやtoString()には補正後の表記が現れます。照合する文字集合は維持します。
+`findCompatibilityIssues` reports EC-03 and EC-06 in the original input. `protectCompatibility` returns notifications for original EC-03 issues in `diagnostics`; these do not mean the corrected output still contains an unresolved bug. Each diagnostic has `code`, `kind`, `start`, `end`, `line`, `column`, and `message`. Lines are one-based; columns and character positions are zero-based UTF-16 code-unit offsets. Edits and diagnostics refer to the original input. A regular expression's `source` or `toString()` reflects the rewritten syntax, while the matched character set is preserved.
 
-## EC-10・EC-11のUnitValue補助API
+## EC-10 and EC-11 UnitValue helper APIs
 
-ホスト用のコードから明示的に呼び出します。
+Call these explicitly from host code:
 
 ```js
 import { subtractUnitValues, isNull } from "extendscript-compat/unit-value";
 
 var value = new UnitValue("2 in");
 var difference = subtractUnitValues(10, value);
-// differenceは8 in。入力のvalueは変更しません。
+// difference is 8 in; value is not modified.
 var missing = isNull(value); // false
 ```
 
-subtractUnitValuesは数値−UnitValueの向きを補正し、純正のUnitValueを返します。結果の単位と換算基準baseUnitは右辺から引き継ぎます。数値同士、UnitValue−数値、UnitValue同士は純正の減算へ委ねます。引数は数値または実際のホストのUnitValueに限定し、文字列や構造だけが似たオブジェクトはTypeErrorになります。
+`subtractUnitValues` corrects the number-minus-`UnitValue` direction and returns a native `UnitValue`, preserving the right operand's unit and `baseUnit`. Number-minus-number, `UnitValue`-minus-number, and `UnitValue`-minus-`UnitValue` use native subtraction. Arguments must be numbers or actual host `UnitValue` instances; strings and merely similar objects cause a `TypeError`.
 
-isNullはUnitValueを先に区別するため、絶対値1未満のUnitValueもnullとして扱いません。これらのAPIはコンストラクタ、プロトタイプ、既存の演算子を上書きしません。通常の`10 - value`や`value === null`は自動では補正されません。型が実行時にしか分からない全ての式を一律に書き換える方式も採用していません。`/runtime`の読込だけではこの2件は補正されないため、該当箇所で補助APIを使ってください。
+`isNull` distinguishes a `UnitValue` first, so even one with an absolute value below 1 is not treated as `null`. These APIs do not replace the constructor, prototype, or existing operators. Ordinary `10 - value` and `value === null` are not corrected automatically; expressions whose types are known only at runtime are not rewritten wholesale. Importing `/runtime` alone does not correct these two issues; use the helpers at the affected sites.
 
-詳細は[実行時補正の説明](runtime/README.md)を参照してください。
+See the [runtime guide](runtime/README.md) for details.
 
-## 開発
+## Development
 
 ```sh
 pnpm install --frozen-lockfile
@@ -133,6 +145,6 @@ pnpm check
 pnpm pack --pack-destination artifacts
 ```
 
-試験では真偽値の組み合わせ、副作用の順序と回数、既存括弧、繰り返し適用、圧縮後の出力、ソースマップを確認します。実機での対応範囲と生成物の証跡はPRの検証結果に記録します。
+The tests cover boolean combinations, side-effect order and count, existing parentheses, repeated application, minified output, and source maps. Host coverage and generated-output evidence are recorded with the PR validation results.
 
-MIT License。
+MIT License.
