@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "3e46445d35506440a22e16ecc33dfa4b5f6ac9f7",
+  "sourceNote": "基点からpackage.jsonの版を0.3.0に更新して梱包。変更案内とこの記録は配布対象外。",
+  "tools": { "node": "24.22.1", "pnpm": "12.15.0", "npm": "11.19.1" },
+  "package": {
+    "version": "0.3.0",
+    "fileCount": 20,
+    "sha256": "daa675d14dbfe901bae5e7c770d0e936050f146cd4c604fdaf838067fb4fae9b",
+    "integrity": "sha512-qD7U9vSsjQcn/Txss+oQdQIFsrGEDPp2YCfy+hF5h2vk2CBiYmSXXUuRse09kRrunGhM0FHTZJX7HTQ/881wFw==",
+    "installedFilesMatch": true,
+    "sourceFilesMatchExceptPackageJson": true,
+    "entries": [".", "./rollup", "./runtime", "./number", "./unit-value"],
+    "consumerTypecheck": true,
+    "rollupVariants": ["normal", "minified"],
+    "sourceMaps": true
+  },
+  "checks": {
+    "frozenInstall": true,
+    "repositoryCheck": { "command": "pnpm check", "testFiles": 11, "tests": 145 },
+    "npmPublishDryRun": true
+  },
+  "host": {
+    "app": "After Effects 26.5x89 / ExtendScript 4.5.6 on Windows",
+    "rerun": false,
+    "evidence": [
+      "trim-unicode-ae-26.5.json",
+      "unicode-output-ae-26.5.json",
+      "number-ponyfill-ae-26.5.json",
+      "number-constructor-alias-ae-26.5.json"
+    ],
+    "regeneratedHashesMatch": "runtime通常版・圧縮版、Unicode出力26件、数値ポニーフィル通常版・圧縮版、コンストラクタ・別名通常版・圧縮版",
+    "limitations": "保存済み実機結果との照合。別のAdobe製品や旧版は未検証。"
+  }
+}
