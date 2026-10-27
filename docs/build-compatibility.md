@@ -40,7 +40,7 @@ The plugin corrects and checks each output chunk and updates an existing valid s
 
 ## Scope
 
-`protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03 and EC-06 below.
+`protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03, EC-06, and Unicode characters as described below.
 
 The input must be code already generated as ordinary JavaScript. Leave TypeScript and ES3 syntax conversion to an existing build step such as Babel. Raw JSX containing ExtendScript-specific E4X or unexpanded preprocessor directives is not supported. A parse failure throws rather than silently returning unmodified code.
 
@@ -50,17 +50,17 @@ The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.
 
 ## Unicode protection
 
-In After Effects 26.5, `$.evalFile` can drop literal U+200C, U+200D, and U+FEFF characters from source code. Set `unicode: true` to escape these characters inside strings and regular expressions. Existing usage is unchanged by default.
+In After Effects 26.5, `$.evalFile` can drop literal U+200C, U+200D, and U+FEFF characters from source code. `protectCompatibility` and Rollup’s `extendscriptCompat` escape these characters inside strings and regular expressions by default.
 
 ```js
-extendscriptCompat({ unicode: true });
+extendscriptCompat();
 ```
 
 Run this after minification and include expansion. Later processing can reintroduce literal characters and undo the protection. String values are preserved as UTF-16, and regular expressions retain their matching behavior. A regular expression's `source` and `toString()` reflect the changed spelling. Other characters, including U+200B and emoji, are left unchanged.
 
 The transformation fails when these characters occur in identifiers, comments, license notices, or elsewhere outside strings and regular expressions, where safe conversion cannot be guaranteed. It also rejects `\u200c` and `\u200d` in identifiers. Error lines are 1-based and columns count UTF-16 code units from zero. Unexpanded directives and E4X are unsupported.
 
-Without Rollup, call `protectUnicode(source)` or use `protectCompatibility(source, { unicode: true })` to combine it with the other corrections. Both return the transformed `code` and `edits` relative to the original input. The [host evidence](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/unicode-output-ae-26.5.json) records the test conditions and results for After Effects 26.5x89.
+Without Rollup, call `protectUnicode(source)` or use `protectCompatibility(source)` to combine it with the other corrections. Both return the transformed `code` and `edits` relative to the original input. The [host evidence](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/unicode-output-ae-26.5.json) records the test conditions and results for After Effects 26.5x89.
 
 ## EC-03 and EC-06 build-time corrections and diagnostics
 

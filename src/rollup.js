@@ -117,7 +117,6 @@ function updateSourceMappingUrl(code, url) {
 /** @param {import("./rollup.d.ts").CompatibilityOptions} [options] @returns {import("rollup").Plugin} */
 export function extendscriptCompat(options = {}) {
   const diagnostics = options.diagnostics ?? "warn";
-  const unicode = options.unicode ?? false;
   if (!["warn", "error", "off"].includes(diagnostics)) {
     throw new TypeError("Unknown ExtendScript diagnostics mode: " + diagnostics);
   }
@@ -127,7 +126,7 @@ export function extendscriptCompat(options = {}) {
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;
         const source = chunk.code;
-        const result = protectCompatibility(source, { unicode });
+        const result = protectCompatibility(source);
         if (diagnostics !== "off") {
           for (const diagnostic of result.diagnostics) {
             const warning = {

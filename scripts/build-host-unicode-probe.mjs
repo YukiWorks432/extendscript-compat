@@ -2,7 +2,10 @@ import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { minify } from "terser";
+import { rollup } from "rollup";
+import terser from "@rollup/plugin-terser";
 import { protectCompatibility } from "../src/index.js";
+import { extendscriptCompat } from "../src/rollup.js";
 
 const directory = resolve("tmp/unicode-host-probe");
 mkdirSync(directory, { recursive: true });
@@ -56,7 +59,34 @@ for (const [name, input] of [
   ["normal", source],
   ["minified", minified],
 ]) {
-  save(`${name}-protected.jsx`, protectCompatibility(input, { unicode: true }).code);
+  save(`${name}-protected.jsx`, protectCompatibility(input).code);
+}
+const moduleSource = `export function probe(){return ${source};}`;
+for (const minifyOutput of [false, true]) {
+  const bundle = await rollup({
+    input: "fixture.js",
+    plugins: [
+      {
+        name: "fixture",
+        resolveId: (id) => (id === "fixture.js" ? id : null),
+        load: (id) => (id === "fixture.js" ? moduleSource : null),
+      },
+      ...(minifyOutput ? [terser({ format: { ascii_only: false } })] : []),
+      extendscriptCompat(),
+    ],
+  });
+  try {
+    const result = await bundle.generate({
+      format: "iife",
+      name: "unicodeProbe",
+      footer: "unicodeProbe.probe();",
+    });
+    const chunk = result.output.find((file) => file.type === "chunk");
+    if (!chunk) throw new Error("Rollup Unicode probe produced no chunk");
+    save(`rollup-${minifyOutput ? "minified" : "normal"}.jsx`, chunk.code);
+  } finally {
+    await bundle.close();
+  }
 }
 writeFileSync(resolve(directory, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 console.log(JSON.stringify(manifest, null, 2));

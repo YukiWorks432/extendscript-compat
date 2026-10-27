@@ -148,5 +148,43 @@
       "result": [[65, 8204, 8205, 65279, 55357, 56832, 90], true, true, true, false]
     }
   ],
-  "limitations": "After Effects 26.5x89 on Windows only; other products and versions not tested."
+  "limitations": "After Effects 26.5x89 on Windows only; other products and versions not tested.",
+  "defaultIntegration": {
+    "recordedAt": "2026-10-27 17:37:19 UTC",
+    "host": {
+      "engine": "4.5.6",
+      "build": "80.1060872",
+      "version": "26.5x89",
+      "app": "After Effects"
+    },
+    "sha256": {
+      "normal-protected.jsx": "e79915da367770f9902a6c2b41c5fdf55f04ff0cbc128060fc9f4a679f238224",
+      "minified-protected.jsx": "59baec2e51ce1c1d5125751a61b832d90b897b9874b7d7188094b09eefa9f64c",
+      "rollup-normal.jsx": "d784b504b4976d8fbb450d36120ef132a46f9919ad1a4d8506031e8de16693ce",
+      "rollup-minified.jsx": "38beeb32867fda01afda4ad646e5e8bc21860415bec81c5999cb0232097cfa40"
+    },
+    "results": [
+      {
+        "name": "normal-protected.jsx",
+        "result": [[65, 8204, 8205, 65279, 55357, 56832, 90], true, true, true, false]
+      },
+      {
+        "name": "minified-protected.jsx",
+        "result": [[65, 8204, 8205, 65279, 55357, 56832, 90], true, true, true, false]
+      },
+      {
+        "name": "rollup-normal.jsx",
+        "result": [[65, 8204, 8205, 65279, 55357, 56832, 90], true, true, true, false]
+      },
+      {
+        "name": "rollup-minified.jsx",
+        "result": [[65, 8204, 8205, 65279, 55357, 56832, 90], true, true, true, false]
+      }
+    ],
+    "projectAfter": {
+      "items": 6,
+      "dirty": true
+    },
+    "note": "状態変更前のdirtyは今回未確認。"
+  }
 }

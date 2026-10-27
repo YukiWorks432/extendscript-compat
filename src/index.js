@@ -69,8 +69,8 @@ export function findCompatibilityIssues(source) {
   return analyzeCompatibility(source).diagnostics;
 }
 
-/** @param {string} source @param {{unicode?: boolean}} [options] @returns {import("./index.d.ts").CompatibilityProtection} */
-export function protectCompatibility(source, options = {}) {
+/** @param {string} source @returns {import("./index.d.ts").CompatibilityProtection} */
+export function protectCompatibility(source) {
   const { diagnostics, continueEdits, program } = analyzeCompatibility(source);
   /** @type {import("./index.d.ts").SourceEdit[]} */
   const edits = findPrecedenceIssues(source).flatMap(({ start, end }) => [
@@ -78,7 +78,7 @@ export function protectCompatibility(source, options = {}) {
     { start: end, end, text: ")" },
   ]);
   edits.push(...continueEdits);
-  if (options.unicode) edits.push(...findUnicodeEdits(source, program));
+  edits.push(...findUnicodeEdits(source, program));
   for (const diagnostic of diagnostics) {
     if (diagnostic.code === "EC-06") {
       edits.push({ start: diagnostic.start, end: diagnostic.end, text: "\\-" });

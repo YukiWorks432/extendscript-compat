@@ -37,12 +37,13 @@ it("識別子とコメントなどの変換できない箇所は位置を示し�
     `var x=1;${affected[2]}var y=2;`,
   ]) {
     expect(() => protectUnicode(source)).toThrow(/Unicode.* at 1:/);
+    expect(() => protectCompatibility(source)).toThrow(/Unicode.* at 1:/);
   }
 });
 
 it("既存の互換補正と同時に適用し、繰り返しても変化しない", () => {
   const source = `var text="${affected}"; var r=/[a\\u002Dz${affected[0]}]/; var x=a || b && c;`;
-  const result = protectCompatibility(source, { unicode: true });
+  const result = protectCompatibility(source);
   expect(
     runInNewContext(result.code + ";[text,r.test('-'),r.test(text.charAt(0)),x]", {
       a: false,
@@ -50,12 +51,12 @@ it("既存の互換補正と同時に適用し、繰り返しても変化しな�
       c: 3,
     }),
   ).toEqual([affected, true, true, 3]);
-  expect(protectCompatibility(result.code, { unicode: true }).edits).toEqual([]);
+  expect(protectCompatibility(result.code).edits).toEqual([]);
 });
 
-it("ディレクティブ文字列も値を保ち、既定の互換補正ではUnicodeを変更しない", () => {
+it("ディレクティブ文字列も値を保ち、既定の互換補正でUnicodeを変換する", () => {
   const source = `"use${affected[0]}custom"; var text="${affected[1]}"; text;`;
-  expect(protectCompatibility(source).code).toBe(source);
+  expect(protectCompatibility(source).code).toBe(protectUnicode(source).code);
   const result = protectUnicode(source);
   expect(runInNewContext(result.code)).toBe(affected[1]);
   expect(result.code).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);

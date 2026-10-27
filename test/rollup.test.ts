@@ -241,7 +241,7 @@ it.each([true, "inline", "hidden"] as const)(
   "Unicodeの置換と既存補正の後もソースマップ %s の後続位置を保つ",
   async (sourcemap) => {
     const input = `export var text="${String.fromCharCode(0x200c)}😀"; export var mark=label || flag && next;`;
-    const result = await build(input, [extendscriptCompat({ unicode: true })], { sourcemap });
+    const result = await build(input, [extendscriptCompat()], { sourcemap });
     const chunk = result.output[0] as OutputChunk;
     expect(runInNewContext(chunk.code + ";compiled.text", { label: 0, flag: 0, next: 0 })).toBe(
       String.fromCharCode(0x200c) + "😀",
@@ -272,7 +272,7 @@ it("圧縮後と先行includeの文字もUnicode補正し、無変換の識別�
   const value = String.fromCharCode(0x200c, 0x200d, 0xfeff);
   const result = await build(`export var text="${value}😀";`, [
     terser({ format: { ascii_only: false } }),
-    extendscriptCompat({ unicode: true }),
+    extendscriptCompat(),
   ]);
   const chunk = result.output[0] as OutputChunk;
   expect(runInNewContext(chunk.code + ";compiled.text")).toBe(value + "😀");
@@ -286,7 +286,7 @@ it("圧縮後と先行includeの文字もUnicode補正し、無変換の識別�
             if (chunk.type === "chunk") chunk.code += `\nvar x${value[0]}y=1;`;
         },
       },
-      extendscriptCompat({ unicode: true }),
+      extendscriptCompat(),
     ]),
   ).rejects.toThrow(/identifier/);
 });
@@ -302,7 +302,7 @@ it("先行includeが追加した文字列にもUnicode補正を適用する", as
         }
       },
     },
-    extendscriptCompat({ unicode: true }),
+    extendscriptCompat(),
   ]);
   const chunk = result.output[0] as OutputChunk;
   expect(runInNewContext(chunk.code + ";included")).toBe(affected);
