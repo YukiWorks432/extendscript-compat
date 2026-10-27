@@ -1,4 +1,8 @@
-/** 生成前のコードにある未保護箇所。行は1始まり、列と文字位置は0始まり。 */
+/**
+ * Unprotected locations in the input. Lines are 1-based; columns and character positions are 0-based.
+ *
+ * 生成前のコードにある未保護箇所。行は1始まり、列と文字位置は0始まり。
+ */
 export interface PrecedenceDiagnostic {
   kind: "mixed-logical" | "nested-conditional";
   start: number;
@@ -7,18 +11,30 @@ export interface PrecedenceDiagnostic {
   column: number;
 }
 
-/** insertionsは元のコードに対する括弧1文字ごとの挿入位置を昇順で返す。 */
+/**
+ * insertions contains the original-input positions of individual parentheses in ascending order.
+ *
+ * insertionsは元のコードに対する括弧1文字ごとの挿入位置を昇順で返す。
+ */
 export interface ProtectedCode {
   code: string;
   insertions: number[];
 }
 
-/** 通常のJavaScriptとして生成済みのコードへ括弧だけを挿入する。 */
+/**
+ * Insert only parentheses into code already generated as ordinary JavaScript.
+ *
+ * 通常のJavaScriptとして生成済みのコードへ括弧だけを挿入する。
+ */
 export function protectPrecedence(source: string): ProtectedCode;
 export function findPrecedenceIssues(source: string): PrecedenceDiagnostic[];
 export function assertPrecedenceProtected(source: string): void;
 
-/** 元の入力上で検出した不具合。補正内容をkindで区別する。 */
+/**
+ * An issue detected in the original input; kind identifies the correction.
+ *
+ * 元の入力上で検出した不具合。補正内容をkindで区別する。
+ */
 export interface CompatibilityDiagnostic {
   code: "EC-03" | "EC-06";
   kind: "continue-through-switch" | "labeled-continue-semicolon" | "regexp-escaped-hyphen";
@@ -37,12 +53,24 @@ export interface SourceEdit {
 
 export interface CompatibilityProtection {
   code: string;
-  /** 元の入力に対する、位置順の挿入・置換。 */
+  /**
+   * Insertions and replacements against the original input, in position order.
+   *
+   * 元の入力に対する、位置順の挿入・置換。
+   */
   edits: SourceEdit[];
-  /** 自動補正したEC-03の通知。位置は元の入力を参照する。 */
+  /**
+   * Notifications for automatically corrected EC-03 issues, positioned in the original input.
+   *
+   * 自動補正したEC-03の通知。位置は元の入力を参照する。
+   */
   diagnostics: CompatibilityDiagnostic[];
 }
 
 export function findCompatibilityIssues(source: string): CompatibilityDiagnostic[];
-/** 優先順位、EC-06、continueのラベルとセミコロンを補正し、EC-03の通知を返す。 */
+/**
+ * Correct precedence, EC-06, continue labels and semicolons, and return EC-03 notifications.
+ *
+ * 優先順位、EC-06、continueのラベルとセミコロンを補正し、EC-03の通知を返す。
+ */
 export function protectCompatibility(source: string): CompatibilityProtection;

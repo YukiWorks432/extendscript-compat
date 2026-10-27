@@ -1,4 +1,8 @@
-/** ホストのUnitValueが持つ、補助APIで利用する測定値の公開部分。 */
+/**
+ * The public measurement-value shape used by the helper APIs on the host's UnitValue.
+ *
+ * ホストのUnitValueが持つ、補助APIで利用する測定値の公開部分。
+ */
 export interface UnitValueLike {
   value: number;
   type: string;
@@ -13,5 +17,9 @@ export function subtractUnitValues(
   left: UnitValueLike,
   right: number | UnitValueLike,
 ): UnitValueLike;
-/** UnitValueを先に区別してからnullを判定する。 */
+/**
+ * Distinguish UnitValue first, then determine whether the value is null.
+ *
+ * UnitValueを先に区別してからnullを判定する。
+ */
 export function isNull(value: unknown): value is null;

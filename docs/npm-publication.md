@@ -1,41 +1,43 @@
-# npmへの公開手順
+# npm publication procedure
 
-初期版0.1.0は、式の優先順位補正とRollup 4への組み込みを提供し、2026年10月26日にnpmへ一般公開した。当初はGitHubリポジトリを非公開とし、npmの配布物にはsrcのJavaScript、型定義、README、MITライセンスを含めた。
+[日本語（正本）](npm-publication.ja.md) | English
 
-2026年10月27日に、履歴・PR・Actionsログの確認後、問題がなければGitHubリポジトリも公開する許可を得た。以後はMITライセンスの公開リポジトリとして運用し、利用者が実装・試験・変更理由を確認し、不具合報告や修正提案を行えるようにする。GitHubの公開範囲とnpmへの版の登録は別の操作として扱う。
+The initial 0.1.0 release, providing expression-precedence protection and Rollup 4 integration, was published publicly on npm on 2026-10-26. The GitHub repository was private at the time; the npm package included the JavaScript under `src`, type declarations, README, and MIT license.
 
-## GitHubリポジトリの公開前確認
+On 2026-10-27, the repository was also made public after its history, PRs, and Actions logs were reviewed. It is operated as a public MIT-licensed repository so users can inspect the implementation, tests, and reasons for changes and submit bug reports or fixes. GitHub visibility and publication of an npm version are separate operations.
 
-公開へ切り替える前に、現在のファイルだけでなく、リモートブランチ・タグ・PRから到達できる過去のコミット、PR本文・コメント・レビュー、Actionsの全試行ログ・検査注釈・保存成果物を確認する。公開すると過去のコードやActionsの実行履歴とログも閲覧可能になるため、認証情報、個人用パス、顧客データなどを含む場合は公開を止めて対処する。
+## Checks before making the GitHub repository public
 
-2026年10月27日、基点コミットfa198c95fa7b3542100bf2cdc3d49b235c1bd6e4に対して、次を確認した。
+Before changing visibility, inspect not only current files but also commits reachable from remote branches, tags, and PRs; PR descriptions, comments, and reviews; and all Actions attempts, logs, check annotations, and saved artifacts. Past code and Actions history and logs become visible on publication. Stop and address any credentials, personal paths, customer data, or similar information found.
 
-| 対象    | 確認範囲                                                                                                  |
-| ------- | --------------------------------------------------------------------------------------------------------- |
-| Git履歴 | 全リモートブランチ・タグとPR #1〜#4の参照から取得した14コミット、88種類のファイル内容、著者・コミット情報 |
-| PR      | #1〜#4の本文・差分・コミット情報。通常コメント・行コメント・レビュー投稿はいずれも0件                     |
-| Actions | 13実行の全13試行、52ジョブ、148ログファイルと41件の検査注釈                                               |
-| その他  | Issue・リリース・保存成果物はいずれも0件。公開への変更で無効になるプッシュルールセットも0件               |
+On 2026-10-27, the following were checked against base commit `fa198c95fa7b3542100bf2cdc3d49b235c1bd6e4`:
 
-Gitleaks 8.30.1の既定規則で、全履歴（--all --full-history）、PRなどの公開対象データ、展開した全ログを検査し、認証情報の検出は0件だった。著者情報、絶対パス、外部参照と実機証跡も文脈を確認した。著者メールは公開用のnoreplyアドレス、ログの絶対パスはGitHub管理の実行環境のものだった。関連する利用側への参照には、そのソースや設定を含めていない。公開を妨げる認証情報・個人用パス・顧客データは見つからなかった。
+| Area        | Scope                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Git history | 14 commits, 88 distinct file contents, and author/commit metadata obtained from all remote branches, tags, and PR #1–#4 refs |
+| PRs         | Descriptions, diffs, and commit information for #1–#4. There were no issue comments, inline comments, or submitted reviews.  |
+| Actions     | 13 runs and all 13 attempts, 52 jobs, 148 log files, and 41 check annotations                                                |
+| Other       | No issues, releases, saved artifacts, or push rulesets that would be disabled by the visibility change                       |
 
-この件数は方針更新前の記録である。方針更新のPRと、その後に増えたコミット・PR・Actionsログも公開直前に追加確認する。取得した生ログや認証済みAPI固有の一時的な認証データは、文書や配布物へ転記しない。公開操作後は、認証なしのGitHub APIでvisibilityがpublic、privateがfalseとなり、READMEとPRを取得できることを確認する。
+Gitleaks 8.30.1 with its default rules found no credentials in the publication scope: all Git history (`--all --full-history`), public-facing PR and related API data, and all extracted logs. Author information, absolute paths, external references, and host evidence were also reviewed in context. Author email addresses were public noreply addresses, and absolute paths in logs belonged to GitHub-hosted runners. References to related consuming projects did not contain their source code or configuration. No credentials, personal paths, or customer data that would prevent publication were found.
 
-## 初回npm公開の記録と手順
+These counts describe the state before the policy update. Including the policy PR and subsequent additions, 15 commits, 5 PRs, and 14 Actions runs with 56 jobs and 200 log files were checked immediately before publication. After publication, the unauthenticated GitHub API reported `visibility=public` and `private=false`, and README and PR retrieval succeeded. The final results, including the additional check after merging, are recorded in [PR #5](https://github.com/YukiWorks432/extendscript-compat/pull/5). Raw logs and temporary credentials specific to authenticated API responses are not copied into documentation or packages.
 
-2026年10月26日の公開前確認では、extendscript-compatへのnpm照会は404だった。名前は予約できていないため、実際の公開直前に再確認する。取得済みになっていた場合は登録を止め、所有するnpmアカウントのスコープ配下への変更を確認する。名前を変更する場合は、利用側の依存指定と使用例も同時に更新する。
+## Initial npm publication record and procedure
 
-## 公開までの順序
+Before the initial publication on 2026-10-26, an npm lookup for extendscript-compat returned 404. That did not reserve the name; it had to be checked again immediately before publication. If already taken, registration was to stop and a change to the owner's npm scope was to be considered, updating consuming dependencies and examples at the same time.
 
-1. ライブラリと利用側の検証・独立レビューを完了し、公開するコミットを固定する。
-2. GitHubリポジトリが公開方針に沿って公開されていること、npmの所有者、パッケージ名、MITライセンスを確認する。npmの一般公開パッケージにはsrcのJavaScriptと型定義も含まれる。出所証明を付ける場合は、公開リポジトリと対応するCIから登録する。
-3. 公開準備のPRでprivateを削除し、publishConfig.accessをpublic、publishConfig.registryをhttps://registry.npmjs.org/にする。内容を確認したうえで統合し、そのコミットから再検証・再梱包する。開発段階で作ったprivate付きのtarballは公開に流用しない。
-4. 初回は所有者がnpmへログインし、二要素認証を使って確認済みのtarballを登録する。登録後、別の空ディレクトリから導入し、本体とRollup用の入口を再確認する。
-5. adobe-cepの同梱tarballをnpm依存へ置き換え、公開テンプレート側の導入PRを提出する。その後、Bolt-CEPへの統合を提案する。
+### Initial publication sequence
 
-初回登録は、二要素認証を有効にした所有者の端末で行う。実行するのは公開が承認され、固定コミットから梱包し直した後とする。
+1. Complete library and consumer validation and independent review, then fix the commit to publish.
+2. Confirm that the GitHub repository is public according to policy, and check the npm owner, package name, and MIT license. The public npm package includes JavaScript under `src` and type declarations. Publishing with provenance requires a public repository and a supported CI environment.
+3. In the initial release-preparation PR, remove `private` and set `publishConfig.access` to `public` and `publishConfig.registry` to `https://registry.npmjs.org/`. Review and merge the changes, then revalidate and repack from that commit. Do not use a development tarball that contained `private`.
+4. For initial registration, the owner signs in to npm and publishes the verified tarball with two-factor authentication. After registration, install it in a separate empty directory and recheck the root and Rollup entries.
+5. Replace the consuming adobe-cep project's bundled tarball with the npm dependency and submit an integration PR for the public template, then propose integration into Bolt-CEP.
 
-接続・登録情報・梱包内容の確認はpnpm 12.15.0で実行できる。初回公開では、このライブラリのディレクトリでnpm CLIへログインし、同じCLIから確認済みのtarballを登録する。ログイン後はnpm whoamiとpnpm whoamiの両方で所有者を照合する。
+Initial registration is performed on the owner's machine with two-factor authentication enabled, only after publication is authorized and the tarball has been rebuilt from the fixed commit.
+
+The following commands document the initial 0.1.0 publication, which has already taken place. pnpm 12.15.0 can check connectivity, account information, and packaging. For the initial publication, sign in with npm CLI from this library directory and publish the verified tarball with that same CLI. After signing in, compare the owner reported by both `npm whoami` and `pnpm whoami`.
 
 ```sh
 npm login
@@ -51,38 +53,35 @@ npm publish ./artifacts/extendscript-compat-0.1.0.tgz --access public --registry
 pnpm view extendscript-compat@0.1.0 version dist.integrity
 ```
 
-公開直前に固定コミット、梱包物のSHA-256、privateが含まれないこと、配布対象7ファイルを照合する。公開後はレジストリのdist.integrityと取得したtarballを照合し、空の利用側へ導入して公開APIとRollup連携を確認する。登録が受理された後の通信切断では、同じ版を再公開せず、先にレジストリ上の状態を確認する。
+Immediately before publication, compare the fixed commit, tarball SHA-256, absence of `private`, and the seven files for the initial release. After publication, compare the registry's `dist.integrity` with the downloaded tarball, and install it in an empty consumer to check the public API and Rollup integration. If the connection drops after a registration may have been accepted, check the registry first instead of republishing the same version.
 
-名前の照会で404になることは、公開時の名前の取得を保証しない。梱包物の一覧はpnpm pack --dry-run --jsonで事前確認する。filesはsrc、README.md、LICENSEへ限定しているが、package.jsonなどnpmが自動的に含めるファイルも確認する。npm登録自体には料金のかからない公開パッケージを想定する。
+A 404 name lookup does not guarantee that the name can be obtained at publication time. Inspect the package with `pnpm pack --dry-run --json`. For the initial release, `files` was restricted to `src`, `README.md`, and `LICENSE`, but npm also includes files such as `package.json` automatically. The intended npm package is public and does not require a registration fee.
 
-## 継続的な公開方法
+## Ongoing publication
 
-初回登録後は、GitHub ActionsとnpmのTrusted Publisherを使う方法を推奨する。公開用の専用ワークフローを将来追加し、そのファイル名とGitHubの所有者・リポジトリをnpm側へ正確に登録する。OIDCを利用するため、公開用の長期トークンをリポジトリへ保存する必要がない。
+After initial registration, GitHub Actions and npm Trusted Publisher are recommended. Add a dedicated publication workflow in the future, and register its exact filename, GitHub owner, and repository with npm. Explicitly allow `npm publish` in the Trusted Publisher configuration if publishing directly with that command. OIDC removes the need to store a long-lived publishing token in the repository.
 
-公開用ワークフローはGitHub管理の実行環境、Node.js 24、対応するnpm CLIを使い、contents: readとid-token: writeを設定する。指定コミットの検証と梱包を通してからnpm publishを実行する。現在のCIには公開処理とid-token権限を含めない。
+Use a GitHub-hosted runner, Node.js 24, and a compatible npm CLI with `contents: read` and `id-token: write`. Run validation and packaging for the specified commit before `npm publish`. The current CI workflow does not publish or request `id-token` permission.
 
-Trusted Publisherにはnpm CLI 11.5.1以降とNode.js 22.14.0以降が必要。設定後の初回公開は2日以内に成功する必要があるため、公開準備が整ってから設定する。公開リポジトリから公開パッケージを登録する場合、出所証明は自動生成される。非公開リポジトリでは出所証明が生成されない。
+Trusted Publisher requires npm CLI 11.5.1 or later and Node.js 22.14.0 or later. Its first publication must succeed within two days of configuration, so configure it only after publication is ready. For a public package published from a public repository using GitHub Actions Trusted Publisher, provenance is generated automatically. It is not generated for a private repository.
 
-## 出荷条件
+## Release criteria
 
-評価結果、短絡評価、副作用の順序、既存括弧、繰り返し適用、最小化後の出力、ソースマップ、梱包後の導入を検証する。After Effectsでの確認条件を明記し、IllustratorやPhotoshopなど未検証の製品を対応確認済みと表記しない。
+Validate evaluated results, short-circuiting, side-effect order, existing parentheses, repeated application, minified output, source maps, and installation from the packed artifact. State the After Effects conditions and do not describe untested products such as Illustrator or Photoshop as host-verified.
 
-最初の版は検証した用途へ適用範囲を限定する。補正内容の修正はpatch、後方互換のある補正追加はminor、入力条件や公開インターフェースの変更は次のminorとして扱い、0.xでは変更点を明記する。既存の版へ上書き公開しない。
+Limit the first release to the uses actually tested. Treat corrections as patch changes, backward-compatible additions as minor changes, and input-condition or public-interface changes as the next minor release. Document changes during 0.x and do not republish an existing version.
 
-## 参照
+## References
 
-- [GitHubリポジトリの公開範囲と変更の影響](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility)
-- [公開パッケージの作成と登録](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages/)
-- [Trusted Publisherの設定と制約](https://docs.npmjs.com/trusted-publishers/)
-- [出所証明の生成](https://docs.npmjs.com/generating-provenance-statements/)
+- [GitHub repository visibility and consequences](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility)
+- [Creating and publishing unscoped public packages](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages/)
+- [Trusted Publisher setup and limitations](https://docs.npmjs.com/trusted-publishers/)
+- [Generating provenance statements](https://docs.npmjs.com/generating-provenance-statements/)
+- [Inspecting package contents with pnpm](https://pnpm.io/cli/pack)
+- [Checking authentication settings with pnpm](https://pnpm.io/cli/profile)
 
-- [pnpmによる梱包内容の事前確認](https://pnpm.io/cli/pack)
-- [pnpmによる認証設定の確認](https://pnpm.io/cli/profile)
+## Checks before and after publication
 
-## 0.2.0の公開準備
+After fixing the commit to publish, run `pnpm check`, compare hashes of the generated host-validation files, pack the package, and install it into an empty consumer. Include the public entries and type declarations, English and Japanese usage documentation, and third-party licenses. Compare the package listing with `package.json`.
 
-0.2.0にはEC-04・05・07・08の実行時補正に加え、EC-03の自動ラベル挿入・通知とセミコロン補完、EC-06の正規表現リテラル補正、EC-10・11の明示的なUnitValue補助APIを含める。今回は版番号・文書・実装を準備するPRであり、npm公開、タグ作成、GitHubリリースは行わない。
-
-公開するコミットを固定した後、pnpm check、実機検証用の生成物のハッシュ照合、pnpm pack、空の利用側への導入を再確認する。配布物にはruntime/index.jsと型宣言、runtime/unit-value.jsと型宣言、実行時の利用文書、第三者ライセンスを含める。初期版の7ファイルという記載を0.2.0へ流用せず、梱包時の一覧を正本として確認する。
-
-公開後の確認では、通常入口・Rollup入口・runtime入口・unit-value入口のすべてを取得したパッケージから読み込む。runtimeは明示的に読み込むまで共有関数を置換せず、unit-valueの入口は読込だけではホストのクラスや関数を変更しない。
+After publication, load all four public entries from the downloaded package: the root, Rollup, runtime, and unit-value entries. The runtime does not replace shared functions until explicitly imported; importing the unit-value entry alone does not modify host classes or functions.

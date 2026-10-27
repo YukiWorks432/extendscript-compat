@@ -1,37 +1,39 @@
-# 組み込み関数の互換補正
+# Runtime compatibility corrections
 
-`extendscript-compat/runtime`は、読み込んだエンジンの`parseInt`、`String.prototype.charAt`、`split`、`replace`を置き換える、副作用専用の入口です。関数が存在する場合も補正を適用します。
+[日本語（正本）](README.ja.md) | English
 
-## 導入と読み込み順
+`extendscript-compat/runtime` is a side-effect-only entry point that replaces `parseInt`, `String.prototype.charAt`, `split`, and `replace` in the engine where it is loaded. The corrections apply even if the functions already exist.
 
-es5-shimなど既存の互換コードの後、アプリケーションや依存ライブラリの初期化前に読み込んでください。
+## Installation and load order
+
+Load it after existing compatibility code such as es5-shim and before initializing the application or its dependencies:
 
 ```js
 import "extendscript-compat/runtime";
 ```
 
-Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の後に`extendscriptCompat()`を適用してください。引用した互換コード自身も優先順位保護の対象です。Node.js用の通常入口と`/rollup`は、この実行時補正を自動では読み込みません。
+Bundle it into ordinary host JavaScript with Rollup, and apply `extendscriptCompat()` after minification and include expansion. Imported compatibility code also needs precedence protection. The normal Node.js and `/rollup` entry points do not automatically load these runtime corrections.
 
-`runtime/index.js`をそのままJSXへ含めることもできます。コードはES3構文で記述しており、Adobeでは`$.global`へ適用します。Node.jsで明示的に読み込んだ場合は`globalThis`が対象です。
+You can also include `runtime/index.js` directly in JSX. It uses ES3 syntax and applies the corrections to `$.global` in Adobe hosts. An explicit import in Node.js targets `globalThis`.
 
-同じエンジンを利用する別のスクリプトにも補正が及びます。適用前に別の変数へ保存された関数への参照は変わりません。同じエンジンでの再評価は内部の版付き印で省略し、関数を重ねて包みません。後から別のライブラリが対象関数を書き換えた場合、その書き換えを監視したり自動で取り消したりはしません。
+The corrections also affect other scripts sharing the engine. References saved to another variable before installation remain unchanged. A versioned internal marker prevents repeated evaluation from wrapping the functions again. If another library subsequently replaces one of the functions, this package does not monitor or automatically undo that change.
 
-## 補正する挙動
+## Corrected behavior
 
-| 対象             | 補正内容                                                                                                                                                                                                        |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| EC-04 / parseInt | 基数11〜36と自動判定の16進数で、無効な記号を数字として読まないようにします。有効な数字部分だけを元の数値解析へ渡し、型変換は一度ずつ行います。基数省略時の旧8進数解釈と基数10以下の挙動は元の関数を維持します。 |
-| EC-05 / charAt   | NUL文字も長さ1の文字列として返します。範囲外は空文字列、位置はUTF-16のコード単位です。                                                                                                                          |
-| EC-07 / split    | 正規表現で分割した末尾の空要素を保持します。キャプチャ、空一致、分割数の上限、呼び出し元のlastIndexを扱います。                                                                                                 |
-| EC-08 / replace  | 未参加キャプチャを空文字列にし、置換文字列のドル記号・一致全体・前後の文脈・1〜99番のキャプチャを展開します。コールバックにも元の入力と位置を渡します。                                                         |
+| Issue / function   | Correction                                                                                                                                                                                                                                                        |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| EC-04 / `parseInt` | Rejects invalid digits for radices 11–36 and automatically detected hexadecimal. Only the valid digit prefix is passed to the original parser, and each conversion is performed once. Omitted-radix legacy octal and behavior for radices up to 10 remain native. |
+| EC-05 / `charAt`   | Returns NUL as a one-character string. Out-of-range positions return an empty string; positions use UTF-16 code units.                                                                                                                                            |
+| EC-07 / `split`    | Preserves trailing empty elements when splitting with a regular expression. Handles captures, empty matches, the limit, and the caller's `lastIndex`.                                                                                                             |
+| EC-08 / `replace`  | Converts nonparticipating captures to empty strings, and expands replacement-string dollar tokens for the match, surrounding context, and captures 1–99. Callbacks receive the original input and position.                                                       |
 
-AEの追加差として、globalな正規表現が空の入力へ一致しない問題をsplit内で補っています。replaceでは、文字列検索でコールバックが実行されない問題、連続置換時に途中の結果がコールバックへ渡る問題、末尾の空一致が省略される問題も補っています。
+For additional AE differences, `split` handles the failure of a global regular expression to match empty input. `replace` also handles missing callback calls for string searches, intermediate rather than original input passed to callbacks during consecutive replacements, and omitted empty matches at the end.
 
-ES5メソッドの新規追加、正規表現エンジン自体のキャプチャ消失・停止、UnitValueの演算や厳密比較は、この副作用専用の入口の対象外です。下記の明示的な補助APIで扱います。後年の正規表現フラグや名前付きキャプチャも対象にしません。JavaScriptで実装したメソッドの関数オブジェクトや、非strictなES3における`call(null)` / `call(undefined)`のthis変換は純正関数と完全には同じになりません。
+The side-effect entry point does not add ES5 methods, repair capture loss or hangs inside the regular-expression engine, or correct `UnitValue` arithmetic and strict comparisons. Use the explicit `UnitValue` helpers below for the latter. Later regular-expression flags and named captures are also outside its scope. Function objects implemented in JavaScript and `this` conversion for `call(null)` / `call(undefined)` in non-strict ES3 do not exactly match native functions.
 
-## UnitValueの明示的な補助API
+## Explicit UnitValue helper APIs
 
-`extendscript-compat/unit-value`は、副作用を持たない別の入口です。ESモジュールとしてホスト用バンドルへ含め、圧縮後にextendscriptCompat()を適用してください。ファイルをそのままJSXのincludeへ渡す用途には対応しません。
+`extendscript-compat/unit-value` is a separate entry point without import-time side effects. Include it as an ES module in the host bundle and apply `extendscriptCompat()` after minification. It is not intended to be passed directly to a JSX include.
 
 ```js
 import { subtractUnitValues, isNull } from "extendscript-compat/unit-value";
@@ -39,40 +41,51 @@ import { subtractUnitValues, isNull } from "extendscript-compat/unit-value";
 var input = new UnitValue("20 px");
 input.baseUnit = new UnitValue(1 / 96, "in");
 var result = subtractUnitValues(10, input);
-// result.valueは-10、result.typeはpx、result.as("in")は-10/96です。
+// result.value is -10, result.type is px, and result.as("in") is -10/96.
 if (!isNull(result)) {
-  // UnitValueのまま利用できます。
+  // The result is still a UnitValue.
 }
 ```
 
-| API                             | 契約                                                                                                                                                                                                                                                  |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| subtractUnitValues(left, right) | 引数は数値またはホストのUnitValueです。数値−UnitValueだけを補正し、新しい純正のUnitValueへ右辺の単位とbaseUnitを引き継ぎます。入力は変更しません。その他の組み合わせは純正の減算を使います。数値以外の型変換は行わず、不正な引数はTypeErrorにします。 |
-| isNull(value)                   | UnitValueにはfalseを返し、それ以外はnullとの厳密比較を使います。UnitValue以外の独自クラスの演算子上書きまで正常化するAPIではありません。                                                                                                              |
+For example, when the right operand is 2 in, calculate the difference as follows:
 
-型宣言のUnitValueLikeは必要な公開部分を表します。実行時にはホストのUnitValueかどうかを確認するため、型の構造が似た通常のオブジェクトは減算の入力にできません。純正コンストラクタが持つNaNや無限値の表現は、そのままホストに従います。
+```js
+import { subtractUnitValues, isNull } from "extendscript-compat/unit-value";
 
-AEでは、元の演算子を取得した後にインスタンスの演算子を上書きしても反映されない例がありました。プロトタイプの変更でも新規インスタンスを修正できませんでした。このため0.2.0では、元のクラスを維持できる明示的な補助APIを採用します。`/runtime`の読込で通常の演算子や比較が直るとは保証しません。
+var value = new UnitValue("2 in");
+var difference = subtractUnitValues(10, value);
+// difference is 8 in; value is not modified.
+var missing = isNull(value); // false
+```
 
-## 取り込み元と変更
+| API                               | Contract                                                                                                                                                                                                                                                                                                                            |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `subtractUnitValues(left, right)` | Arguments must be numbers or host `UnitValue` instances. Only number-minus-`UnitValue` is corrected: a new native `UnitValue` inherits the right operand's unit and `baseUnit` without changing either input. Other combinations use native subtraction. Non-number coercion is not performed; invalid arguments throw `TypeError`. |
+| `isNull(value)`                   | Returns `false` for a `UnitValue` and otherwise uses strict comparison with `null`. Even a `UnitValue` with an absolute value below 1 is not treated as `null`. It does not normalize operator overrides of unrelated custom classes.                                                                                               |
 
-splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es5-shim/blob/c0867fc232177277f2f74c6066aad47ade51076c/es5-shim.js#L1980-L2076)を取り込んでいます。元コミットは`c0867fc232177277f2f74c6066aad47ade51076c`です。[著作権表示と許諾文](../THIRD-PARTY-LICENSES.txt)を同梱しています。
+`UnitValueLike` in the type declarations describes the required public shape. At runtime the subtraction helper checks for the host's actual `UnitValue`, so a normal object with a similar structure is not accepted. Representations of `NaN` and infinity follow the native constructor.
 
-元実装から、ES3用のフラグ、対象関数の強制置換、共有エンジンでの再評価防止、入力の一度だけの型変換、AEの空入力への対応を変更しました。文字列区切りのsplitは元の関数へ委ねます。元実装が持つ未参加キャプチャの補正も保持しています。
+In AE, overriding an instance's operator after obtaining the original operator did not take effect in one observed case. Prototype changes also failed to correct new instances. The library therefore uses explicit helpers that preserve the original class. Importing `/runtime` does not guarantee that ordinary operators or comparisons are fixed.
 
-parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
+## Source and modifications
 
-参考にした[extendscript-ts-template](https://github.com/YukiWorks432/extendscript-ts-template/tree/473d32798631aba0926e0bf094557e8b84c2f5ff)には、es5-shimの共有エンジン用キャッシュと空白処理の改変があります。[Issue #1と対応コメント](https://github.com/YukiWorks432/extendscript-ts-template/issues/1)を踏まえ、今回のparseIntはUnicodeの空白をまとめた正規表現を生成せず、文字コードで判定しています。同テンプレートから実装を複製したり、テンプレート本体を変更したりはしていません。
+`split` incorporates [es5-shim v4.6.7](https://github.com/es-shims/es5-shim/blob/c0867fc232177277f2f74c6066aad47ade51076c/es5-shim.js#L1980-L2076), commit `c0867fc232177277f2f74c6066aad47ade51076c`, under the MIT license. The [copyright notice and license](../THIRD-PARTY-LICENSES.txt) are included.
 
-## 検証
+Changes from the original cover ES3 flags, forced replacement, shared-engine re-evaluation prevention, one-time input coercion, and AE empty-input handling. String-separator `split` is delegated to the original function. The original correction for nonparticipating captures is retained.
 
-`test/fixtures/runtime-contract.js`は、仕様から求めた期待値と実際の動作を比べる71項目の実機・Node共用資料です。製品の型検査対象とは分け、NodeとAEで実行します。
+`parseInt`, `charAt`, and `replace` are implemented for ExtendScript-specific bugs observed in this investigation. es5-shim's `parseInt` delegates to the original function and does not fix EC-04; its existing `replace` correction does not cover the replacement-string issue addressed here, so those implementations were not adopted unchanged.
+
+The reference [extendscript-ts-template](https://github.com/YukiWorks432/extendscript-ts-template/tree/473d32798631aba0926e0bf094557e8b84c2f5ff) modifies es5-shim's shared-engine cache and whitespace handling. In light of [Issue #1 and its comments](https://github.com/YukiWorks432/extendscript-ts-template/issues/1), this `parseInt` checks whitespace by character code instead of generating a regular expression containing Unicode whitespace. No implementation was copied from that template and the template itself was not modified.
+
+## Validation
+
+`test/fixtures/runtime-contract.js` contains 71 cases shared by host and Node tests, comparing behavior with expectations derived from the specification. It is kept outside the product type-checking scope and run in Node and AE.
 
 ```sh
 pnpm check
 node scripts/build-host-runtime-probe.mjs
 ```
 
-後者は`tmp/runtime-host-probe/`へ圧縮・優先順位保護した実出力、AE用の比較コード、SHA-256を生成します。AE用コードは適用前・適用後・再適用後を比較し、finallyで元の4関数と内部の印を復元します。通常の製品への導入は補正を保持するため、この復元処理を含めません。
+The second command generates minified, precedence-protected output, comparison code for AE, and SHA-256 hashes in `tmp/runtime-host-probe/`. The AE probe compares the original functions, the installed correction, and reapplication; a `finally` block restores the four functions and the internal marker. Normal product integration retains the corrections and does not include that restoration.
 
-実行結果は対象の製品版・エンジン版・コードのSHA-256とともに保存してください。今回確認したAEの結果と証跡は、リポジトリのdocs/runtime-host-validation.mdに記録しています。他のAdobe製品では実機確認していません。
+Record results with the target product, engine version, and code SHA-256. The AE results and evidence are in the [runtime host validation record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md). Other Adobe products have not been tested on a host.

@@ -1,53 +1,55 @@
-# 0.2.0追加互換補正の実機確認
+# Host validation of additional compatibility corrections in 0.2.0
 
-2026年10月26日、WindowsのAfter Effects 26.5x89 / ExtendScript 4.5.6（build 80.1060872）で、EC-03・06・10・11の補正方法を調査し、実装の最終出力を確認した。
+[日本語（正本）](compatibility-host-validation.ja.md) | English
 
-## 調査と採用した方法
+On 2026-10-26, correction methods for EC-03, EC-06, EC-10, and EC-11 were investigated and the final output was validated in After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.1060872) on Windows.
 
-[調査コード](evidence/compatibility-investigation.jsx)と[結果](evidence/compatibility-investigation-ae-26.5.json)に、入力と実行本文のSHA-256を記録している。
+## Investigation and selected approaches
 
-| 対象  | 実機で観測した差                                                                                                                                                              | 採用した方法                                                                                                                        |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| EC-03 | switch内の無名continueは後続へ到達した。対象ループのラベルを指定すると正しく次の反復へ進んだ。ラベル付きcontinueの末尾のセミコロンを省くと、Expected: ;の構文エラーになった。 | 無名continueの対象ループを特定し、衝突しないラベルを追加または再利用する。圧縮後に省略されたラベル付きcontinueのセミコロンを補う。  |
-| EC-06 | 文字クラス内の16進表記のハイフンが範囲になった。明示的なエスケープでは正常だった。                                                                                            | ES3のg・i・mフラグのリテラルを局所変換する。文字クラス外、文字列、動的なコンストラクタは変えない。                                  |
-| EC-10 | 数値10−2 inが-8 inになった。演算子を直接上書きできる例もあったが、元の演算子を取得した後では上書きが効かなかった。プロトタイプの変更でも新規インスタンスは直らなかった。      | subtractUnitValuesで数値−UnitValueだけを明示的に補正し、純正の型・単位・baseUnitを保つ。ほかの数値・UnitValueの減算は純正へ委ねる。 |
-| EC-11 | 0.5 inのUnitValueとnullの厳密比較がtrueになった。先にUnitValueを区別すると正常だった。                                                                                        | isNullを明示的に使う。クラスや既存の演算子は変更しない。                                                                            |
+The [investigation code](evidence/compatibility-investigation.jsx) and [result](evidence/compatibility-investigation-ae-26.5.json) record the SHA-256 hashes of the input and executed body.
 
-これらの結果から、型の分からない減算や比較を一律に書き換える方式、共有のUnitValueコンストラクタを差し替える方式は採用しない。通常の演算子が自動で修正されたという保証も行わない。
+| Issue | Difference observed on the host                                                                                                                                                                                                                         | Selected approach                                                                                                                                                              |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| EC-03 | An unlabeled `continue` inside a `switch` reached the following statement. Specifying the target loop's label correctly advanced to the next iteration. Omitting the semicolon at the end of a labeled `continue` caused a syntax error, `Expected: ;`. | Identify the target loop; add a collision-free label or reuse an existing label. Restore semicolons omitted from labeled `continue` by minification.                           |
+| EC-06 | A hexadecimal hyphen inside a character class was treated as a range. Explicitly escaping it worked correctly.                                                                                                                                          | Locally rewrite literals using ES3 `g`, `i`, and `m` flags; leave escapes outside character classes, strings, and dynamic constructors unchanged.                              |
+| EC-10 | Number 10 minus 2 in produced -8 in. Direct operator overrides worked in some cases, but not after the original operator had been obtained. Prototype changes did not correct new instances either.                                                     | Use `subtractUnitValues` explicitly for number-minus-`UnitValue`, preserving the native type, unit, and `baseUnit`. Delegate other number/`UnitValue` subtraction to the host. |
+| EC-11 | Strict comparison of a 0.5 in `UnitValue` with `null` returned `true`. Distinguishing `UnitValue` first worked correctly.                                                                                                                               | Use `isNull` explicitly without changing the class or existing operators.                                                                                                      |
 
-## 最終出力の検証
+These observations rule out rewriting every subtraction or comparison of unknown types and replacing the shared `UnitValue` constructor. Ordinary operators are not guaranteed to be corrected automatically.
 
-実装ファイルと共用の検証資料から、Rollupで非圧縮版とTerser圧縮版を作成し、それぞれの生成後にextendscriptCompatを適用した。各版は元の4関数へ戻してから独立に適用し、同じ版の再読込も確認した。
+## Final-output validation
 
-| 出力           | 初回                 | 再読込               |
-| -------------- | -------------------- | -------------------- |
-| 非圧縮・補正後 | 追加53/53、既存71/71 | 追加53/53、既存71/71 |
-| 圧縮・補正後   | 追加53/53、既存71/71 | 追加53/53、既存71/71 |
+Rollup generated non-minified and Terser-minified versions from the implementation and shared test fixtures; `extendscriptCompat` was applied after each output was generated. Each version was installed independently after restoring the original four functions, and reloading the same version was also checked.
 
-追加の確認には、ラベル付きcontinueのfinally、文字クラスの否定・範囲端点・エスケープ、減算方向、型、単位、px・%の換算基準、符号付きゼロ、入力不変、不正入力、nullとUnitValueの区別を含む。Nodeではホスト固有の演算子を模擬して保証したことにはせず、AEで別に実行する。
+| Output                  | First run                        | Reload                           |
+| ----------------------- | -------------------------------- | -------------------------------- |
+| Non-minified, corrected | Additional 53/53, existing 71/71 | Additional 53/53, existing 71/71 |
+| Minified, corrected     | Additional 53/53, existing 71/71 | Additional 53/53, existing 71/71 |
 
-4関数の新規適用と再適用時の同一性、終了時の復元、UnitValueコンストラクタとプロジェクト状態の保持も確認する。結果と生成物のハッシュは[実機証跡](evidence/compatibility-auto-label-ae-26.5.json)に保存する。プロジェクトの追加・変更・保存は行わない。
+Additional checks cover `finally` with labeled `continue`, negated character classes, range endpoints and escapes, subtraction direction, type and unit, px and % conversion bases, signed zero, input immutability, invalid inputs, and distinguishing `null` from `UnitValue`. Host-specific operators are executed separately in AE; Node mocks are not treated as proof of host behavior.
 
-自動ラベル挿入には、for・while・do-while・for-in、同一ループの複数continue、入れ子、既存ラベルの再利用、外側や後続のラベルとの衝突回避、コメントとASI、ブロックなしのループ、finally、this・arguments・直接evalの束縛を含む17シナリオを追加した。Nodeの標準動作と固定した期待値を比較し、同じ入力を実際の非圧縮・圧縮出力へ含めてAEでも確認した。
+Fresh application and reapplication identity of the four functions, restoration afterward, and preservation of the `UnitValue` constructor and project state were also checked. The results and generated-file hashes are in the [host evidence](evidence/compatibility-auto-label-ae-26.5.json). No project items were added or changed, and the project was not saved.
 
-自動ラベル追加前のhead 41b38aab03ef1d93d2cf7ccf31aaecda0c1576aeにおける追加36/36・既存71/71の記録は、[前回の実機証跡](evidence/compatibility-ae-26.5.json)として保持している。
+Automatic label insertion includes 17 scenarios: `for`, `while`, `do-while` and `for-in`, multiple `continue` statements for one loop, nesting, reuse of existing labels, collision avoidance with outer or later labels, comments and ASI, loops without braces, `finally`, and bindings for `this`, `arguments`, and direct `eval`. Standard Node behavior was compared with fixed expected values; the same inputs were included in actual non-minified and minified output and checked in AE.
 
-## 再実行
+The [previous host evidence](evidence/compatibility-ae-26.5.json) retains the additional 36/36 and existing 71/71 results for head `41b38aab03ef1d93d2cf7ccf31aaecda0c1576ae`, before automatic label insertion.
+
+## Reproduction
 
 ```sh
 pnpm check
 node scripts/build-host-compatibility-probe.mjs
 ```
 
-生成先はtmp/compatibility-host-probeである。manifest.jsonは2種類の実出力、probe.jsx、eval.runへ渡すprobe-body.jsxのSHA-256を記録する。probe-body.jsxをAE接続のeval.runへ渡すと、検証後に元の関数と共有エンジン用の印をfinallyで復元する。戻り値の失敗一覧、適用・復元、生成物のハッシュを証跡と照合する。
+The output directory is `tmp/compatibility-host-probe`. `manifest.json` records the SHA-256 hashes of the two actual outputs, `probe.jsx`, and `probe-body.jsx`, the body passed to `eval.run`. Passing `probe-body.jsx` to the AE connection's `eval.run` restores the original functions and shared-engine marker in `finally`. Compare the returned failure list, installation and restoration status, and generated-file hashes with the evidence.
 
-調査中、標準MCP経路で結果待ちの時間切れが発生したため、その要求は取消しを要求し、応答する別のAE接続のeval.runで調査と最終検証を行った。時間切れをホスト試験の成功には数えていない。接続設定やプロジェクトは変更していない。
+During the investigation the standard MCP route timed out. Cancellation was requested for those calls, and the investigation and final validation were performed using `eval.run` on another responsive AE connection. Timeouts were not counted as successful host tests. Connection settings and the project were not changed.
 
-確認範囲は上記のAE環境である。他のAdobe製品・旧版、E4X、JSXBin化後の実機実行、既存の利用側プロジェクトへの組み込みは未確認である。正規表現エンジンのキャプチャ消失や停止は今回の補正範囲に含めない。
+The confirmed scope is the AE environment above. Other Adobe products and older versions, E4X, host execution after JSXBin conversion, and integration into existing consuming projects have not been verified. Regular-expression engine capture loss and hangs are outside these corrections.
 
-## 根拠資料
+## References
 
-- [ExtendScriptの演算子上書き](https://extendscript.docsforadobe.dev/extendscript-tools-features/operator-overloading/)
-- [UnitValueの演算と換算基準](https://extendscript.docsforadobe.dev/extendscript-tools-features/specifying-measurement-values/)
-- [IdExtensoのUnitValue調査](https://github.com/indiscripts/IdExtenso/blob/0c2f70f4afa25aff691ebdc72575103965a66aee/etc/%24%24.Unit.jsxlib#L166)
-- [EC-03の当事者報告](https://community.adobe.com/questions-628/bug-extendscript-incorrectly-handles-the-continue-statement-within-switch-statements-685465)
+- [ExtendScript operator overloading](https://extendscript.docsforadobe.dev/extendscript-tools-features/operator-overloading/)
+- [UnitValue arithmetic and base units](https://extendscript.docsforadobe.dev/extendscript-tools-features/specifying-measurement-values/)
+- [IdExtenso UnitValue investigation](https://github.com/indiscripts/IdExtenso/blob/0c2f70f4afa25aff691ebdc72575103965a66aee/etc/%24%24.Unit.jsxlib#L166)
+- [First-hand report for EC-03](https://community.adobe.com/questions-628/bug-extendscript-incorrectly-handles-the-continue-statement-within-switch-statements-685465)

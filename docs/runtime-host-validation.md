@@ -1,26 +1,28 @@
-# 組み込み関数補正のAE実機確認
+# AE host validation of built-in function corrections
 
-2026年10月26日、After Effects 26.5x89 / ExtendScript 4.5.6（build 80.1060872）、Windowsで確認した。
+[日本語（正本）](runtime-host-validation.ja.md) | English
 
-| 段階                               | 成功 / 項目数 |
-| ---------------------------------- | ------------- |
-| 適用前の組み込み関数               | 38 / 71       |
-| 圧縮・優先順位保護した補正を適用後 | 71 / 71       |
-| 同じ補正を同じエンジンへ再適用後   | 71 / 71       |
+Checked on 2026-10-26 in After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.1060872) on Windows.
 
-再適用前後の4関数の同一性、基数省略時の挙動の維持、終了時の4関数の復元も確認した。プロジェクトの追加・変更・保存は行っていない。検証用コードはfinallyで元の関数と共有エンジン用の印を復元する。
+| Stage                                                         | Passed / cases |
+| ------------------------------------------------------------- | -------------- |
+| Original built-in functions                                   | 38 / 71        |
+| After applying the minified, precedence-protected corrections | 71 / 71        |
+| After reapplying the same corrections in the same engine      | 71 / 71        |
 
-- MCP要求ID: `req-18e1fa77c7c8f698-10184-7`
-- 圧縮後の実行時補正SHA-256: `9235c8d4bfaa334ea381f822756a0c89ae58a40fa1e7cb46cd41345c2da77af3`
-- 検証コードSHA-256: `14168611b037421252c9fce4ce9b5da4f1b03f067fda87651e0c59a20524b21e`
-- [実行結果](evidence/runtime-ae-26.5.json)
+The check also verified the identity of the four functions across reapplication, preservation of omitted-radix behavior, and restoration of the four functions afterward. No project items were added or changed, and the project was not saved. The probe restores the original functions and shared-engine marker in `finally`.
 
-次のコマンドで同じ実出力と検証コードを生成できる。生成したハッシュを上の記録と照合する。
+- MCP request ID: `req-18e1fa77c7c8f698-10184-7`
+- Minified runtime correction SHA-256: `9235c8d4bfaa334ea381f822756a0c89ae58a40fa1e7cb46cd41345c2da77af3`
+- Probe SHA-256: `14168611b037421252c9fce4ce9b5da4f1b03f067fda87651e0c59a20524b21e`
+- [Execution result](evidence/runtime-ae-26.5.json)
+
+The following command regenerates the same output and probe. Compare the generated hashes with the records above.
 
 ```sh
 node scripts/build-host-runtime-probe.mjs
 ```
 
-ファイル実行の許可範囲はMCP設定に従う。今回のファイル入力はワークツリーの配置制限により受理されなかったため、ファイルの内容を読み取り、同じコードをインラインで実行した。MCPが文字列前後の空白を除去するため、生成器も末尾の改行を除いて実行時のハッシュへ一致させている。許可設定は変更していない。
+File execution is governed by the MCP configuration. The file input for this run was rejected due to the worktree path restriction, so the file contents were read and the same code was executed inline. Since MCP trims surrounding whitespace from strings, the generator also removes the final newline to match the hash of the executed code. The permission configuration was not changed.
 
-これは実装ファイルと共用の検証資料から生成した実出力の確認であり、Nodeでの模擬環境の結果とは分けている。他のAdobe製品・旧版での実機確認、既存テンプレートへの導入変更は行っていない。正規表現エンジン自体の停止・キャプチャ消失、UnitValueは対象外である。
+This validates actual output generated from the implementation and shared test fixture; it is separate from Node mock-environment results. Other Adobe products and older versions were not tested on a host, and no existing template was modified. Regular-expression engine hangs and capture loss, and `UnitValue`, were outside this validation.
