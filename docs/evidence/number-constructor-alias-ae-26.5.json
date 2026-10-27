@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-27 18:39:40 UTC",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "generator": "scripts/build-host-number-extended-probe.mjs",
+  "sha256": {
+    "number-extended-normal.jsx": "e9136cd9aaad174dbf5e47e070aa67a32c13866e6ef94fa5e94c36c44d86d855",
+    "number-extended-minified.jsx": "05253bc67c944506e500617d9615bcad14179261e1ae12bb0e5f53094d504146"
+  },
+  "runtimePreviouslyApplied": 1,
+  "results": [
+    {
+      "name": "number-extended-normal.jsx",
+      "result": {
+        "failures": [],
+        "passed": 17,
+        "total": 17
+      }
+    },
+    {
+      "name": "number-extended-minified.jsx",
+      "result": {
+        "failures": [],
+        "passed": 17,
+        "total": 17
+      }
+    }
+  ],
+  "numberIdentity": true,
+  "numberParseIntIdentity": true,
+  "project": {
+    "before": {
+      "dirty": true,
+      "items": 6
+    },
+    "after": {
+      "dirty": true,
+      "items": 6
+    }
+  },
+  "limitations": "After Effects 26.5x89 on Windows only; other Adobe products and older versions not tested."
+}

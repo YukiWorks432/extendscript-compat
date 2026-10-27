@@ -48,6 +48,24 @@ The protection adds parentheses at boundaries between mixed `&&` and `||` operat
 
 The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.5.6 with 22 language regressions and 96 consuming-product regressions. It has not been tested in other Adobe products such as Illustrator or Photoshop.
 
+## Automatic Number call correction
+
+Rollup's `extendscriptCompat()` rewrites direct calls to the unbound global `Number` in modules to use `toNumber` from `extendscript-compat/number`. Direct `new Number(...)` first applies the corrected conversion and then creates an object with the original `Number`. No manual import is needed, and the host `Number` is not replaced.
+
+```js
+// Consumer code: in AE, value is 5 and boxed is a Number object containing 5.
+const value = Number("0b101");
+const boxed = new Number("0b101");
+const convert = Number;
+const another = convert("0b101");
+```
+
+An alias is rewritten when it is initialized directly from `Number` and its references are limited to direct calls after the declaration within its block and function, and `===` or `!==` identity comparisons with `Number`. The identity comparisons are preserved. References in another function, conditional declarations, calls before initialization, and `new` through an alias are left unchanged and warned about by default. Aliases are not rewritten if the module contains direct `eval`.
+
+Locally defined `Number` bindings and object methods are not rewritten. Indirect references such as `Number.call`, `apply`, and `bind` are not rewritten and produce a warning by default. Static properties such as `Number.parseInt` are unchanged. Calls through `$.global.Number`, `eval` strings, and external scripts are outside the transformation. Use `toNumber` explicitly where needed.
+
+The rewrite runs while Rollup processes modules, after TypeScript and other syntax transforms and before bundling and minification. Code added later by include expansion is outside its scope. Source maps lost by earlier tools cannot be restored. Calling `protectCompatibility(source)` alone does not rewrite Number calls.
+
 ## Unicode protection
 
 In After Effects 26.5, `$.evalFile` can drop literal U+200C, U+200D, and U+FEFF characters from source code. `protectCompatibility` and Rollup’s `extendscriptCompat` escape these characters inside strings and regular expressions by default.
@@ -69,11 +87,11 @@ Rollup's `extendscriptCompat()` also does the following:
 - EC-03: Corrects an unlabeled `continue` that crosses a `switch` to reach an outer loop. It reuses the target loop's existing label or adds a collision-free label, sharing one label for each loop. A `continue` targeting an inner loop is unchanged. It also restores a trailing semicolon on labeled `continue` statements when a minifier has removed it.
 - EC-06: In regular-expression literals using only the ES3 `g`, `i`, and `m` flags, replaces `\x2D` and `\u002D` with `\-` inside character classes. Lowercase hexadecimal digits are also supported. Strings passed to a dynamic `RegExp` constructor and escapes outside character classes are unchanged.
 
-EC-03 is corrected automatically with a warning by default. Select `error` to stop a build even when the issue can be corrected, for example to enforce a policy that source code contains no EC-03 issue. Select `off` to correct without a notification.
+EC-03 is corrected automatically with a warning by default. Unsupported indirect Number references are also warned about. Select `error` to stop a build even when the issue can be corrected, for example to enforce a policy that source code contains no EC-03 issue. Select `off` to correct without a notification.
 
 ```js
 extendscriptCompat({ diagnostics: "error" });
-// "warn": warning (default), "error": stop the build, "off": suppress notifications
+// "warn": warning (default), "error": stop the build, "off": suppress EC-03 and Number notifications
 ```
 
 For direct integration into a build tool, use the combined API:
@@ -82,7 +100,7 @@ For direct integration into a build tool, use the combined API:
 import { findCompatibilityIssues, protectCompatibility } from "extendscript-compat";
 
 const result = protectCompatibility(source);
-// result.code: precedence, EC-06, continue labels, and semicolons corrected
+// result.code: precedence, EC-06, continue labels, semicolons, and Unicode corrected
 // result.edits: insertions and replacements against the original input (start / end / text)
 // result.diagnostics: notifications for automatically corrected EC-03 issues in the original input
 const issues = findCompatibilityIssues(source);

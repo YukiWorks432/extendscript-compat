@@ -1,6 +1,8 @@
+import { fileURLToPath } from "node:url";
 import { addSegment, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 import { eachMapping, TraceMap } from "@jridgewell/trace-mapping";
 import { protectCompatibility, assertPrecedenceProtected } from "./index.js";
+import { numberPonyfillImport, transformNumberCalls } from "./number-transform.js";
 
 /** @param {string} source */
 const lineStarts = (source) => {
@@ -120,8 +122,37 @@ export function extendscriptCompat(options = {}) {
   if (!["warn", "error", "off"].includes(diagnostics)) {
     throw new TypeError("Unknown ExtendScript diagnostics mode: " + diagnostics);
   }
+  const numberPonyfillPath = fileURLToPath(
+    new URL("../runtime/number.js", import.meta.url),
+  ).replace(/\\/g, "/");
+  const runtimePath = fileURLToPath(new URL("../runtime/index.js", import.meta.url)).replace(
+    /\\/g,
+    "/",
+  );
   return {
     name: "extendscript-compat",
+    resolveId(source) {
+      if (source === numberPonyfillImport) return numberPonyfillPath;
+      return null;
+    },
+    transform(code, id) {
+      const normalizedId = id.replace(/\\/g, "/");
+      if (normalizedId === numberPonyfillPath || normalizedId === runtimePath) return null;
+      const result = transformNumberCalls(code, id);
+      if (!result) return null;
+      if (diagnostics !== "off") {
+        for (const position of result.diagnostics) {
+          const warning = {
+            code: "NUMBER_UNSUPPORTED",
+            message: "安全に変換できないNumberの参照は自動補正されません。",
+            loc: { file: id, ...position },
+          };
+          if (diagnostics === "error") this.error(warning);
+          else this.warn(warning);
+        }
+      }
+      return result.code === undefined ? null : { code: result.code, map: result.map };
+    },
     generateBundle(options, bundle) {
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-27 18:13:27 UTC",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "generator": "scripts/build-host-number-auto-probe.mjs",
+  "sha256": {
+    "number-auto-normal.jsx": "73c4c72162747ecfd47c8299e33eb3b57ded5265cc68a1b5797ea4a00086cb4b",
+    "number-auto-minified.jsx": "1b877ddf03f763b39e33ab39342e02d3abb5410cee0e77a67f53fb6cb393929e"
+  },
+  "runtimePreviouslyApplied": 1,
+  "results": [
+    {
+      "name": "number-auto-normal.jsx",
+      "result": {
+        "failures": [],
+        "passed": 15,
+        "total": 15
+      }
+    },
+    {
+      "name": "number-auto-minified.jsx",
+      "result": {
+        "failures": [],
+        "passed": 15,
+        "total": 15
+      }
+    }
+  ],
+  "numberIdentity": true,
+  "numberParseIntIdentity": true,
+  "numberParseIntResult": 10,
+  "project": {
+    "before": {
+      "dirty": true,
+      "items": 6
+    },
+    "after": {
+      "dirty": true,
+      "items": 6
+    }
+  },
+  "firstAttempt": {
+    "normalSha256": "062accb6c0914885cf2484010f21d6ce0c49ac9a9714bcaca0d7a65ad913643b",
+    "results": [
+      {
+        "error": "SyntaxError: Illegal use of reserved word",
+        "name": "number-auto-normal.jsx"
+      },
+      {
+        "name": "number-auto-minified.jsx",
+        "result": {
+          "failures": [],
+          "passed": 15,
+          "total": 15
+        }
+      }
+    ],
+    "note": "通常版の検証資料で識別子nativeがExtendScriptの予約語に当たり構文エラー。識別子を修正して再生成した。"
+  },
+  "limitations": "After Effects 26.5x89 on Windows only. Runtime already applied; other Adobe products and older versions not tested."
+}

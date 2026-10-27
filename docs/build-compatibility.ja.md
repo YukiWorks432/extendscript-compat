@@ -48,6 +48,24 @@ protectPrecedenceは従来どおり括弧だけを挿入します。protectCompa
 
 After Effects 26.5x89 / ExtendScript 4.5.6で言語回帰22件と利用側の製品回帰96件を確認しています。IllustratorやPhotoshopなど、ほかの製品での実機確認は行っていません。
 
+## Number呼び出しの自動補正
+
+Rollupの`extendscriptCompat()`は、モジュール内でグローバルの`Number`を直接呼び出す箇所を、`extendscript-compat/number`の`toNumber`へ標準で変換します。直接の`new Number(...)`は、引数の数値変換を補正してから元の`Number`でオブジェクトを作ります。利用側での読み込みは不要で、ホストの`Number`は置き換えません。
+
+```js
+// 利用側コード。AEでもvalueは5、boxedは値5のNumberオブジェクトになる。
+const value = Number("0b101");
+const boxed = new Number("0b101");
+const convert = Number;
+const another = convert("0b101");
+```
+
+別名は`Number`を直接代入し、参照が宣言のあるブロック内での宣言後・同じ関数からの直接呼び出しと、`Number`との`===`・`!==`による同一性比較に限られる場合に変換します。同一性比較は保持します。別関数内の参照、条件付きの宣言、初期化前の呼び出し、別名を使った`new`など、安全に判定できない場合は変換せず、既定で警告します。直接の`eval`がモジュールにある場合も、別名は変換しません。
+
+ローカルで定義した別の`Number`やオブジェクトのメソッドは変換しません。`Number.call`・`apply`・`bind`などの間接参照は変換せず、既定で警告します。`Number.parseInt`などの静的プロパティは変更しません。`$.global.Number`、文字列からの`eval`、外部スクリプト内の呼び出しは対象外です。必要な場合は明示的に`toNumber`を使ってください。
+
+自動変換はRollupのモジュール処理中に行います。TypeScriptなどの変換後、バンドル・圧縮前に適用し、include展開でその後追加されたコードは対象になりません。先行する処理が失ったソースマップは復元できません。既存の`protectCompatibility(source)`単体ではNumberを自動変換しません。
+
 ## Unicode文字の補正
 
 After Effects 26.5の`$.evalFile`では、コード中に直接書かれたU+200C・U+200D・U+FEFFが失われることがあります。`protectCompatibility`とRollup用の`extendscriptCompat`は、文字列と正規表現の該当文字を標準で`\u`表記へ変換します。
@@ -69,11 +87,11 @@ Rollup用の`extendscriptCompat()`は、優先順位の保護に加え、次の�
 - EC-03: switchをまたいで外側のループへ進む、ラベルのないcontinueを自動補正します。対象ループの既存ラベルを再利用し、ラベルがなければ衝突しない名前で追加します。同じループを対象とする場合は、一つのラベルを共有します。内側のループを対象とするcontinueは変えません。圧縮後に省かれたラベル付きcontinueの末尾のセミコロンも補います。
 - EC-06: g・i・mのみを使う正規表現リテラルの文字クラス内で、`\x2D`・`\u002D`を`\-`へ置き換えます。小文字の16進数字にも対応します。動的なRegExpコンストラクタの文字列や、文字クラス外のエスケープは変更しません。
 
-EC-03は既定で自動補正し、補正した箇所を警告として通知します。元のコードにEC-03を含めない方針をCIで徹底する場合は、補正可能な場合もビルドを停止する`error`を選べます。通知せずに自動補正する場合は`off`を選びます。
+EC-03は既定で自動補正し、補正した箇所を警告として通知します。自動補正できないNumberの間接参照も警告します。元のコードにEC-03を含めない方針をCIで徹底する場合は、補正可能な場合もビルドを停止する`error`を選べます。通知せずに自動補正する場合は`off`を選びます。
 
 ```js
 extendscriptCompat({ diagnostics: "error" });
-// "warn": 警告（既定値）、"error": ビルド停止、"off": 通知を省略
+// "warn": 警告（既定値）、"error": ビルド停止、"off": EC-03とNumberの通知を省略
 ```
 
 ビルドツールへ直接組み込む場合は、統合APIを使います。

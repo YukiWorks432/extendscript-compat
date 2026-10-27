@@ -61,7 +61,8 @@
   "dependencies": {
     "@babel/core": "^7.29.7",
     "@jridgewell/gen-mapping": "^0.3.13",
-    "@jridgewell/trace-mapping": "^0.3.31"
+    "@jridgewell/trace-mapping": "^0.3.31",
+    "magic-string": "0.30.21"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^1.0.0",
