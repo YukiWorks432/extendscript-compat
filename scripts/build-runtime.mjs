@@ -39,9 +39,11 @@ const assembled = [
   "  if (root.__extendscriptCompatPolyfills__ === 1) return;",
   "  var before = [root.parseInt, String.prototype.charAt, String.prototype.split, String.prototype.replace];",
   "  try {",
+  source("trim.js"),
   jsonCode,
   factory("es5-shim.js"),
   factory("es6-shim.js"),
+  "  if (!__extendscriptCompatTrimWorks(String.prototype.trim)) String.prototype.trim = __extendscriptCompatTrimMethod;",
   "  } finally {",
   "    if (root.__extendscriptCompatRuntime__ === 1 &&",
   "        (before[0] !== root.parseInt || before[1] !== String.prototype.charAt ||",
@@ -50,6 +52,7 @@ const assembled = [
   "    }",
   "  }",
   source("fixes.js"),
+  "  Number.parseInt = root.parseInt;",
   "  root.__extendscriptCompatPolyfills__ = 1;",
   '})(typeof $ === "undefined" ? globalThis : $.global);',
   "",
@@ -57,10 +60,12 @@ const assembled = [
 const formatted = await minify(assembled, {
   compress: false,
   mangle: false,
-  format: { ecma: 5, ie8: true, beautify: true, comments: /^!/ },
+  format: { ecma: 5, ie8: true, beautify: true, ascii_only: true, comments: /^!/ },
 });
 if (!formatted.code) throw new Error("Runtime generation produced no code");
 const output = protectCompatibility(formatted.code).code.replace(/[ \t]+$/gm, "") + "\n";
+if (Array.from(output).some((character) => character.charCodeAt(0) > 127))
+  throw new Error("Runtime generation produced non-ASCII characters");
 const path = fileURLToPath(new URL("../runtime/index.js", import.meta.url));
 if (process.argv.includes("--check")) {
   if (readFileSync(path, "utf8") !== output) throw new Error("runtime/index.js is not up to date");

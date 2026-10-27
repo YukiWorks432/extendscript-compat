@@ -3,6 +3,39 @@
     if (root.__extendscriptCompatPolyfills__ === 1) return;
     var before = [ root.parseInt, String.prototype.charAt, String.prototype.split, String.prototype.replace ];
     try {
+        function __extendscriptCompatIsTrimSpace(code) {
+            return (code >= 9 && code <= 13) || code === 32 || code === 160 || code === 5760 || (code >= 8192 && code <= 8202) || code === 8232 || code === 8233 || code === 8239 || code === 8287 || code === 12288 || code === 65279;
+        }
+        function __extendscriptCompatTrim(text) {
+            var start = 0;
+            var end = text.length;
+            while (start < end && __extendscriptCompatIsTrimSpace(text.charCodeAt(start))) start++;
+            while (end > start && __extendscriptCompatIsTrimSpace(text.charCodeAt(end - 1))) end--;
+            return text.slice(start, end);
+        }
+        function __extendscriptCompatTrimMethod() {
+            if (this === null || typeof this === "undefined") throw new TypeError("trim requires an object");
+            return __extendscriptCompatTrim(String(this));
+        }
+        function __extendscriptCompatTrimWorks(trim) {
+            if (typeof trim !== "function") return false;
+            var spaces = [ 9, 10, 11, 12, 13, 32, 160, 5760, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8232, 8233, 8239, 8287, 12288, 65279 ];
+            var nonspaces = [ 133, 6158, 8203, 8204, 8205, 65534 ];
+            var i, c;
+            try {
+                for (i = 0; i < spaces.length; i++) {
+                    c = String.fromCharCode(spaces[i]);
+                    if (trim.call(c + "x" + c) !== "x") return false;
+                }
+                for (i = 0; i < nonspaces.length; i++) {
+                    c = String.fromCharCode(nonspaces[i]);
+                    if (trim.call(c + "x" + c) !== c + "x" + c) return false;
+                }
+                return trim.call(" x y ") === "x y";
+            } catch (_error) {
+                return false;
+            }
+        }
         (function(root) {
             if (typeof root.JSON !== "object" || root.JSON === null) root.JSON = {};
             var JSON = root.JSON;
@@ -1640,24 +1673,13 @@
                     return string_substr(this, normalizedStart, length);
                 }
             }, hasNegativeSubstrBug);
-            var ws = "\t\n\x0B\f\r        　\u2028\u2029\ufeff".replace(/\S/g, "");
-            var mvs = "᠎";
+            var ws = "\t\n\x0B\f\r \u1680\u2000\u2008\u2009\u200a\u202f\u205f\u3000\u2028\u2029\ufeff".replace(/\S/g, "");
+            var mvs = "\u180e";
             var mvsIsWS = /\s/.test(mvs);
-            var zeroWidth = "​";
-            var wsRegexChars = "[" + ws + "]";
-            var trimBeginRegexp = new RegExp("^" + wsRegexChars + wsRegexChars + "*");
-            var trimEndRegexp = new RegExp(wsRegexChars + wsRegexChars + "*$");
-            var hasTrimWhitespaceBug = StringPrototype.trim && (ws.trim() !== "" || zeroWidth.trim() === "" || mvs.trim() !== (mvsIsWS ? "" : mvs));
             defineProperties(StringPrototype, {
-                trim: function trimShim() {
-                    "use strict";
-                    if (typeof this === "undefined" || this === null) {
-                        throw new TypeError("can't convert " + this + " to object");
-                    }
-                    return $String(this).replace(trimBeginRegexp, "").replace(trimEndRegexp, "");
-                }
-            }, hasTrimWhitespaceBug);
-            var hasLastIndexBug = StringPrototype.lastIndexOf && "abcあい".lastIndexOf("あい", 2) !== -1;
+                trim: __extendscriptCompatTrimMethod
+            }, !__extendscriptCompatTrimWorks(StringPrototype.trim));
+            var hasLastIndexBug = StringPrototype.lastIndexOf && "abc\u3042\u3044".lastIndexOf("\u3042\u3044", 2) !== -1;
             defineProperties(StringPrototype, {
                 lastIndexOf: function lastIndexOf(searchString) {
                     if (typeof this === "undefined" || this === null) {
@@ -2614,16 +2636,13 @@
                 }
             }
             defineProperties(String.prototype, StringPrototypeShims);
-            var ws = [ "\t\n\x0B\f\r   ", "     　\u2028", "\u2029\ufeff" ].join("");
-            var trimRegexp = new RegExp("(^[" + ws + "]+)|([" + ws + "]+$)", "g");
             var trimShim6 = function() {
-                return ES.ToString(ES.RequireObjectCoercible(this)).replace(trimRegexp, "");
+                return __extendscriptCompatTrim(ES.ToString(ES.RequireObjectCoercible(this)));
             };
-            var nonWS = ws;
-            var nonWSregex = new RegExp("[" + nonWS + "]", "g");
+            var nonWS = String.fromCharCode(133, 6158, 8203, 8204, 8205, 65534);
+            var nonWSregex = new RegExp("[" + nonWS + "]");
             var isBadHexRegex = /^[-+]0x[0-9a-f]+$/i;
-            var hasStringTrimBug = nonWS.trim().length !== nonWS.length;
-            defineProperty(String.prototype, "trim", trimShim6, hasStringTrimBug);
+            defineProperty(String.prototype, "trim", __extendscriptCompatTrimMethod, !__extendscriptCompatTrimWorks(String.prototype.trim));
             var iteratorResult = function(x) {
                 return {
                     value: x,
@@ -4071,6 +4090,7 @@
             }
             return globals;
         })();
+        if (!__extendscriptCompatTrimWorks(String.prototype.trim)) String.prototype.trim = __extendscriptCompatTrimMethod;
     } finally {
         if (root.__extendscriptCompatRuntime__ === 1 && (before[0] !== root.parseInt || before[1] !== String.prototype.charAt || before[2] !== String.prototype.split || before[3] !== String.prototype.replace)) {
             root.__extendscriptCompatRuntime__ = 0;
@@ -4273,5 +4293,6 @@
         };
         root.__extendscriptCompatRuntime__ = 1;
     })(typeof $ === "undefined" ? globalThis : $.global);
+    Number.parseInt = root.parseInt;
     root.__extendscriptCompatPolyfills__ = 1;
 })(typeof $ === "undefined" ? globalThis : $.global);

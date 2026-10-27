@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
+import { minify } from "terser";
 import { parse } from "acorn";
 import ts from "typescript";
 import { protectCompatibility } from "../src/index.js";
@@ -39,15 +40,34 @@ const templateJs = ts.transpileModule(template, {
 }).outputText;
 const templateProbe = protectCompatibility(templateJs).code;
 parse(templateProbe, { ecmaVersion: 3 });
+const unicodeSource =
+  '(function () { var text = "' +
+  String.fromCharCode(0x200c, 0x200d, 0xfeff) +
+  '"; var expression = /A' +
+  String.fromCharCode(0x200c) +
+  'B/; return { codes: [text.charCodeAt(0), text.charCodeAt(1), text.charCodeAt(2)], matches: expression.test("A" + text.charAt(0) + "B"), rejectsMissing: !expression.test("AB") }; }());';
+const unicodeProbe = (
+  await minify(unicodeSource, {
+    compress: false,
+    mangle: false,
+    format: { ecma: 5, ascii_only: true },
+  })
+).code;
+if (!unicodeProbe || Array.from(unicodeProbe).some((character) => character.charCodeAt(0) > 127)) {
+  throw new Error("Unicode probe is not ASCII");
+}
+parse(unicodeProbe, { ecmaVersion: 3 });
 const directory = resolve(root, "tmp/polyfill-host");
 mkdirSync(directory, { recursive: true });
 writeFileSync(resolve(directory, "minified.jsx"), minified);
 writeFileSync(resolve(directory, "template-test.jsx"), templateProbe);
+writeFileSync(resolve(directory, "unicode-evalfile.jsx"), unicodeProbe);
 const sha256 = (code) => createHash("sha256").update(code).digest("hex");
 const manifest = {
   rawSha256: sha256(raw),
   minifiedSha256: sha256(minified),
   templateProbeSha256: sha256(templateProbe),
+  unicodeProbeSha256: sha256(unicodeProbe),
   polyfillFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/polyfill-contract.js"))),
   correctionFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/runtime-contract.js"))),
 };

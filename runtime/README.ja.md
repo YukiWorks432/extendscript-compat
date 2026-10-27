@@ -16,6 +16,8 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 
 `runtime/index.js`をそのままJSXへ含めることもできます。コードはES3構文で記述しており、Adobeでは`$.global`へ適用します。Node.jsで明示的に読み込んだ場合は`globalThis`が対象です。
 
+配布する`runtime/index.js`はASCIIだけで構成されます。ただし、利用側のバンドラや圧縮器が文字列や正規表現にUnicode文字を再出力する場合があります。最終的なJSXでも文字列と正規表現をエスケープする設定を使用し、必要に応じてASCIIのみになっていることを確認してください。`extendscriptCompat()`自体はUnicodeのエスケープを保証しません。
+
 同じエンジンを利用する別のスクリプトにも補正が及びます。適用前に別の変数へ保存された関数への参照は変わりません。同じエンジンでの再評価は内部の版付き印で省略し、関数を重ねて包みません。後から別のライブラリが対象関数を書き換えた場合、その書き換えを監視したり自動で取り消したりはしません。
 
 ## 補正する挙動
@@ -26,6 +28,10 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 | EC-05 / charAt   | NUL文字も長さ1の文字列として返します。範囲外は空文字列、位置はUTF-16のコード単位です。                                                                                                                          |
 | EC-07 / split    | 正規表現で分割した末尾の空要素を保持します。キャプチャ、空一致、分割数の上限、呼び出し元のlastIndexを扱います。                                                                                                 |
 | EC-08 / replace  | 未参加キャプチャを空文字列にし、置換文字列のドル記号・一致全体・前後の文脈・1〜99番のキャプチャを展開します。コールバックにも元の入力と位置を渡します。                                                         |
+
+`String.prototype.trim`は現在のECMAScriptで定義された空白と改行を両端から取り除き、U+180EやU+200Bなどの非空白文字は保持します。対応済みの既存実装は維持し、不足または不完全な場合に置き換えます。従来の`parseInt`の基数ごとの扱いは維持します。`Number.parseInt`は補正後のグローバル`parseInt`と同じ関数です。
+
+AE 26.5ではグローバルの`Number`自体を置き換えられないため、`Number("0b101")`などの文字列変換はホストの挙動のままです。`Number.parseInt`の補正とは別の制限です。
 
 AE固有の挙動として、グローバルな正規表現が空の入力に一致しない問題をsplit内で補っています。replaceでは、文字列検索でコールバックが実行されない問題、連続置換時に途中の結果がコールバックへ渡る問題、末尾の空一致が省略される問題も補っています。
 
@@ -75,7 +81,7 @@ splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es
 
 parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
 
-[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止と空白処理の改変を引き継ぎ、ES5の未定義だった空白判定値とES6のグローバル取得を補正しました。無効だったESNext補完は含めていません。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
+[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。無効だったESNext補完は含めていません。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
 
 ## 検証
 

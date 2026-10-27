@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-27T13:19:54.544Z",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "hashes": {
+    "rawSha256": "a4c6abd275353234d398892955aca9a53f83f913b01752b595c9a4da5d5f200a",
+    "minifiedSha256": "f1228e742a575824cec08872d0b70e47bbb8fb1da01f4fd2aeb2c7cacb060951",
+    "unicodeProbeSha256": "33e3c6787a42bfab120798591bab2eb6cfc3438ceff644f9dde297d8ee1dda17",
+    "initialFixtureSha256": "9e4120cec04ca76abd9c57da5e553d923042bc41eb41c4c97abb6441d33bf1a2",
+    "finalFixtureSha256": "d190ce3e2d55206d57781e790b3c8a6131daf680d61fad49923e9e6e639db283",
+    "correctionFixtureSha256": "eca8cb7390199aa4625ded0a2c5e1e76a1d467615f311a673bab815503767126",
+    "templateProbeSha256": "019542afea86f18ccb6c834b981593a46753cd7bd00db90e056d6b912a00aa8f"
+  },
+  "initial": {
+    "runtime": "undefined",
+    "polyfills": "undefined",
+    "es5Cache": "undefined",
+    "es6Cache": "undefined",
+    "trim": "undefined",
+    "numberParseInt": "undefined",
+    "rawParseInt": 175
+  },
+  "firstRaw": {
+    "polyfills": {
+      "total": 109,
+      "passed": 107,
+      "failures": [
+        {
+          "name": "Number binary whitespace",
+          "actual": "NaN",
+          "expected": "5"
+        },
+        {
+          "name": "Number rejects non-whitespace",
+          "actual": "false",
+          "expected": "true"
+        }
+      ]
+    },
+    "corrections": {
+      "total": 71,
+      "passed": 71,
+      "failures": []
+    },
+    "repeated": {
+      "total": 109,
+      "passed": 107,
+      "failures": [
+        {
+          "name": "Number binary whitespace",
+          "actual": "NaN",
+          "expected": "5"
+        },
+        {
+          "name": "Number rejects non-whitespace",
+          "actual": "false",
+          "expected": "true"
+        }
+      ]
+    },
+    "identity": true
+  },
+  "finalSharedEngine": {
+    "raw": {
+      "polyfills": {
+        "total": 107,
+        "passed": 107,
+        "failures": []
+      },
+      "corrections": {
+        "total": 71,
+        "passed": 71,
+        "failures": []
+      },
+      "repeated": {
+        "total": 107,
+        "passed": 107,
+        "failures": []
+      },
+      "identity": true
+    },
+    "minified": {
+      "polyfills": {
+        "total": 107,
+        "passed": 107,
+        "failures": []
+      },
+      "corrections": {
+        "total": 71,
+        "passed": 71,
+        "failures": []
+      },
+      "repeated": {
+        "total": 107,
+        "passed": 107,
+        "failures": []
+      },
+      "identity": true
+    },
+    "unicode": {
+      "codes": [8204, 8205, 65279],
+      "matches": true,
+      "rejectsMissing": true
+    },
+    "templateSummary": "Summary: OK=48, NG=0",
+    "numberParseInt": 10,
+    "sameParseInt": true
+  },
+  "numberConstructor": {
+    "globalAssignmentTookEffect": false,
+    "binaryConversion": "NaN",
+    "leadingU200BConversion": "0",
+    "note": "グローバルのNumberは置換できず、Number()の変換はホストに従う。"
+  },
+  "project": {
+    "itemsBefore": 6,
+    "itemsAfter": 6,
+    "dirtyBefore": true,
+    "dirtyAfter": true
+  },
+  "limitations": "最終共通資料と圧縮版は通常版導入後の共有エンジンで検証。通常版の初回適用は同一の実行ファイルで実施。"
+}

@@ -1061,34 +1061,19 @@
 
   defineProperties(String.prototype, StringPrototypeShims);
 
-  // String.trimのバグ修正を含むpolyfillですが、issue#1の問題のため一部改変されています。
-  // 副作用として、Number()によるstringからnumberへの変換の挙動が変化している可能性があります。
-  // See: https://github.com/YukiWorks432/extendscript-ts-template/issues/1
-
-  // whitespace from: http://es5.github.io/#x15.5.4.20
-  // implementation from https://github.com/es-shims/es5-shim/blob/v3.4.0/es5-shim.js#L1304-L1324
-  /*
-  var ws = [
-    "\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003",
-    "\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028",
-    "\u2029\uFEFF",
-  ].join("");
-  */
-  var ws = [
-    "\x09\x0A\x0B\x0C\x0D\x20\u1680\u2000",
-    "\u2008\u2009\u200A\u202F\u205F\u3000\u2028",
-    "\u2029\uFEFF",
-  ].join("");
-  var trimRegexp = new RegExp("(^[" + ws + "]+)|([" + ws + "]+$)", "g");
+  // 生成時に共有する符号単位ベースの trim を Number の変換にも使う。
   var trimShim6 = function () {
-    return ES.ToString(ES.RequireObjectCoercible(this)).replace(trimRegexp, "");
+    return __extendscriptCompatTrim(ES.ToString(ES.RequireObjectCoercible(this)));
   };
-  // var nonWS = ["\u0085", "\u200b", "\ufffe"].join("");
-  var nonWS = ws;
-  var nonWSregex = new RegExp("[" + nonWS + "]", "g");
+  var nonWS = String.fromCharCode(0x85, 0x180e, 0x200b, 0x200c, 0x200d, 0xfffe);
+  var nonWSregex = new RegExp("[" + nonWS + "]");
   var isBadHexRegex = /^[-+]0x[0-9a-f]+$/i;
-  var hasStringTrimBug = nonWS.trim().length !== nonWS.length;
-  defineProperty(String.prototype, "trim", trimShim6, hasStringTrimBug);
+  defineProperty(
+    String.prototype,
+    "trim",
+    __extendscriptCompatTrimMethod,
+    !__extendscriptCompatTrimWorks(String.prototype.trim)
+  );
 
   // Given an argument x, it will return an IteratorResult object,
   // with value set to x and done to false.

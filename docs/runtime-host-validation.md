@@ -36,3 +36,13 @@ The first run found that an existing `JSON.parse` ignored its reviver, failing o
 The corrected unminified and minified outputs were first checked in the same shared engine after the first polyfill installation. The integration marker was cleared, but ES5/ES6 caches and installed functions remained. After restarting After Effects, the unminified output was installed with all four markers and caches absent; all 22 polyfill checks, 71 correction checks, and the repeated-load check passed. A fresh-engine first installation of the minified output was not checked. The project item count and dirty state did not change during each check.
 
 The [validation record](evidence/polyfills-ae-26.5.json) contains the results and generated hashes. Run `node scripts/build-host-polyfill-probe.mjs` to regenerate the minified output and template test.
+
+## Additional trim, Unicode, and Number.parseInt validation
+
+On the same AE and ExtendScript versions, all four markers and caches, `trim`, and `Number.parseInt` were absent immediately after a restart. The current unminified output was first loaded with `$.evalFile`. Before loading, `parseInt("a?", 16)` returned 175; afterward, `Number.parseInt("a?", 16)` returned 10.
+
+The first run passed 107 of 109 checks. The other two involved string conversion through `Number()`: assignment to the global `Number` did not take effect in AE. For example, `Number("0b101")` returned NaN and `Number()` with a leading U+200B returned 0. These are host limitations distinct from `Number.parseInt`.
+
+With those two checks separated from the shared contract, subsequent tests of both the unminified and minified outputs passed 107 / 107 polyfill cases and 71 / 71 existing correction cases. Repeated loading passed all 107 cases and preserved function identities. The source template passed 48 / 48 cases. The minified output and final shared fixture were checked in the shared engine after the unminified installation. The unminified executable has the same hash as the one first loaded.
+
+A separate ASCII-only probe loaded through `$.evalFile` preserved U+200C, U+200D, and U+FEFF in a string and correctly matched and rejected inputs for a regular expression containing U+200C. The project had six items and was dirty before and after testing. The [host evidence](evidence/trim-unicode-ae-26.5.json) records versions, hashes, and the two initial discrepancies. Other Adobe products and older versions were not tested.

@@ -40,6 +40,7 @@ const missing = `
 
 it("生成した直接読込用コードはES3として解析できる", () => {
   expect(() => parse(runtime, { ecmaVersion: 3 })).not.toThrow();
+  expect(Array.from(runtime).every((character) => character.charCodeAt(0) <= 127)).toBe(true);
 });
 
 it("共有エンジンに不足するJSON・ES5・ES6を補い、既存の不具合補正も適用する", () => {
@@ -59,6 +60,81 @@ it("共有エンジンに不足するJSON・ES5・ES6を補い、既存の不具
       context,
     ),
   ).toBe(true);
+});
+
+it("正常なtrimは維持し、不完全なtrimは空白と非空白の両方を補正する", () => {
+  const native = createContext({});
+  runInContext("var originalTrim = String.prototype.trim", native);
+  runInContext(runtime, native);
+  expect(runInContext("originalTrim === String.prototype.trim", native)).toBe(true);
+  expect(runInContext(contract, native).failures).toEqual([]);
+
+  const broken = createContext({});
+  runInContext(
+    `String.prototype.trim = function () {
+      return String(this).replace(/^ +| +$/g, "");
+    };`,
+    broken,
+  );
+  runInContext(runtime, broken);
+  expect(runInContext(contract, broken).failures).toEqual([]);
+});
+
+it("既存テンプレートのキャッシュがあってもtrimとNumber.parseIntを補正する", () => {
+  const context = createContext({});
+  runInContext(
+    `var $ = { global: globalThis };
+    $.global.__ES_TS_TEMPLATE_ES5_SHIM__ = { version: "v1" };
+    $.global.__ES_TS_TEMPLATE_ES6_SHIM__ = { version: "v1" };
+    String.prototype.trim = function () { return String(this); };
+    Number.parseInt = function () { return -1; };`,
+    context,
+  );
+  runInContext(runtime, context);
+  expect(runInContext(contract, context).failures).toEqual([]);
+});
+
+it("置換可能な旧Numberの文字列変換にtrimと非空白の判定を適用する", () => {
+  const context = createContext({});
+  runInContext(
+    `var NativeNumber = Number;
+    Number = function LegacyNumber(value) {
+      if (typeof value === "string" && /^0[bo]/i.test(value)) return NaN;
+      if (typeof value === "string" && value.indexOf(String.fromCharCode(0x200b)) !== -1) return 0;
+      return arguments.length ? NativeNumber(value) : 0;
+    };
+    Number.prototype = NativeNumber.prototype;`,
+    context,
+  );
+  runInContext(runtime, context);
+  expect(
+    runInContext(
+      'Number(String.fromCharCode(0xa0) + "0b101" + String.fromCharCode(0x202f))',
+      context,
+    ),
+  ).toBe(5);
+  // 非空白の判定が前回の正規表現の状態に影響されないことを確認する。
+  expect(runInContext('isNaN(Number(String.fromCharCode(0x200b) + "0"))', context)).toBe(true);
+  expect(runInContext('isNaN(Number(String.fromCharCode(0x200b) + "0"))', context)).toBe(true);
+});
+
+it("壊れた元のparseIntを参照せず、補正後の関数をNumber.parseIntで使う", () => {
+  const context = createContext({});
+  runInContext(
+    `var nativeParseInt = parseInt;
+    parseInt = function (value, radix) {
+      if (String(value) === "a?" && radix === 16) return 175;
+      return nativeParseInt(value, radix);
+    };
+    Number.parseInt = parseInt;`,
+    context,
+  );
+  runInContext(runtime, context);
+  expect(runInContext('Number.parseInt("a?", 16)', context)).toBe(10);
+  expect(runInContext("Number.parseInt === parseInt", context)).toBe(true);
+  expect(runInContext('Number.parseInt("101", 2)', context)).toBe(5);
+  runInContext(runtime, context);
+  expect(runInContext('Number.parseInt("a?", 16)', context)).toBe(10);
 });
 
 it("0.2.0と異なる順で読み込んでも補正が有効で、同じエンジンへの再適用を防ぐ", () => {
