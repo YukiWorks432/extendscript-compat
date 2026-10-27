@@ -40,7 +40,7 @@ toNumber("0b101"); // 5
 toNumber(String.fromCharCode(0x200b) + "0"); // NaN
 ```
 
-`toNumber` handles an absent argument, empty strings, surrounding whitespace, binary and octal strings, and object-to-number conversion. It does not modify the global `Number` or correct `Number()`, `new Number()`, `$.global.Number`, or other scripts. It returns a value and does not replace the constructor, its static properties, or `instanceof`. Check conversions of host-specific objects and behavior in other Adobe products in each target environment.
+`toNumber` handles an absent argument, empty strings, surrounding whitespace, binary and octal strings, and object-to-number conversion. It does not modify the global `Number`; this entry point alone does not correct `Number()`, `new Number()`, `$.global.Number`, or other scripts. Rollup’s `extendscriptCompat()` can [automatically correct](../docs/build-compatibility.md#automatic-number-call-correction) `Number()` calls in modules. It returns a value and does not replace the constructor, its static properties, or `instanceof`. Check conversions of host-specific objects and behavior in other Adobe products in each target environment.
 
 For additional AE differences, `split` handles the failure of a global regular expression to match empty input. `replace` also handles missing callback calls for string searches, intermediate rather than original input passed to callbacks during consecutive replacements, and omitted empty matches at the end.
 

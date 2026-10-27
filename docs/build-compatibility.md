@@ -48,6 +48,19 @@ The protection adds parentheses at boundaries between mixed `&&` and `||` operat
 
 The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.5.6 with 22 language regressions and 96 consuming-product regressions. It has not been tested in other Adobe products such as Illustrator or Photoshop.
 
+## Automatic Number call correction
+
+Rollup's `extendscriptCompat()` rewrites direct calls to the unbound global `Number` in modules to use `toNumber` from `extendscript-compat/number`. No manual import is needed. The ponyfill does not replace the host `Number`.
+
+```js
+// Consumer code before transformation
+const value = Number("0b101"); // 5 in AE as well
+```
+
+Locally defined `Number` bindings and object methods are not rewritten. `new Number()`, aliases, and `Number.call`, `apply`, or `bind` are not rewritten and produce a warning by default. Static properties such as `Number.parseInt` are unchanged. Calls through `$.global.Number`, `eval` strings, and external scripts are outside the transformation. Use `toNumber` explicitly where needed.
+
+The rewrite runs while Rollup processes modules, after TypeScript and other syntax transforms and before bundling and minification. Code added later by include expansion is outside its scope. Source maps lost by earlier tools cannot be restored. Calling `protectCompatibility(source)` alone does not rewrite Number calls.
+
 ## Unicode protection
 
 In After Effects 26.5, `$.evalFile` can drop literal U+200C, U+200D, and U+FEFF characters from source code. `protectCompatibility` and Rollup’s `extendscriptCompat` escape these characters inside strings and regular expressions by default.
@@ -69,11 +82,11 @@ Rollup's `extendscriptCompat()` also does the following:
 - EC-03: Corrects an unlabeled `continue` that crosses a `switch` to reach an outer loop. It reuses the target loop's existing label or adds a collision-free label, sharing one label for each loop. A `continue` targeting an inner loop is unchanged. It also restores a trailing semicolon on labeled `continue` statements when a minifier has removed it.
 - EC-06: In regular-expression literals using only the ES3 `g`, `i`, and `m` flags, replaces `\x2D` and `\u002D` with `\-` inside character classes. Lowercase hexadecimal digits are also supported. Strings passed to a dynamic `RegExp` constructor and escapes outside character classes are unchanged.
 
-EC-03 is corrected automatically with a warning by default. Select `error` to stop a build even when the issue can be corrected, for example to enforce a policy that source code contains no EC-03 issue. Select `off` to correct without a notification.
+EC-03 is corrected automatically with a warning by default. Unsupported indirect Number references are also warned about. Select `error` to stop a build even when the issue can be corrected, for example to enforce a policy that source code contains no EC-03 issue. Select `off` to correct without a notification.
 
 ```js
 extendscriptCompat({ diagnostics: "error" });
-// "warn": warning (default), "error": stop the build, "off": suppress notifications
+// "warn": warning (default), "error": stop the build, "off": suppress EC-03 and Number notifications
 ```
 
 For direct integration into a build tool, use the combined API:
@@ -82,7 +95,7 @@ For direct integration into a build tool, use the combined API:
 import { findCompatibilityIssues, protectCompatibility } from "extendscript-compat";
 
 const result = protectCompatibility(source);
-// result.code: precedence, EC-06, continue labels, and semicolons corrected
+// result.code: precedence, EC-06, continue labels, semicolons, and Unicode corrected
 // result.edits: insertions and replacements against the original input (start / end / text)
 // result.diagnostics: notifications for automatically corrected EC-03 issues in the original input
 const issues = findCompatibilityIssues(source);

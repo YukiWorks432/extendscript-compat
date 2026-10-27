@@ -2,16 +2,16 @@ import type { Plugin } from "rollup";
 
 export interface CompatibilityOptions {
   /**
-   * EC-03 notifications: warn by default; error stops the build, and off suppresses notifications.
+   * EC-03 and unsupported Number reference notifications: warn by default; error stops the build, and off suppresses notifications.
    *
-   * EC-03の通知。既定値はwarn。errorはビルドを停止し、offは通知を省く。
+   * EC-03と自動補正できないNumber参照の通知。既定値はwarn。errorはビルドを停止し、offは通知を省く。
    */
   diagnostics?: "warn" | "error" | "off";
 }
 
 /**
- * Correct precedence, EC-03, EC-06, and affected Unicode after minification and include expansion, before JSXBin conversion.
+ * Rewrite unbound Number calls in modules, then correct precedence, EC-03, EC-06, and affected Unicode in the final output.
  *
- * 圧縮・include展開の後、JSXBin化の前に優先順位・EC-03・EC-06とUnicodeを補正する。
+ * モジュール内の未束縛Number呼び出しを変換し、最終出力の優先順位・EC-03・EC-06とUnicodeを補正する。
  */
 export function extendscriptCompat(options?: CompatibilityOptions): Plugin;

@@ -3,7 +3,11 @@ import { defineConfig } from "oxfmt";
 export default defineConfig({
   overrides: [
     {
-      files: ["runtime/number.js", "test/fixtures/number-host-contract.js"],
+      files: [
+        "runtime/number.js",
+        "test/fixtures/number-host-contract.js",
+        "test/fixtures/number-auto-host-contract.js",
+      ],
       options: { trailingComma: "none" },
     },
   ],

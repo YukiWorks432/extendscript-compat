@@ -40,7 +40,7 @@ toNumber("0b101"); // 5
 toNumber(String.fromCharCode(0x200b) + "0"); // NaN
 ```
 
-`toNumber`は引数なし、空文字列、両端の空白、二進数・八進数、オブジェクトの数値変換を扱います。グローバルの`Number`は変更せず、`Number()`や`new Number()`、`$.global.Number`、他のスクリプトは補正しません。値を返す関数であり、`Number`コンストラクタの静的プロパティや`instanceof`の代替ではありません。ホスト固有オブジェクトの変換と他のAdobe製品での挙動は利用環境ごとに確認してください。
+`toNumber`は引数なし、空文字列、両端の空白、二進数・八進数、オブジェクトの数値変換を扱います。グローバルの`Number`は変更せず、この入口だけでは`Number()`や`new Number()`、`$.global.Number`、他のスクリプトは補正しません。Rollupの`extendscriptCompat()`は、モジュール内の`Number()`を[自動補正](../docs/build-compatibility.ja.md#number呼び出しの自動補正)できます。値を返す関数であり、`Number`コンストラクタの静的プロパティや`instanceof`の代替ではありません。ホスト固有オブジェクトの変換と他のAdobe製品での挙動は利用環境ごとに確認してください。
 
 AE固有の挙動として、グローバルな正規表現が空の入力に一致しない問題をsplit内で補っています。replaceでは、文字列検索でコールバックが実行されない問題、連続置換時に途中の結果がコールバックへ渡る問題、末尾の空一致が省略される問題も補っています。
 
