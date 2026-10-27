@@ -50,14 +50,19 @@ After Effects 26.5x89 / ExtendScript 4.5.6で言語回帰22件と利用側の製
 
 ## Number呼び出しの自動補正
 
-Rollupの`extendscriptCompat()`は、モジュール内でグローバルの`Number`を直接呼び出す箇所を、`extendscript-compat/number`の`toNumber`へ標準で変換します。利用側での読み込みは不要です。ポニーフィルはホストの`Number`を置き換えません。
+Rollupの`extendscriptCompat()`は、モジュール内でグローバルの`Number`を直接呼び出す箇所を、`extendscript-compat/number`の`toNumber`へ標準で変換します。直接の`new Number(...)`は、引数の数値変換を補正してから元の`Number`でオブジェクトを作ります。利用側での読み込みは不要で、ホストの`Number`は置き換えません。
 
 ```js
-// 変換前の利用側コード
-const value = Number("0b101"); // AEでも5になる
+// 利用側コード。AEでもvalueは5、boxedは値5のNumberオブジェクトになる。
+const value = Number("0b101");
+const boxed = new Number("0b101");
+const convert = Number;
+const another = convert("0b101");
 ```
 
-ローカルで定義した`Number`やオブジェクトのメソッドは変換しません。`new Number()`、別名への代入、`Number.call`・`apply`・`bind`などは自動変換せず、既定で警告します。`Number.parseInt`などの静的プロパティは変更しません。`$.global.Number`、文字列からの`eval`、外部スクリプト内の呼び出しは対象外です。必要な場合は明示的に`toNumber`を使ってください。
+別名は`Number`を直接代入し、参照が宣言のあるブロック内での宣言後・同じ関数からの直接呼び出しと、`Number`との`===`・`!==`による同一性比較に限られる場合に変換します。同一性比較は保持します。別関数内の参照、条件付きの宣言、初期化前の呼び出し、別名を使った`new`など、安全に判定できない場合は変換せず、既定で警告します。直接の`eval`がモジュールにある場合も、別名は変換しません。
+
+ローカルで定義した別の`Number`やオブジェクトのメソッドは変換しません。`Number.call`・`apply`・`bind`などの間接参照は変換せず、既定で警告します。`Number.parseInt`などの静的プロパティは変更しません。`$.global.Number`、文字列からの`eval`、外部スクリプト内の呼び出しは対象外です。必要な場合は明示的に`toNumber`を使ってください。
 
 自動変換はRollupのモジュール処理中に行います。TypeScriptなどの変換後、バンドル・圧縮前に適用し、include展開でその後追加されたコードは対象になりません。先行する処理が失ったソースマップは復元できません。既存の`protectCompatibility(source)`単体ではNumberを自動変換しません。
 

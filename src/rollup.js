@@ -144,7 +144,7 @@ export function extendscriptCompat(options = {}) {
         for (const position of result.diagnostics) {
           const warning = {
             code: "NUMBER_UNSUPPORTED",
-            message: "Numberの直接呼び出し以外は自動補正されません。",
+            message: "安全に変換できないNumberの参照は自動補正されません。",
             loc: { file: id, ...position },
           };
           if (diagnostics === "error") this.error(warning);

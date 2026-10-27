@@ -7,6 +7,7 @@ export default defineConfig({
         "runtime/number.js",
         "test/fixtures/number-host-contract.js",
         "test/fixtures/number-auto-host-contract.js",
+        "test/fixtures/number-constructor-alias-host-contract.js",
       ],
       options: { trailingComma: "none" },
     },

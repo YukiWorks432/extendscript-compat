@@ -50,14 +50,19 @@ The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.
 
 ## Automatic Number call correction
 
-Rollup's `extendscriptCompat()` rewrites direct calls to the unbound global `Number` in modules to use `toNumber` from `extendscript-compat/number`. No manual import is needed. The ponyfill does not replace the host `Number`.
+Rollup's `extendscriptCompat()` rewrites direct calls to the unbound global `Number` in modules to use `toNumber` from `extendscript-compat/number`. Direct `new Number(...)` first applies the corrected conversion and then creates an object with the original `Number`. No manual import is needed, and the host `Number` is not replaced.
 
 ```js
-// Consumer code before transformation
-const value = Number("0b101"); // 5 in AE as well
+// Consumer code: in AE, value is 5 and boxed is a Number object containing 5.
+const value = Number("0b101");
+const boxed = new Number("0b101");
+const convert = Number;
+const another = convert("0b101");
 ```
 
-Locally defined `Number` bindings and object methods are not rewritten. `new Number()`, aliases, and `Number.call`, `apply`, or `bind` are not rewritten and produce a warning by default. Static properties such as `Number.parseInt` are unchanged. Calls through `$.global.Number`, `eval` strings, and external scripts are outside the transformation. Use `toNumber` explicitly where needed.
+An alias is rewritten when it is initialized directly from `Number` and its references are limited to direct calls after the declaration within its block and function, and `===` or `!==` identity comparisons with `Number`. The identity comparisons are preserved. References in another function, conditional declarations, calls before initialization, and `new` through an alias are left unchanged and warned about by default. Aliases are not rewritten if the module contains direct `eval`.
+
+Locally defined `Number` bindings and object methods are not rewritten. Indirect references such as `Number.call`, `apply`, and `bind` are not rewritten and produce a warning by default. Static properties such as `Number.parseInt` are unchanged. Calls through `$.global.Number`, `eval` strings, and external scripts are outside the transformation. Use `toNumber` explicitly where needed.
 
 The rewrite runs while Rollup processes modules, after TypeScript and other syntax transforms and before bundling and minification. Code added later by include expansion is outside its scope. Source maps lost by earlier tools cannot be restored. Calling `protectCompatibility(source)` alone does not rewrite Number calls.
 
