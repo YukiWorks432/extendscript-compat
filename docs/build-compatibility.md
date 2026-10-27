@@ -48,6 +48,20 @@ The protection adds parentheses at boundaries between mixed `&&` and `||` operat
 
 The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.5.6 with 22 language regressions and 96 consuming-product regressions. It has not been tested in other Adobe products such as Illustrator or Photoshop.
 
+## Unicode protection
+
+In After Effects 26.5, `$.evalFile` can drop literal U+200C, U+200D, and U+FEFF characters from source code. Set `unicode: true` to escape these characters inside strings and regular expressions. Existing usage is unchanged by default.
+
+```js
+extendscriptCompat({ unicode: true });
+```
+
+Run this after minification and include expansion. Later processing can reintroduce literal characters and undo the protection. String values are preserved as UTF-16, and regular expressions retain their matching behavior. A regular expression's `source` and `toString()` reflect the changed spelling. Other characters, including U+200B and emoji, are left unchanged.
+
+The transformation fails when these characters occur in identifiers, comments, license notices, or elsewhere outside strings and regular expressions, where safe conversion cannot be guaranteed. It also rejects `\u200c` and `\u200d` in identifiers. Error lines are 1-based and columns count UTF-16 code units from zero. Unexpanded directives and E4X are unsupported.
+
+Without Rollup, call `protectUnicode(source)` or use `protectCompatibility(source, { unicode: true })` to combine it with the other corrections. Both return the transformed `code` and `edits` relative to the original input. The [host evidence](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/unicode-output-ae-26.5.json) records the test conditions and results for After Effects 26.5x89.
+
 ## EC-03 and EC-06 build-time corrections and diagnostics
 
 Rollup's `extendscriptCompat()` also does the following:

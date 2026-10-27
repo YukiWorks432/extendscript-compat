@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-27 17:26:17 UTC",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872"
+  },
+  "project": {
+    "itemsBefore": 6,
+    "dirtyBefore": false,
+    "itemsAfter": 6,
+    "dirtyAfter": false
+  },
+  "generator": "scripts/build-host-unicode-probe.mjs",
+  "sha256": {
+    "u200b-string-raw.jsx": "ce1890021bac33723479fb3eef7596b6f0f56c8ffc6721c626d295d78f9e8a35",
+    "u200b-regex-raw.jsx": "156c2fa5e7fd5faf32142dcc350d1e0e601afc97f23d18e1d34553f9c66f7c75",
+    "u200b-string-escaped.jsx": "7ea4818d666111f7b446260dc437dff57deee3a0e398fb14c49b75610cf3cbd9",
+    "u200b-regex-escaped.jsx": "a83ee82d6d96d8af4cf13af1ff4a09ce51a1fb3b307415b7bfaf484e9650a513",
+    "u200c-string-raw.jsx": "bd5dfb683a5d2acf3a46417f8ecc76991af8a9842779a1fffd26c0e3393389ad",
+    "u200c-regex-raw.jsx": "26e824bb18b47931082ad008fbb9550b12da59506e645cd852be8c3a398e5724",
+    "u200c-string-escaped.jsx": "805eac835fde6c20bd607b60df0f5210c23ff1d28369cea2978d37ab93af0f6a",
+    "u200c-regex-escaped.jsx": "18adb11111939ab17ded3b7a577730d604d88a355a225a0834e8e883e7ad47e5",
+    "u200d-string-raw.jsx": "40597c671692d8a45e1e4449ead6c2d3c3a31480cc6ea3de22540f54ec2599fb",
+    "u200d-regex-raw.jsx": "9a0322eea63cd56307dd4ad8e4998bd8c62c5f921654294eb1a1a2e2f4c9ebd7",
+    "u200d-string-escaped.jsx": "c52b1e2c14adeec86da4ec356382dc1678ededc8e9f152c7a4bc85d2ff37ef2c",
+    "u200d-regex-escaped.jsx": "4e6fe61c2abd4a72ec380839ed56092fedae882d129f51432b6ba6cf2d93e470",
+    "ufeff-string-raw.jsx": "4d0a6c99d4444eac0a235032399f921133a8ed50e5a534ef221af933a8852781",
+    "ufeff-regex-raw.jsx": "c6a1bf2ce0cfa9602d49f201c5feff3447126f924ef93f9d5852700c93fda6ed",
+    "ufeff-string-escaped.jsx": "42c866e913fafc563a289b6ea8e3c55e7aa25d2268ab7ac1bb7b0a3a1c8b0a9c",
+    "ufeff-regex-escaped.jsx": "6accbf147d8a232e2d25d3d1ebdd2c7a88ef5c05733550c9d2cb328573061f09",
+    "emoji-string-raw.jsx": "0c685493dd7366040d5da41fe86849d55d0835cf8e2530feb655dabfcc491579",
+    "emoji-regex-raw.jsx": "14e3f5e73926f5f10acb04723ccb938384eddf1dfd67aabe5c3b16f1826d8fd9",
+    "emoji-string-escaped.jsx": "eb051d16528faa6fafffc3a2c7e1af8e51725c674fec032ecdcd65d8af911d77",
+    "emoji-regex-escaped.jsx": "e3f2db7bb166272e71489bd34a27f7a9821e86e15b23b0dba1bae8911baf149c",
+    "identifier-200c-raw.jsx": "80151104e47e6f389854583e094664ee99b4f077b79fe67a75e98680a1263000",
+    "identifier-200c-escaped.jsx": "5db51ace5645a3ece6f09fe0218adc8b965ed9e272463955884230ffd7b0acbf",
+    "identifier-200d-raw.jsx": "089b14d277c434725c761783ccb4fe8c97232b22c6a61d41a0ced7c5f90e11b2",
+    "identifier-200d-escaped.jsx": "b181f33ed1c01e0ed7e75a61f83777e61d7ec7e84b2cdecd6dfae83e765e047a",
+    "normal-protected.jsx": "e79915da367770f9902a6c2b41c5fdf55f04ff0cbc128060fc9f4a679f238224",
+    "minified-protected.jsx": "59baec2e51ce1c1d5125751a61b832d90b897b9874b7d7188094b09eefa9f64c"
+  },
+  "results": [
+    {
+      "name": "u200b-string-raw.jsx",
+      "result": [65, 8203, 90]
+    },
+    {
+      "name": "u200b-string-escaped.jsx",
+      "result": [65, 8203, 90]
+    },
+    {
+      "name": "u200b-regex-raw.jsx",
+      "result": [true, false]
+    },
+    {
+      "name": "u200b-regex-escaped.jsx",
+      "result": [true, false]
+    },
+    {
+      "name": "u200c-string-raw.jsx",
+      "result": [65, 90]
+    },
+    {
+      "name": "u200c-string-escaped.jsx",
+      "result": [65, 8204, 90]
+    },
+    {
+      "error": "ReferenceError:  does not have a value",
+      "name": "u200c-regex-raw.jsx"
+    },
+    {
+      "name": "u200c-regex-escaped.jsx",
+      "result": [true, false]
+    },
+    {
+      "name": "u200d-string-raw.jsx",
+      "result": [65, 90]
+    },
+    {
+      "name": "u200d-string-escaped.jsx",
+      "result": [65, 8205, 90]
+    },
+    {
+      "error": "ReferenceError:  does not have a value",
+      "name": "u200d-regex-raw.jsx"
+    },
+    {
+      "name": "u200d-regex-escaped.jsx",
+      "result": [true, false]
+    },
+    {
+      "name": "ufeff-string-raw.jsx",
+      "result": [65, 90]
+    },
+    {
+      "name": "ufeff-string-escaped.jsx",
+      "result": [65, 65279, 90]
+    },
+    {
+      "error": "ReferenceError:  does not have a value",
+      "name": "ufeff-regex-raw.jsx"
+    },
+    {
+      "name": "ufeff-regex-escaped.jsx",
+      "result": [true, false]
+    },
+    {
+      "name": "emoji-string-raw.jsx",
+      "result": [65, 55357, 56832, 90]
+    },
+    {
+      "name": "emoji-string-escaped.jsx",
+      "result": [65, 55357, 56832, 90]
+    },
+    {
+      "name": "emoji-regex-raw.jsx",
+      "result": [true, false]
+    },
+    {
+      "name": "emoji-regex-escaped.jsx",
+      "result": [true, false]
+    },
+    {
+      "name": "identifier-200c-raw.jsx",
+      "result": [2, 2]
+    },
+    {
+      "error": "SyntaxError: Syntax error",
+      "name": "identifier-200c-escaped.jsx"
+    },
+    {
+      "name": "identifier-200d-raw.jsx",
+      "result": [2, 2]
+    },
+    {
+      "error": "SyntaxError: Syntax error",
+      "name": "identifier-200d-escaped.jsx"
+    },
+    {
+      "name": "normal-protected.jsx",
+      "result": [[65, 8204, 8205, 65279, 55357, 56832, 90], true, true, true, false]
+    },
+    {
+      "name": "minified-protected.jsx",
+      "result": [[65, 8204, 8205, 65279, 55357, 56832, 90], true, true, true, false]
+    }
+  ],
+  "limitations": "After Effects 26.5x89 on Windows only; other products and versions not tested."
+}

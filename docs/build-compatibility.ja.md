@@ -48,6 +48,20 @@ protectPrecedenceは従来どおり括弧だけを挿入します。protectCompa
 
 After Effects 26.5x89 / ExtendScript 4.5.6で言語回帰22件と利用側の製品回帰96件を確認しています。IllustratorやPhotoshopなど、ほかの製品での実機確認は行っていません。
 
+## Unicode文字の補正
+
+After Effects 26.5の`$.evalFile`では、コード中に直接書かれたU+200C・U+200D・U+FEFFが失われることがあります。必要な場合は`unicode: true`を指定し、文字列と正規表現の該当文字を`\u`表記へ変換できます。既存の利用方法は既定では変わりません。
+
+```js
+extendscriptCompat({ unicode: true });
+```
+
+圧縮とinclude展開が済んだ後に実行してください。後続の処理が再び生の文字を出力すると補正が失われます。文字列はUTF-16の値、正規表現は一致結果を保ちます。正規表現の`source`や`toString()`には変換後の表記が現れます。U+200Bや絵文字など、上記以外の文字はこの処理では変換しません。
+
+上記の文字が識別子、コメント、ライセンス表示、文字列と正規表現以外の場所にある場合は、安全な変換を保証できないためエラーにします。識別子の`\u200c`・`\u200d`も対象です。エラーの行は1始まり、列はUTF-16のコード単位で0始まりです。未展開のディレクティブやE4Xを含む入力には対応しません。
+
+Rollupを使わない場合は`protectUnicode(source)`を使うか、既存の`protectCompatibility(source, { unicode: true })`で他の補正と同時に適用できます。どちらも変換後の`code`と元の入力に対する`edits`を返します。After Effects 26.5x89での検証条件と結果は[実機検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/unicode-output-ae-26.5.json)を参照してください。
+
 ## EC-03・EC-06のビルド時補正と診断
 
 Rollup用の`extendscriptCompat()`は、優先順位の保護に加え、次の補正を行います。

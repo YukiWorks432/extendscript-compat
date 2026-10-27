@@ -7,6 +7,12 @@ export interface CompatibilityOptions {
    * EC-03の通知。既定値はwarn。errorはビルドを停止し、offは通知を省く。
    */
   diagnostics?: "warn" | "error" | "off";
+  /**
+   * Escape affected Unicode characters in the final output. Disabled by default.
+   *
+   * 最終出力の影響を受けるUnicode文字を補正する。既定では無効。
+   */
+  unicode?: boolean;
 }
 
 /**
