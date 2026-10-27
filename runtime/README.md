@@ -47,10 +47,21 @@ if (!isNull(result)) {
 }
 ```
 
+For example, when the right operand is 2 in, calculate the difference as follows:
+
+```js
+import { subtractUnitValues, isNull } from "extendscript-compat/unit-value";
+
+var value = new UnitValue("2 in");
+var difference = subtractUnitValues(10, value);
+// difference is 8 in; value is not modified.
+var missing = isNull(value); // false
+```
+
 | API                               | Contract                                                                                                                                                                                                                                                                                                                            |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `subtractUnitValues(left, right)` | Arguments must be numbers or host `UnitValue` instances. Only number-minus-`UnitValue` is corrected: a new native `UnitValue` inherits the right operand's unit and `baseUnit` without changing either input. Other combinations use native subtraction. Non-number coercion is not performed; invalid arguments throw `TypeError`. |
-| `isNull(value)`                   | Returns `false` for a `UnitValue` and otherwise uses strict comparison with `null`. It does not normalize operator overrides of unrelated custom classes.                                                                                                                                                                           |
+| `isNull(value)`                   | Returns `false` for a `UnitValue` and otherwise uses strict comparison with `null`. Even a `UnitValue` with an absolute value below 1 is not treated as `null`. It does not normalize operator overrides of unrelated custom classes.                                                                                               |
 
 `UnitValueLike` in the type declarations describes the required public shape. At runtime the subtraction helper checks for the host's actual `UnitValue`, so a normal object with a similar structure is not accepted. Representations of `NaN` and infinity follow the native constructor.
 

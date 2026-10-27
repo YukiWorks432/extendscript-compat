@@ -18,7 +18,9 @@
     "README.ja.md",
     "LICENSE",
     "runtime",
-    "THIRD-PARTY-LICENSES.txt"
+    "THIRD-PARTY-LICENSES.txt",
+    "docs/build-compatibility.md",
+    "docs/build-compatibility.ja.md"
   ],
   "type": "module",
   "exports": {
