@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-27 18:02:49 UTC",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "generator": "scripts/build-host-number-probe.mjs",
+  "sha256": {
+    "number-normal.jsx": "d5c0a54da18d8f51c1c1a806e903a781b39e5e820ad4d4e687da30f31d6df666",
+    "number-minified.jsx": "809e6593fdbc62f23035fab1c87df28c4ce0278d4b6dca06116df7d9f39ec1a5"
+  },
+  "nativeBaseline": {
+    "binary": "NaN",
+    "octal": "NaN",
+    "zeroWidth": 0,
+    "hex": 16,
+    "negativeZero": "-Infinity"
+  },
+  "withoutRuntime": [
+    {
+      "name": "number-normal.jsx",
+      "result": {
+        "failures": [],
+        "passed": 23,
+        "total": 23
+      }
+    },
+    {
+      "name": "number-minified.jsx",
+      "result": {
+        "failures": [],
+        "passed": 23,
+        "total": 23
+      }
+    }
+  ],
+  "withRuntime": {
+    "normal": {
+      "failures": [],
+      "passed": 23,
+      "total": 23
+    },
+    "minified": {
+      "failures": [],
+      "passed": 23,
+      "total": 23
+    },
+    "numberIdentity": true,
+    "parseInt": 10,
+    "parseIntIdentity": true,
+    "repeatedMarker": 1
+  },
+  "project": {
+    "itemsBefore": 6,
+    "itemsAfter": 6,
+    "dirtyBefore": false,
+    "dirtyAfter": false
+  },
+  "limitations": "After Effects 26.5x89 on Windows only; host-specific objects, other Adobe products and older versions not tested."
+}

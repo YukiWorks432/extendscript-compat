@@ -31,7 +31,16 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 
 `String.prototype.trim`は現在のECMAScriptで定義された空白と改行を両端から取り除き、U+180EやU+200Bなどの非空白文字は保持します。対応済みの既存実装は維持し、不足または不完全な場合に置き換えます。従来の`parseInt`の基数ごとの扱いは維持します。`Number.parseInt`は補正後のグローバル`parseInt`と同じ関数です。
 
-AE 26.5ではグローバルの`Number`自体を置き換えられないため、`Number("0b101")`などの文字列変換はホストの挙動のままです。`Number.parseInt`の補正とは別の制限です。
+AE 26.5ではグローバルの`Number`自体を置き換えられないため、`Number("0b101")`などの文字列変換はホストの挙動のままです。`Number.parseInt`の補正とは別の制限です。 補正した数値変換が必要な場合は、副作用のない`extendscript-compat/number`を使えます。
+
+```js
+import { toNumber } from "extendscript-compat/number";
+
+toNumber("0b101"); // 5
+toNumber(String.fromCharCode(0x200b) + "0"); // NaN
+```
+
+`toNumber`は引数なし、空文字列、両端の空白、二進数・八進数、オブジェクトの数値変換を扱います。グローバルの`Number`は変更せず、`Number()`や`new Number()`、`$.global.Number`、他のスクリプトは補正しません。値を返す関数であり、`Number`コンストラクタの静的プロパティや`instanceof`の代替ではありません。ホスト固有オブジェクトの変換と他のAdobe製品での挙動は利用環境ごとに確認してください。
 
 AE固有の挙動として、グローバルな正規表現が空の入力に一致しない問題をsplit内で補っています。replaceでは、文字列検索でコールバックが実行されない問題、連続置換時に途中の結果がコールバックへ渡る問題、末尾の空一致が省略される問題も補っています。
 
