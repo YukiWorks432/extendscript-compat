@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-27T06:58:36.526Z",
+  "sourceCommit": "2c4fba94741e1e0203728c9a9b44f1bdc2aa944c",
+  "tools": {
+    "node": "24.22.1",
+    "pnpm": "12.15.0",
+    "npm": "11.19.1"
+  },
+  "package": {
+    "version": "0.2.0",
+    "files": [
+      "LICENSE",
+      "README.ja.md",
+      "README.md",
+      "THIRD-PARTY-LICENSES.txt",
+      "docs/build-compatibility.ja.md",
+      "docs/build-compatibility.md",
+      "package.json",
+      "runtime/README.ja.md",
+      "runtime/README.md",
+      "runtime/index.d.ts",
+      "runtime/index.js",
+      "runtime/unit-value.d.ts",
+      "runtime/unit-value.js",
+      "src/index.d.ts",
+      "src/index.js",
+      "src/rollup.d.ts",
+      "src/rollup.js"
+    ],
+    "sha256": "3ff131df97910d04551f9cb2ad41c7d7f0462e5f9870467f27c4a6f4247db746",
+    "integrity": "sha512-YlIKbBWCCWSqxKT2ahCylXectDKSVSoV3FI1nILBAcyroPvGaKMBeUh2hhGAsp8h9VTPtQXPrVmdnocI/7rKsw==",
+    "entries": 4,
+    "pairedDocs": 6,
+    "installedBytesMatch": true,
+    "rollupVariants": ["unminified", "minified"],
+    "sourceMaps": true
+  },
+  "checks": {
+    "frozenInstall": true,
+    "repositoryCheck": {
+      "command": "pnpm check",
+      "testFiles": 7,
+      "tests": 86
+    },
+    "consumerTypecheck": true,
+    "npmPublishDryRun": true
+  },
+  "host": {
+    "evidence": "compatibility-auto-label-ae-26.5.json",
+    "outputs": [
+      {
+        "variant": "protected",
+        "sha256": "f80b7198cffda01447193188073640ad3f5f24d4697e3d3a6f3bbac6fc05e0e4"
+      },
+      {
+        "variant": "minified",
+        "sha256": "dc8fc6c2dbfc72c1db7b83ed17fcc0af1501841c2acf0d8a16b9f3e217e18a13"
+      }
+    ],
+    "generatedOutputsMatchRecordedHostRun": true,
+    "rerun": false,
+    "rerunUnavailableReason": "NO_INSTANCE",
+    "note": "実機は未起動のため再実行していない。再生成した出力のハッシュを保存済みの実機検証結果と照合した。"
+  }
+}
