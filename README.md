@@ -6,7 +6,7 @@ A library for known Adobe ExtendScript bugs, providing build-time corrections an
 
 ## Documentation languages
 
-Japanese is the authoritative version of the documentation; English is displayed first on GitHub and npm. If the two differ, the Japanese version takes precedence. When changing documentation, update the Japanese source and the corresponding English version in the same change. Each document links to its counterpart at the top.
+Japanese is the authoritative version of the documentation; English is displayed first on GitHub and npm. If the two differ, the Japanese version takes precedence. When changing documentation, update the Japanese source and the corresponding English version in the same change. Each document links to its counterpart at the top. Type-declaration documentation places English first, followed by the authoritative Japanese text.
 
 The repository also provides the [additional compatibility host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.md), [runtime host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md), and [npm publication procedure](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/npm-publication.md), each with a Japanese source. Both root and runtime READMEs are included in the npm package in both languages.
 

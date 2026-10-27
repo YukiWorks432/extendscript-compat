@@ -6,7 +6,7 @@ Adobe ExtendScriptの既知の不具合を、ビルド時の補正・診断と�
 
 ## 文書の言語
 
-日本語版を正本とし、英語版をGitHubとnpmで最初に表示します。内容に差異がある場合は日本語版を優先します。文書を変更する際は日本語の正本と対応する英語版を同じ変更で更新してください。各文書の冒頭から言語を切り替えられます。
+日本語版を正本とし、英語版をGitHubとnpmで最初に表示します。内容に差異がある場合は日本語版を優先します。文書を変更する際は日本語の正本と対応する英語版を同じ変更で更新してください。各文書の冒頭から言語を切り替えられます。 型定義の説明は英語を先頭に、日本語の正本を続けます。
 
 実機検証や公開手順には、[追加互換補正の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.ja.md)、[実行時補正の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)、[npm公開手順](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/npm-publication.ja.md)があります。それぞれ英語版も用意しています。npmの配布物にはルートとruntimeの両READMEを含めます。
 
