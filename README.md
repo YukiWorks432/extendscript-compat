@@ -10,19 +10,11 @@ A library for known Adobe ExtendScript bugs, with build-time corrections and exp
 
 ## Installation
 
-Node.js 22 or later is required. This README describes the upcoming 0.2.0 release. The published 0.1.0 release includes only expression-precedence protection and Rollup integration.
+Node.js 22 or later is required.
 
 ```sh
-pnpm add -D extendscript-compat@0.1.0
+pnpm add -D extendscript-compat
 ```
-
-To try 0.2.0 before publication, run `pnpm pack --pack-destination artifacts` at the target commit in this repository and add the resulting archive to the consuming project:
-
-```sh
-pnpm add -D ./path/to/extendscript-compat-0.2.0.tgz
-```
-
-Replace the path with the archive's location relative to the consuming project.
 
 ## Rollup integration
 
@@ -62,7 +54,7 @@ Host checks were performed in After Effects 26.5x89 / ExtendScript 4.5.6. Other 
 
 - [Build-time corrections, diagnostics, and APIs](docs/build-compatibility.md)
 - [Runtime corrections and UnitValue helpers](runtime/README.md)
-- [0.2.0 host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.md) and [built-in function host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md)
+- [additional compatibility host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.md) and [built-in function host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md)
 - [npm publication procedure](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/npm-publication.md)
 
 Japanese is the authoritative documentation; English is displayed first on GitHub and npm. If versions differ, the Japanese version takes precedence; update the corresponding English version in the same change. Type-declaration documentation places English first, followed by the authoritative Japanese text.

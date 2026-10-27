@@ -65,7 +65,7 @@ var missing = isNull(value); // false
 
 `UnitValueLike` in the type declarations describes the required public shape. At runtime the subtraction helper checks for the host's actual `UnitValue`, so a normal object with a similar structure is not accepted. Representations of `NaN` and infinity follow the native constructor.
 
-In AE, overriding an instance's operator after obtaining the original operator did not take effect in one observed case. Prototype changes also failed to correct new instances. Version 0.2.0 therefore uses explicit helpers that preserve the original class. Importing `/runtime` does not guarantee that ordinary operators or comparisons are fixed.
+In AE, overriding an instance's operator after obtaining the original operator did not take effect in one observed case. Prototype changes also failed to correct new instances. The library therefore uses explicit helpers that preserve the original class. Importing `/runtime` does not guarantee that ordinary operators or comparisons are fixed.
 
 ## Source and modifications
 

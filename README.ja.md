@@ -10,19 +10,11 @@ Adobe ExtendScriptの既知の不具合を、ビルド時の補正と明示的�
 
 ## インストール
 
-Node.js 22以降が必要です。このREADMEは公開準備中の0.2.0を説明します。npmで公開済みの0.1.0には、式の優先順位保護とRollup連携のみが含まれます。
+Node.js 22以降が必要です。
 
 ```sh
-pnpm add -D extendscript-compat@0.1.0
+pnpm add -D extendscript-compat
 ```
-
-0.2.0を公開前に試す場合は、このリポジトリの対象コミットで`pnpm pack --pack-destination artifacts`を実行し、生成したアーカイブを利用側へ追加してください。
-
-```sh
-pnpm add -D ./path/to/extendscript-compat-0.2.0.tgz
-```
-
-パスは、利用側から見たアーカイブの位置に置き換えてください。
 
 ## Rollupへの組み込み
 
@@ -62,7 +54,7 @@ import "extendscript-compat/runtime";
 
 - [ビルド時の補正・診断とAPI](docs/build-compatibility.ja.md)
 - [実行時補正とUnitValueの補助API](runtime/README.ja.md)
-- [0.2.0の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.ja.md)・[組み込み関数の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)
+- [追加互換補正の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.ja.md)・[組み込み関数の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)
 - [npm公開手順](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/npm-publication.ja.md)
 
 日本語版が文書の正本で、英語版をGitHubとnpmで最初に表示します。内容に差異がある場合は日本語版を優先し、文書の変更時には対応する英語版も同じ変更で更新します。型定義の説明は英語を先頭に、日本語の正本を続けます。

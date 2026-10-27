@@ -80,10 +80,8 @@ Limit the first release to the uses actually tested. Treat corrections as patch 
 - [Inspecting package contents with pnpm](https://pnpm.io/cli/pack)
 - [Checking authentication settings with pnpm](https://pnpm.io/cli/profile)
 
-## Preparing 0.2.0
+## Checks before and after publication
 
-Version 0.2.0 includes runtime corrections EC-04, EC-05, EC-07, and EC-08; EC-03 automatic label insertion, notifications, and semicolon restoration; EC-06 regular-expression literal correction; and explicit `UnitValue` helpers for EC-10 and EC-11. The preparation PR updates the version, documentation, and implementation; it does not publish to npm, create a tag, or create a GitHub release.
-
-After fixing the commit to publish, rerun `pnpm check`, compare hashes of the generated host-validation files, pack the package, and install it into an empty consumer. Include `runtime/index.js` and its declarations, `runtime/unit-value.js` and its declarations, runtime documentation, and third-party licenses. Do not reuse the initial seven-file count for 0.2.0; use the actual pack listing as the source of truth.
+After fixing the commit to publish, run `pnpm check`, compare hashes of the generated host-validation files, pack the package, and install it into an empty consumer. Include the public entries and type declarations, English and Japanese usage documentation, and third-party licenses. Compare the package listing with `package.json`.
 
 After publication, load all four public entries from the downloaded package: the root, Rollup, runtime, and unit-value entries. The runtime does not replace shared functions until explicitly imported; importing the unit-value entry alone does not modify host classes or functions.

@@ -50,7 +50,7 @@ The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.
 
 ## EC-03 and EC-06 build-time corrections and diagnostics
 
-In 0.2.0, Rollup's `extendscriptCompat()` also does the following:
+Rollup's `extendscriptCompat()` also does the following:
 
 - EC-03: Corrects an unlabeled `continue` that crosses a `switch` to reach an outer loop. It reuses the target loop's existing label or adds a collision-free label, sharing one label for each loop. A `continue` targeting an inner loop is unchanged. It also restores a trailing semicolon on labeled `continue` statements when a minifier has removed it.
 - EC-06: In regular-expression literals using only the ES3 `g`, `i`, and `m` flags, replaces `\x2D` and `\u002D` with `\-` inside character classes. Lowercase hexadecimal digits are also supported. Strings passed to a dynamic `RegExp` constructor and escapes outside character classes are unchanged.
