@@ -33,6 +33,6 @@ On 2026-10-27, the integrated runtime was checked in After Effects 26.5x89 / Ext
 
 The first run found that an existing `JSON.parse` ignored its reviver, failing one of 22 checks; `JSON.stringify` also ignored its replacer. A feature check was added to replace these incomplete JSON functions.
 
-The corrected unminified and minified outputs were checked in the same shared engine after the first polyfill installation. The integration marker was cleared, but ES5/ES6 caches and installed functions remained. These are not fresh-engine first-install results for the corrected version. The project item count and dirty state did not change.
+The corrected unminified and minified outputs were first checked in the same shared engine after the first polyfill installation. The integration marker was cleared, but ES5/ES6 caches and installed functions remained. After restarting After Effects, the unminified output was installed with all four markers and caches absent; all 22 polyfill checks, 71 correction checks, and the repeated-load check passed. A fresh-engine first installation of the minified output was not checked. The project item count and dirty state did not change during each check.
 
 The [validation record](evidence/polyfills-ae-26.5.json) contains the results and generated hashes. Run `node scripts/build-host-polyfill-probe.mjs` to regenerate the minified output and template test.

@@ -61,7 +61,7 @@
     "dirtyBefore": true,
     "dirtyAfter": true
   },
-  "limitations": "修正済み版の通常・圧縮コードは、初回のshim導入後の同じエンジンで検証した。修正済み版を未導入の実機エンジンへ初回適用した結果ではない。",
+  "limitations": "再起動後の未導入エンジンで通常版の初回適用を検証した。圧縮版は先にshimを導入した共有エンジンで統合用マーカーのみ解除して検証した。",
   "templateBuild": {
     "sourceCommit": "5fdc02dc818f8263a368166c180b9e4ed93a9453",
     "packageSha256": "c0435afc0f3573143e2e09fa74307cfadc4240a7a42c95dac15feeb6b8e2c3dc",
@@ -74,5 +74,34 @@
       "total": 48,
       "projectPreserved": true
     }
+  },
+  "freshRaw": {
+    "checkedAt": "2026-10-27T11:50:57.891Z",
+    "initialMarkers": {
+      "runtime": "undefined",
+      "polyfills": "undefined",
+      "es5Cache": "undefined",
+      "es6Cache": "undefined"
+    },
+    "polyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "corrections": {
+      "passed": 71,
+      "total": 71
+    },
+    "repeatedPolyfills": {
+      "passed": 22,
+      "total": 22
+    },
+    "idempotent": true,
+    "project": {
+      "itemsBefore": 6,
+      "itemsAfter": 6,
+      "dirtyBefore": false,
+      "dirtyAfter": false
+    },
+    "projectPreserved": true
   }
 }
