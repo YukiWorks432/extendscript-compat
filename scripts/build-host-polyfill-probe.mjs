@@ -70,6 +70,9 @@ const manifest = {
   unicodeProbeSha256: sha256(unicodeProbe),
   polyfillFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/polyfill-contract.js"))),
   correctionFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/runtime-contract.js"))),
+  esnextFixtureSha256: sha256(
+    readFileSync(resolve(root, "test/fixtures/esnext-stage1-contract.js")),
+  ),
 };
 writeFileSync(resolve(directory, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 console.log(JSON.stringify(manifest, null, 2));
