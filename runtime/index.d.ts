@@ -15,12 +15,14 @@ type ExtendScriptCompatFlatArray<Arr, Depth extends number> = {
 
 declare global {
   interface ObjectConstructor {
+    hasOwn(o: object, v: PropertyKey): boolean;
     entries<T>(value: { [key: string]: T } | ArrayLike<T>): [string, T][];
     entries(value: {}): [string, any][];
     values<T>(value: { [key: string]: T } | ArrayLike<T>): T[];
     values(value: {}): any[];
   }
   interface Array<T> {
+    at(index: number): T | undefined;
     includes(searchElement: T, fromIndex?: number): boolean;
     flat<A, D extends number = 1>(this: A, depth?: D): ExtendScriptCompatFlatArray<A, D>[];
     flatMap<U, This = undefined>(
@@ -29,6 +31,7 @@ declare global {
     ): U[];
   }
   interface ReadonlyArray<T> {
+    at(index: number): T | undefined;
     includes(searchElement: T, fromIndex?: number): boolean;
     flat<A, D extends number = 1>(this: A, depth?: D): ExtendScriptCompatFlatArray<A, D>[];
     flatMap<U, This = undefined>(

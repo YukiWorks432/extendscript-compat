@@ -1,0 +1,372 @@
+{
+  "date": "2026-10-29",
+  "environment": "Windows / After Effects 26.5x89 / ExtendScript 4.5.6 build 80.1060872",
+  "runtimeSha256": "06d7f393c225a3b448f70c01d77b8d7e3ce31914c5c2996b2ffe3fd2a03edd44",
+  "minifiedSha256": "e723a7783dcaf49c1ca1effaa91afc5e5fd152a3e8b91a041316a32132d6279b",
+  "fixtureSha256": "c30d5884cf78683208f664edbd1f519158d20f25231a5bf1ceb3d90ab289d669",
+  "cases": {
+    "baseline": {
+      "status": "completed",
+      "sha256": "5bea288dd3f293c1ef0813ed475ee2fd39de9535ca7b286c45a59f57c7987c40",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "at": "undefined",
+        "hasOwn": "undefined",
+        "probes": {
+          "defineProperty": "undefined",
+          "ownString0": false,
+          "ownStringLength": false,
+          "ownStringOut": false,
+          "ownArrayLength": false,
+          "ownDeleted": false,
+          "ownInherited": false,
+          "ownShadowed": true,
+          "ownKeyObject": true,
+          "arrayStringIndex": "b",
+          "literalHoleOwn": true,
+          "numberBinary": "NaN"
+        },
+        "project": {
+          "items": 0,
+          "dirty": false
+        }
+      },
+      "sourceFile": "esnext-stage3-baseline.jsx.txt"
+    },
+    "attributes": {
+      "status": "completed",
+      "sha256": "012f9defda47ed7947d1554a3e2776b978c8b7d25f727e2b2765cac6fbd34c28",
+      "result": {
+        "array": {
+          "length": {
+            "own": false,
+            "has": true,
+            "value": "number"
+          },
+          "prototype": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "name": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "lastIndex": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "source": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "constructor": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          },
+          "toString": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          }
+        },
+        "string": {
+          "length": {
+            "own": false,
+            "has": true,
+            "value": "number"
+          },
+          "prototype": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "name": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "lastIndex": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "source": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "constructor": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          },
+          "toString": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          }
+        },
+        "function": {
+          "length": {
+            "own": false,
+            "has": true,
+            "value": "number"
+          },
+          "prototype": {
+            "own": true,
+            "has": true,
+            "value": "object"
+          },
+          "name": {
+            "own": false,
+            "has": true,
+            "value": "string"
+          },
+          "lastIndex": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "source": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "constructor": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          },
+          "toString": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          }
+        },
+        "regexp": {
+          "length": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "prototype": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "name": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "lastIndex": {
+            "own": true,
+            "has": true,
+            "value": "number"
+          },
+          "source": {
+            "own": true,
+            "has": true,
+            "value": "string"
+          },
+          "constructor": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          },
+          "toString": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          }
+        },
+        "date": {
+          "length": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "prototype": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "name": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "lastIndex": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "source": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "constructor": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          },
+          "toString": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          }
+        },
+        "number": {
+          "length": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "prototype": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "name": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "lastIndex": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "source": {
+            "own": false,
+            "has": false,
+            "value": "undefined"
+          },
+          "constructor": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          },
+          "toString": {
+            "own": false,
+            "has": true,
+            "value": "function"
+          }
+        }
+      },
+      "sourceFile": "esnext-stage3-attributes.jsx.txt"
+    },
+    "raw": {
+      "status": "completed",
+      "sha256": "b117fd0a024f35437968dc96fcc3af9c96fc6ff6a289909d529a73c010f3a417",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "before": {
+          "at": "undefined",
+          "hasOwn": "undefined"
+        },
+        "first": {
+          "total": 36,
+          "passed": 36,
+          "failures": []
+        },
+        "stage2": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "stage1": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "repeat": {
+          "total": 36,
+          "passed": 36,
+          "failures": []
+        },
+        "stable": true,
+        "project": {
+          "items": 0,
+          "dirty": false
+        }
+      },
+      "sourceFile": "esnext-stage3-raw.jsx.txt"
+    },
+    "minified": {
+      "status": "completed",
+      "sha256": "d807419c71829ccfd74a681ae9787bd9e96dfc71bf20cb03603ddb98a2adb5db",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "before": ["undefined", "undefined"],
+        "stage3": {
+          "total": 36,
+          "passed": 36,
+          "failures": []
+        },
+        "stage2": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "stage1": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "polyfills": {
+          "total": 107,
+          "passed": 107,
+          "failures": []
+        },
+        "corrections": {
+          "total": 71,
+          "passed": 71,
+          "failures": []
+        },
+        "stable": true,
+        "project": {
+          "items": 0,
+          "dirty": false
+        }
+      },
+      "sourceFile": "esnext-stage3-minified.jsx.txt"
+    },
+    "replacement": {
+      "status": "completed",
+      "sha256": "28132bb5454740eb20553cf5fe1a6ee702428648f52cd046b4ffb8b26c1fa854",
+      "result": {
+        "retained": true,
+        "broken": {
+          "total": 36,
+          "passed": 36,
+          "failures": []
+        },
+        "reverseStable": true,
+        "reverse": {
+          "total": 36,
+          "passed": 36,
+          "failures": []
+        },
+        "project": {
+          "items": 0,
+          "dirty": false
+        }
+      },
+      "sourceFile": "esnext-stage3-replacement.jsx.txt"
+    }
+  },
+  "projectAfterValidation": "0 items; previously became dirty during revalidation and saved to a temporary snapshot; clean during final revalidation"
+}

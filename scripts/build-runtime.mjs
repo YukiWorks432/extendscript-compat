@@ -72,6 +72,11 @@ const assembled = [
   source("esnext-stage2.js"),
   "    root.__extendscriptCompatESNext2__ = 1;",
   "  }());",
+  "  (function () {",
+  "    if (root.__extendscriptCompatESNext3__ === 1) return;",
+  source("esnext-stage3.js"),
+  "    root.__extendscriptCompatESNext3__ = 1;",
+  "  }());",
   '})(typeof $ === "undefined" ? globalThis : $.global);',
   "",
 ].join("\n");

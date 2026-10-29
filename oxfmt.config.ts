@@ -10,6 +10,7 @@ export default defineConfig({
         "test/fixtures/number-constructor-alias-host-contract.js",
         "test/fixtures/bom-host-contract.js",
         "test/fixtures/esnext-stage2-contract.js",
+        "test/fixtures/esnext-stage3-contract.js",
       ],
       options: { trailingComma: "none" },
     },
