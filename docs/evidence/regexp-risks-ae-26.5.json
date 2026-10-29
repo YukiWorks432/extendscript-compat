@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-29",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "isolation": "Dedicated test processes and project snapshots. Timed-out test processes were terminated independently of the original project.",
+  "ec18": {
+    "cases": [
+      {
+        "pattern": "(aA?|bB?)+$",
+        "input": "bx",
+        "expected": false,
+        "result": "timeout after 8000 ms; host not responding and CPU increased",
+        "requestId": "req-18e2e9a0cabd5510-45664-34",
+        "sourceSha256": "18b96e4abf4717d8b72af1adb556685656292ed2c3bb27948a9e338690803e76"
+      },
+      {
+        "pattern": "(a|bB?)+$",
+        "input": "bx",
+        "expected": false,
+        "result": "timeout after 6000 ms; host not responding and CPU increased",
+        "requestId": "req-18e2ea2cab41a470-45664-40",
+        "sourceFile": "regexp-risks-ae-26.5/ec18-timeout.jsx.txt",
+        "sourceSha256": "4eeed09ca425d56dc0ca12313cf930e97853ee84e84bb129e03cf48cf45c43e6"
+      },
+      { "pattern": "(aA?|b)+$", "input": "ax", "result": false },
+      { "pattern": "(aA?)+$", "input": "ax", "result": false },
+      { "pattern": "(a|bB?)+", "input": "bx", "result": true },
+      { "pattern": "(aA?|bB?)+$", "input": "ab", "result": ["b", "b"], "expected": ["ab", "b"] }
+    ],
+    "candidate": {
+      "pattern": "(aA|a|bB|b)+$",
+      "comparison": "Matched standard result including captures and index for the original pattern on 156 strings of length 0 through 3 over abABx.",
+      "requestId": "req-18e2ea22680cee6c-45664-3b",
+      "resultFile": "regexp-risks-ae-26.5/ec18-candidate-results.json",
+      "sourceFile": "regexp-risks-ae-26.5/ec18-candidate.jsx.txt",
+      "sourceSha256": "7a636bcd358bf294d530b96f407c68bee252c3680e5d67557a3d9a857bd65a40",
+      "mismatches": 0
+    }
+  },
+  "ec19": {
+    "cases": [
+      { "pattern": "^((a|b)|c)+$", "input": "ac", "expected": true, "result": false },
+      { "pattern": "^((a|b)|c)+$", "input": "ca", "expected": true, "result": true },
+      { "pattern": "^((a|b)|c)*$", "input": "ac", "expected": true, "result": false },
+      { "pattern": "^((a|b)|c){2}$", "input": "ac", "expected": true, "result": false },
+      {
+        "pattern": "^(c|(a|b))+$",
+        "input": "ac",
+        "result": ["ac", "c", "a"],
+        "expected": ["ac", "c", null],
+        "note": "The last expected capture is undefined, represented as null in JSON."
+      }
+    ],
+    "candidate": {
+      "pattern": "^(a|b|c)+$",
+      "comparison": "Compared boolean matches with the standard original pattern on 85 strings of length 0 through 3 over abcx; captures were not compared.",
+      "originalMismatches": 24,
+      "candidateMismatches": 0,
+      "requestId": "req-18e2ea25152c6738-45664-3c",
+      "resultFile": "regexp-risks-ae-26.5/ec19-candidate-results.json",
+      "sourceFile": "regexp-risks-ae-26.5/ec19-candidate.jsx.txt",
+      "sourceSha256": "87b71041148ff0a5f4206c355a5ed163e9f8d861d413ff1f1d9b63816ad677b1"
+    }
+  },
+  "limitations": "Finite comparisons do not prove a general equivalence. Captures and observable regular-expression state can change on rewriting. Conditions outside these cases and other host versions were not established."
+}

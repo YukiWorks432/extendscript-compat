@@ -121,6 +121,31 @@ const issues = findCompatibilityIssues(source);
 
 `findCompatibilityIssues` reports EC-03 and EC-06 in the original input. `protectCompatibility` returns notifications for original EC-03 issues in `diagnostics`; these do not mean the corrected output still contains an unresolved bug. Each diagnostic has `code`, `kind`, `start`, `end`, `line`, `column`, and `message`. Lines are one-based; columns and character positions are zero-based UTF-16 code-unit offsets. Edits and diagnostics refer to the original input. A regular expression's `source` or `toString()` reflects the rewritten syntax, while the matched character set is preserved.
 
+## Detecting potential regular-expression issues
+
+In After Effects ExtendScript, repetition containing alternatives and optional elements can hang (EC-18), and repetition containing nested alternatives can return incorrect matches (EC-19). See the [host investigation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/regexp-risks-ae-26.5.json) for the observed cases and comparison results.
+
+Detection is disabled by default. Enable it in Rollup to inspect regular-expression literals in the final output:
+
+```js
+extendscriptCompat({ regexpDiagnostics: "warn" }); // report warnings
+extendscriptCompat({ regexpDiagnostics: "error" }); // stop the build on detection
+```
+
+`regexpDiagnostics` is independent of `diagnostics` and defaults to `"off"`. Locations refer to the final output before the BOM and compatibility changes are applied. Detection does not rewrite the code.
+
+For direct analysis, use `findRegExpRisks(source)`. It returns `code`, `kind`, `start`, `end`, `line`, `column`, and `message` relative to the input. Lines are one-based; columns and offsets are zero-based UTF-16 code units.
+
+```js
+import { findRegExpRisks } from "extendscript-compat";
+
+findRegExpRisks("var pattern = /^((a|b)|c)+$/;"); // reports a potential EC-19 issue
+```
+
+For EC-18, the detector looks for a group that can repeat at least twice and contains alternatives and optional elements. For EC-19, it looks for nested alternatives inside a group that can repeat at least twice. These structural checks are heuristics: a reported pattern may work, and an unreported pattern is not guaranteed to be safe. Only parseable regular-expression literals with `g`, `i`, and `m` flags are analyzed. `RegExp` constructors, dynamic strings, strings passed to `eval`, and external files are excluded.
+
+The detector does not rewrite patterns because equivalence of captures and observable regular-expression behavior cannot generally be guaranteed. Check reported patterns in the target host with the actual input and usage.
+
 ## Related implementations
 
 Other tools address some of the same bugs. The following were checked on 2026-10-26:

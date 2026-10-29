@@ -86,3 +86,18 @@ export function protectUnicode(source: string): UnicodeProtection;
  * 優先順位、EC-06、continueのラベル・セミコロンとUnicodeを補正し、EC-03の通知を返す。
  */
 export function protectCompatibility(source: string): CompatibilityProtection;
+
+/** Potential EC-18/19 risks at a regular-expression literal. Positions refer to the input.
+ * 正規表現リテラル上のEC-18・19の可能性。位置は入力コードを参照する。 */
+export interface RegExpRiskDiagnostic {
+  code: "EC-18" | "EC-19";
+  kind: "regexp-optional-alternative-repeat" | "regexp-nested-alternative-repeat";
+  start: number;
+  end: number;
+  line: number;
+  column: number;
+  message: string;
+}
+/** Detect potential risks in static regular-expression literals without changing the input.
+ * 静的な正規表現リテラルの潜在的な問題を検出する。入力は変更しない。 */
+export function findRegExpRisks(source: string): RegExpRiskDiagnostic[];

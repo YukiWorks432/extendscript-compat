@@ -1,6 +1,9 @@
 import type { Plugin } from "rollup";
 
 export interface CompatibilityOptions {
+  /** Potential EC-18/19 warnings: off by default; warn or error to enable.
+   * EC-18・19の可能性の通知。既定はoff。warnまたはerrorで有効にする。 */
+  regexpDiagnostics?: "off" | "warn" | "error";
   /**
    * Add a UTF-8 byte order mark to each generated JavaScript chunk by default.
    *

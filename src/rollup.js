@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { addSegment, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 import { eachMapping, TraceMap } from "@jridgewell/trace-mapping";
-import { protectCompatibility, assertPrecedenceProtected } from "./index.js";
+import { protectCompatibility, assertPrecedenceProtected, findRegExpRisks } from "./index.js";
 import { numberPonyfillImport, transformNumberCalls } from "./number-transform.js";
 
 /** @param {string} source */
@@ -122,6 +122,10 @@ function updateSourceMappingUrl(code, url) {
 export function extendscriptCompat(options = {}) {
   const diagnostics = options.diagnostics ?? "warn";
   const bom = options.bom ?? true;
+  const regexpDiagnostics = options.regexpDiagnostics ?? "off";
+  if (!["warn", "error", "off"].includes(regexpDiagnostics)) {
+    throw new TypeError("Unknown ExtendScript regexp diagnostics mode: " + regexpDiagnostics);
+  }
   if (typeof bom !== "boolean") {
     throw new TypeError("ExtendScript BOM option must be a boolean");
   }
@@ -166,6 +170,17 @@ export function extendscriptCompat(options = {}) {
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;
         const source = chunk.code;
+        if (regexpDiagnostics !== "off") {
+          for (const diagnostic of findRegExpRisks(source)) {
+            const warning = {
+              code: diagnostic.code,
+              message: diagnostic.message,
+              loc: { file: chunk.fileName, line: diagnostic.line, column: diagnostic.column },
+            };
+            if (regexpDiagnostics === "error") this.error(warning);
+            else this.warn(warning);
+          }
+        }
         const result = protectCompatibility(source);
         if (diagnostics !== "off") {
           for (const diagnostic of result.diagnostics) {

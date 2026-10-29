@@ -121,6 +121,31 @@ const issues = findCompatibilityIssues(source);
 
 `findCompatibilityIssues`は、補正前のEC-03・EC-06を返します。`protectCompatibility`の`diagnostics`は元のコードにあったEC-03の通知であり、補正後に未解決の不具合が残っていることを示すものではありません。各診断は`code`、`kind`、`start`、`end`、`line`、`column`、`message`を持ちます。行は1始まり、列と文字位置はUTF-16のコード単位で0始まりです。統合APIの`edits`と診断の位置はいずれも元の入力を指します。正規表現の`source`や`toString()`には補正後の表記が現れますが、照合する文字集合は維持します。
 
+## 正規表現の潜在的な問題の検出
+
+After EffectsのExtendScriptでは、選択肢と省略可能な要素を含む繰り返しが停止する場合（EC-18）や、繰り返し内の入れ子の選択肢が誤った一致結果を返す場合（EC-19）があります。実機での再現条件と比較結果は[調査記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/regexp-risks-ae-26.5.json)を参照してください。
+
+この検出は既定では無効です。Rollupで有効にすると、最終出力の正規表現リテラルを検査します。
+
+```js
+extendscriptCompat({ regexpDiagnostics: "warn" }); // 警告する
+extendscriptCompat({ regexpDiagnostics: "error" }); // 検出時にビルドを停止する
+```
+
+`regexpDiagnostics`は`diagnostics`とは独立した設定で、既定値は`"off"`です。通知位置はBOMや互換性補正を適用する前の最終出力上の位置です。診断によるコードの書き換えは行いません。
+
+直接解析する場合は`findRegExpRisks(source)`を使います。`code`、`kind`、`start`、`end`、`line`、`column`、`message`を返し、位置は入力コードに対するものです。行は1始まり、列と文字位置はUTF-16のコード単位で0始まりです。
+
+```js
+import { findRegExpRisks } from "extendscript-compat";
+
+findRegExpRisks("var pattern = /^((a|b)|c)+$/;"); // EC-19の可能性を通知
+```
+
+EC-18では、2回以上繰り返しうるグループ内に選択肢と省略可能な要素がある形を検出します。EC-19では、2回以上繰り返しうるグループ内に入れ子の選択肢がある形を検出します。これは構造に基づく目安であり、検出されても実際に問題が起きるとは限らず、検出されなくても安全とは限りません。正規表現リテラルのうちフラグが`g`・`i`・`m`のみの構文解析可能なものが対象です。`RegExp`コンストラクタ、動的な文字列、`eval`内の文字列、外部ファイルなどは対象外です。
+
+書き換え後もキャプチャや正規表現の参照結果を含む動作が保たれることを一般には保証できないため、自動補正はしません。通知された式は、入力と使用方法に応じて実機で確認してください。
+
 ## 関連する実装
 
 同じ不具合への対処は既存のツールにもあります。2026年10月26日時点で、次の実装を確認しました。

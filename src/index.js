@@ -316,3 +316,5 @@ function sourcePosition(node) {
     column: node.loc.start.column,
   };
 }
+
+export { findRegExpRisks } from "./regexp-risks.js";
