@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "1cf22a2905924a1f9352e48f5cf8c2a4719eb651",
+  "sourceNote": "最新mainに0.3.0の版更新を取り込んで梱包。変更案内とこの記録は配布対象外。",
+  "tools": {
+    "node": "24.22.1",
+    "pnpm": "12.15.0",
+    "npm": "11.19.1"
+  },
+  "package": {
+    "version": "0.3.0",
+    "fileCount": 20,
+    "sha256": "bd0de718c85c76e943751fa0b80e7538dd1f79ef57732ed767d671aa42e6f8c9",
+    "integrity": "sha512-tV3eMXti23KWhXavhOuWIx0ugkZxG6fNeoOaL23nK8lmMCEWEVtcota3l+WwiidrrxCmMIAknIKgmEFOcFCWHw==",
+    "installedFilesMatch": true,
+    "sourceFilesMatchExceptPackageJson": true,
+    "entries": [".", "./rollup", "./runtime", "./number", "./unit-value"],
+    "consumerTypecheck": true,
+    "rollupVariants": ["normal", "minified"],
+    "sourceMaps": true,
+    "bomOnOffAndWarning": true
+  },
+  "checks": {
+    "frozenInstall": true,
+    "repositoryCheck": {
+      "command": "pnpm check",
+      "testFiles": 11,
+      "tests": 154
+    },
+    "npmPublishDryRun": true
+  },
+  "host": {
+    "app": "After Effects 26.5x89 / ExtendScript 4.5.6 on Windows",
+    "rerun": false,
+    "evidence": [
+      "trim-unicode-ae-26.5.json",
+      "unicode-output-ae-26.5.json",
+      "number-ponyfill-ae-26.5.json",
+      "number-constructor-alias-ae-26.5.json",
+      "bom-ae-2025-2026.json"
+    ],
+    "regeneratedHashesMatch": "Unicode出力は既存証跡と一致。数値変換・コンストラクタと別名の出力は、先頭BOMを除くと既存証跡と一致。BOM検証用4出力は既存証跡と完全一致。",
+    "limitations": "保存済み実機結果との照合。BOM付き数値変換出力は今回実機未再実行。BOMの2024実機結果はPR #15本文を参照。検証した版以外と別のAdobe製品は未検証。"
+  }
+}

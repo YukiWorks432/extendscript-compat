@@ -1,6 +1,6 @@
 {
   "name": "extendscript-compat",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Build-time and runtime compatibility fixes for Adobe ExtendScript",
   "homepage": "https://github.com/YukiWorks432/extendscript-compat#readme",
   "bugs": {
