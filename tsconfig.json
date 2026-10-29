@@ -11,5 +11,5 @@
     "types": ["node"]
   },
   "include": ["src", "test", "oxfmt.config.ts", "oxlint.config.ts"],
-  "exclude": ["test/fixtures"]
+  "exclude": ["test/fixtures", "test/contracts", "test/types"]
 }

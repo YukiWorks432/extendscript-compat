@@ -40,7 +40,7 @@ In AE 26.5, an omitted element in `[1,,3]` is created as an `undefined` element.
 
 Importing `/runtime` from TypeScript also supplies declarations for these methods. They work with `lib: ["ES5"]` and do not add declarations for unsupported features such as `Promise`. Syntax transformation remains the consumer's responsibility.
 
-The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object.defineProperty`, so methods are added by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. The [second-stage investigation and verification](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage2-ae-26.5.json) is recorded separately. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage1-ae-26.5.json).
+The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object.defineProperty`, so methods are added by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. The [second-stage investigation and verification](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json) is recorded separately. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json).
 
 ## Corrected behavior
 
@@ -116,7 +116,7 @@ The JSON, ES5, and ES6 polyfills are adapted from a [fixed extendscript-ts-templ
 
 ## Validation
 
-`test/fixtures/runtime-contract.js` contains 71 cases shared by host and Node tests, comparing behavior with expectations derived from the specification. It is kept outside the product type-checking scope and run in Node and AE.
+`test/contracts/runtime-contract.js` contains 71 cases shared by host and Node tests, comparing behavior with expectations derived from the specification. It is kept outside the product type-checking scope and run in Node and AE.
 
 ```sh
 pnpm check
@@ -126,3 +126,5 @@ node scripts/build-host-runtime-probe.mjs
 The second command generates minified, precedence-protected output, comparison code for AE, and SHA-256 hashes in `tmp/runtime-host-probe/`. The AE probe compares the original functions, the installed correction, and reapplication; a `finally` block restores the four functions and the internal marker. Normal product integration retains the corrections and does not include that restoration.
 
 Record results with the target product, engine version, and code SHA-256. The AE results and evidence are in the [runtime host validation record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md). Other Adobe products have not been tested on a host.
+
+See the repository's [development file layout](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/development-layout.md) for source organization.

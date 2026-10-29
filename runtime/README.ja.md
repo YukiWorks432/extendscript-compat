@@ -40,7 +40,7 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 
 `/runtime`をTypeScriptから読み込むと、上記メソッドの型も追加されます。`lib: ["ES5"]`でも利用でき、未対応の`Promise`の型は追加しません。構文の変換は引き続き利用側で必要です。
 
-非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage1-ae-26.5.json)
+非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
 
 ## 補正する挙動
 
@@ -116,7 +116,7 @@ parseInt・charAt・replaceは、この調査で確認したExtendScript固有�
 
 ## 検証
 
-`test/fixtures/runtime-contract.js`は、仕様から求めた期待値と実際の動作を比べる71項目の実機・Node共用資料です。製品の型検査対象とは分け、NodeとAEで実行します。
+`test/contracts/runtime-contract.js`は、仕様から求めた期待値と実際の動作を比べる71項目の実機・Node共用資料です。製品の型検査対象とは分け、NodeとAEで実行します。
 
 ```sh
 pnpm check
@@ -126,3 +126,5 @@ node scripts/build-host-runtime-probe.mjs
 後者は`tmp/runtime-host-probe/`へ圧縮・優先順位保護した実出力、AE用の比較コード、SHA-256を生成します。AE用コードは適用前・適用後・再適用後を比較し、finallyで元の4関数と内部の印を復元します。通常の製品への導入は補正を保持するため、この復元処理を含めません。
 
 実行結果は対象の製品版・エンジン版・コードのSHA-256とともに保存してください。今回確認したAEの結果と証跡は、リポジトリの[実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)に記録しています。他のAdobe製品では実機確認していません。
+
+[開発用ファイルの配置](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/development-layout.ja.md)はリポジトリの開発文書を参照してください。

@@ -10,7 +10,7 @@ mkdirSync(directory, { recursive: true });
 const hashes = {};
 for (const compressed of [false, true]) {
   const bundle = await rollup({
-    input: "test/fixtures/number-host-contract.js",
+    input: "test/contracts/number-host-contract.js",
     plugins: [
       ...(compressed ? [terser({ format: { ascii_only: true, ecma: 5 } })] : []),
       extendscriptCompat(),

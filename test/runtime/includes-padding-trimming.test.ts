@@ -5,12 +5,12 @@ import { expect, it } from "vitest";
 import { rollup } from "rollup";
 import ts from "typescript";
 import terser from "@rollup/plugin-terser";
-import { extendscriptCompat } from "../src/rollup.js";
+import { extendscriptCompat } from "../../src/rollup.js";
 
-const runtimePath = fileURLToPath(new URL("../runtime/index.js", import.meta.url));
+const runtimePath = fileURLToPath(new URL("../../runtime/index.js", import.meta.url));
 const runtime = readFileSync(runtimePath, "utf8");
 const contract = readFileSync(
-  new URL("./fixtures/esnext-stage1-contract.js", import.meta.url),
+  new URL("../contracts/includes-padding-trimming-contract.js", import.meta.url),
   "utf8",
 );
 const missing = `
@@ -138,7 +138,9 @@ it.each([false, true])("配布入口から圧縮=%sの出力でも契約を満�
 });
 
 it("実行時入口の型はES5の型設定でも対応機能のみを公開する", () => {
-  const fixture = fileURLToPath(new URL("./fixtures/esnext-stage1-types.ts", import.meta.url));
+  const fixture = fileURLToPath(
+    new URL("../types/includes-padding-trimming-types.ts", import.meta.url),
+  );
   const program = ts.createProgram([fixture], {
     noEmit: true,
     strict: true,

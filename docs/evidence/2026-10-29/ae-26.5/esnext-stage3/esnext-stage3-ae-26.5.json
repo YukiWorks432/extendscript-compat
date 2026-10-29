@@ -33,7 +33,7 @@
           "dirty": false
         }
       },
-      "sourceFile": "esnext-stage3-baseline.jsx.txt"
+      "sourceFile": "esnext-stage3-baseline.jsx"
     },
     "attributes": {
       "status": "completed",
@@ -262,7 +262,7 @@
           }
         }
       },
-      "sourceFile": "esnext-stage3-attributes.jsx.txt"
+      "sourceFile": "esnext-stage3-attributes.jsx"
     },
     "raw": {
       "status": "completed",
@@ -301,7 +301,7 @@
           "dirty": false
         }
       },
-      "sourceFile": "esnext-stage3-raw.jsx.txt"
+      "sourceFile": "esnext-stage3-raw.jsx"
     },
     "minified": {
       "status": "completed",
@@ -342,7 +342,7 @@
           "dirty": false
         }
       },
-      "sourceFile": "esnext-stage3-minified.jsx.txt"
+      "sourceFile": "esnext-stage3-minified.jsx"
     },
     "replacement": {
       "status": "completed",
@@ -365,7 +365,7 @@
           "dirty": false
         }
       },
-      "sourceFile": "esnext-stage3-replacement.jsx.txt"
+      "sourceFile": "esnext-stage3-replacement.jsx"
     }
   },
   "projectAfterValidation": "0 items; previously became dirty during revalidation and saved to a temporary snapshot; clean during final revalidation"

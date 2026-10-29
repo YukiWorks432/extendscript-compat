@@ -143,7 +143,7 @@ it.each([false, true])(
   "実機と共有する通常・圧縮資料をES3として実行する 圧縮=%s",
   async (compressed) => {
     const bundle = await rollup({
-      input: "test/fixtures/number-auto-host-contract.js",
+      input: "test/contracts/number-auto-host-contract.js",
       plugins: [
         ...(compressed ? [terser({ format: { ascii_only: true, ecma: 5 } })] : []),
         extendscriptCompat(),
@@ -378,7 +378,7 @@ it.each([false, true])(
   "拡張した実機資料の通常版・圧縮版がES3で変換契約を満たす 圧縮=%s",
   async (compressed) => {
     const bundle = await rollup({
-      input: "test/fixtures/number-constructor-alias-host-contract.js",
+      input: "test/contracts/number-constructor-alias-host-contract.js",
       plugins: [
         ...(compressed ? [terser({ format: { ascii_only: true, ecma: 5 } })] : []),
         extendscriptCompat(),

@@ -21,7 +21,7 @@ const factory = (name) => {
     "}());"
   );
 };
-const json = source("json2.js");
+const json = source("vendor/json2.js");
 const prefix = '"object"!=typeof JSON&&(JSON={}),';
 if (!json.startsWith(prefix)) throw new Error("Unexpected json2 wrapper");
 const jsonCode =
@@ -45,8 +45,8 @@ const assembled = [
   "  try {",
   source("trim.js"),
   jsonCode,
-  factory("es5-shim.js"),
-  factory("es6-shim.js"),
+  factory("vendor/es5-shim.js"),
+  factory("vendor/es6-shim.js"),
   "  if (!__extendscriptCompatTrimWorks(String.prototype.trim)) String.prototype.trim = __extendscriptCompatTrimMethod;",
   "  } finally {",
   "    if (root.__extendscriptCompatRuntime__ === 1 &&",
@@ -55,28 +55,17 @@ const assembled = [
   "      root.__extendscriptCompatRuntime__ = 0;",
   "    }",
   "  }",
-  source("fixes.js"),
+  source("builtin-corrections.js"),
   "  Number.parseInt = root.parseInt;",
   "  root.__extendscriptCompatPolyfills__ = 1;",
   '})(typeof $ === "undefined" ? globalThis : $.global);',
   "(function (root) {",
   numberHelper,
-  source("esnext-common.js"),
-  "  (function () {",
-  "    if (root.__extendscriptCompatESNext1__ === 1) return;",
-  source("esnext-stage1.js"),
-  "    root.__extendscriptCompatESNext1__ = 1;",
-  "  }());",
-  "  (function () {",
-  "    if (root.__extendscriptCompatESNext2__ === 1) return;",
-  source("esnext-stage2.js"),
-  "    root.__extendscriptCompatESNext2__ = 1;",
-  "  }());",
-  "  (function () {",
-  "    if (root.__extendscriptCompatESNext3__ === 1) return;",
-  source("esnext-stage3.js"),
-  "    root.__extendscriptCompatESNext3__ = 1;",
-  "  }());",
+  source("polyfill-helpers.js"),
+  source("polyfills/array.js"),
+  source("polyfills/string.js"),
+  source("polyfills/object.js"),
+  source("install-polyfills.js"),
   '})(typeof $ === "undefined" ? globalThis : $.global);',
   "",
 ].join("\n");

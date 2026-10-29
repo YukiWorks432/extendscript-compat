@@ -6,16 +6,16 @@ import { parse } from "acorn";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import ts from "typescript";
-import { extendscriptCompat } from "../src/rollup.js";
+import { extendscriptCompat } from "../../src/rollup.js";
 
-const runtimePath = fileURLToPath(new URL("../runtime/index.js", import.meta.url));
+const runtimePath = fileURLToPath(new URL("../../runtime/index.js", import.meta.url));
 const runtime = readFileSync(runtimePath, "utf8");
 const contract = readFileSync(
-  new URL("./fixtures/esnext-stage2-contract.js", import.meta.url),
+  new URL("../contracts/entries-flattening-string-at-contract.js", import.meta.url),
   "utf8",
 );
 const previousContract = readFileSync(
-  new URL("./fixtures/esnext-stage1-contract.js", import.meta.url),
+  new URL("../contracts/includes-padding-trimming-contract.js", import.meta.url),
   "utf8",
 );
 const missing = `
@@ -144,7 +144,7 @@ it.each([false, true])("配布入口の圧縮=%sの出力で第1・第2段階の
 
 it("新しい宣言は既存のES2022標準ライブラリとも共存する", () => {
   const fixture = fileURLToPath(
-    new URL("./fixtures/esnext-stage2-types-modern.ts", import.meta.url),
+    new URL("../types/entries-flattening-string-at-types-modern.ts", import.meta.url),
   );
   const program = ts.createProgram([fixture], {
     noEmit: true,

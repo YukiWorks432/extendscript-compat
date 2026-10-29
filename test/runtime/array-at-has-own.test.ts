@@ -6,16 +6,16 @@ import { parse } from "acorn";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import ts from "typescript";
-import { extendscriptCompat } from "../src/rollup.js";
+import { extendscriptCompat } from "../../src/rollup.js";
 
-const runtimePath = fileURLToPath(new URL("../runtime/index.js", import.meta.url));
+const runtimePath = fileURLToPath(new URL("../../runtime/index.js", import.meta.url));
 const runtime = readFileSync(runtimePath, "utf8");
 const contract = readFileSync(
-  new URL("./fixtures/esnext-stage3-contract.js", import.meta.url),
+  new URL("../contracts/array-at-has-own-contract.js", import.meta.url),
   "utf8",
 );
 const previous = readFileSync(
-  new URL("./fixtures/esnext-stage2-contract.js", import.meta.url),
+  new URL("../contracts/entries-flattening-string-at-contract.js", import.meta.url),
   "utf8",
 );
 const missing = "delete Array.prototype.at; delete Object.hasOwn;";
@@ -112,7 +112,7 @@ it.each([false, true])("配布入口を圧縮=%sで利用した場合に契約�
 });
 
 it("追加した型はES5とES2022の標準型と共存する", () => {
-  const fixture = fileURLToPath(new URL("./fixtures/esnext-stage3-types.ts", import.meta.url));
+  const fixture = fileURLToPath(new URL("../types/array-at-has-own-types.ts", import.meta.url));
   for (const lib of ["lib.es5.d.ts", "lib.es2022.d.ts"]) {
     const program = ts.createProgram([fixture], {
       noEmit: true,

@@ -12,9 +12,9 @@ import { extendscriptCompat } from "../src/rollup.js";
 const runtimePath = new URL("../runtime/index.js", import.meta.url);
 const runtime = readFileSync(runtimePath, "utf8");
 const oldRuntime = readFileSync(new URL("./fixtures/runtime-0.2.js", import.meta.url), "utf8");
-const contract = readFileSync(new URL("./fixtures/polyfill-contract.js", import.meta.url), "utf8");
+const contract = readFileSync(new URL("./contracts/polyfill-contract.js", import.meta.url), "utf8");
 const corrections = readFileSync(
-  new URL("./fixtures/runtime-contract.js", import.meta.url),
+  new URL("./contracts/runtime-contract.js", import.meta.url),
   "utf8",
 );
 const missing = `

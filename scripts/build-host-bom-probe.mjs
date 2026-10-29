@@ -13,7 +13,7 @@ for (const compressed of [false, true]) {
   for (const bom of [true, false]) {
     const warnings = [];
     const bundle = await rollup({
-      input: "test/fixtures/bom-host-contract.js",
+      input: "test/contracts/bom-host-contract.js",
       plugins: [
         ...(compressed ? [terser({ format: { ascii_only: false, ecma: 5 } })] : []),
         extendscriptCompat({ bom }),
