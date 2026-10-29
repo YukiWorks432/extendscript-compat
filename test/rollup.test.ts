@@ -26,7 +26,12 @@ async function build(
     ],
     onwarn(warning, defaultHandler) {
       warnings.push(warning);
-      if (warning.pluginCode === "EC-03") return;
+      if (
+        warning.pluginCode === "EC-03" ||
+        warning.pluginCode === "EC-18" ||
+        warning.pluginCode === "EC-19"
+      )
+        return;
       if (warning.code !== "MISSING_GLOBAL_NAME") defaultHandler(warning);
     },
   });
@@ -449,4 +454,45 @@ it.each([false, true])("実機と共通のBOM検証資料の値を保つ 圧縮=
   } finally {
     await bundle.close();
   }
+});
+
+it("最終出力の正規表現を任意で通知し、診断によって出力を変更しない", async () => {
+  const input = "export function run(value){return /(a|bB?)+$/.test(value);}";
+  const silent: RollupLog[] = [];
+  const baseline = await build(input, [extendscriptCompat()], { sourcemap: true }, silent);
+  expect(silent.filter(({ pluginCode }) => pluginCode === "EC-18")).toEqual([]);
+  const warnings: RollupLog[] = [];
+  const diagnosed = await build(
+    input,
+    [extendscriptCompat({ regexpDiagnostics: "warn", diagnostics: "off" })],
+    { sourcemap: true },
+    warnings,
+  );
+  expect(warnings.filter(({ pluginCode }) => pluginCode === "EC-18")).toHaveLength(1);
+  expect(warnings[0].loc?.file).toBe("custom.jsx");
+  expect((diagnosed.output[0] as OutputChunk).code).toBe((baseline.output[0] as OutputChunk).code);
+  expect((diagnosed.output[0] as OutputChunk).map?.toString()).toBe(
+    (baseline.output[0] as OutputChunk).map?.toString(),
+  );
+  await expect(build(input, [extendscriptCompat({ regexpDiagnostics: "error" })])).rejects.toThrow(
+    /停止する可能性/,
+  );
+});
+
+it("後続の出力変換が追加した正規表現も診断する", async () => {
+  const warnings: RollupLog[] = [];
+  await build(
+    "export var result = 1;",
+    [
+      extendscriptCompat({ regexpDiagnostics: "warn" }),
+      { name: "late-regexp", renderChunk: (code) => code + "\nvar late = /^((a|b)|c)+$/;" },
+    ],
+    {},
+    warnings,
+  );
+  expect(warnings.filter(({ pluginCode }) => pluginCode === "EC-19")).toHaveLength(1);
+});
+
+it("未知の正規表現診断設定を拒否する", () => {
+  expect(() => extendscriptCompat({ regexpDiagnostics: "invalid" as never })).toThrow(/regexp/);
 });

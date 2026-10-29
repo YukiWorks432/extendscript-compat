@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.29.7",
+    "@eslint-community/regexpp": "4.12.2",
     "@jridgewell/gen-mapping": "^0.3.13",
     "@jridgewell/trace-mapping": "^0.3.31",
     "magic-string": "0.30.21"
