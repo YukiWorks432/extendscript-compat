@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-29",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "investigation": {
+    "baseline": {
+      "requestId": "req-18e2f1515ede95f8-45664-4f",
+      "sourceSha256": "3a96327c09688e747aa83d4df7735d2e29707c2ed04ed56033a90bcb4c60817b",
+      "sourceFile": "esnext-stage2-baseline.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "items": 6,
+        "dirty": false,
+        "methods": {
+          "entries": "undefined",
+          "values": "undefined",
+          "flat": "undefined",
+          "flatMap": "undefined",
+          "at": "undefined"
+        },
+        "probes": {
+          "deletedHoleIn": false,
+          "deletedHoleOwn": false,
+          "literalHoleIn": true,
+          "literalHoleOwn": true,
+          "arrayIsArray": "undefined",
+          "keys": "undefined",
+          "defineProperty": "undefined",
+          "stringIndex": "a",
+          "surrogate0": "55357",
+          "surrogateLength": 2,
+          "binaryNumber": "NaN",
+          "enumeration": ["2", "1", "b", "a"]
+        }
+      }
+    },
+    "afterStage1": {
+      "requestId": "req-18e2f1536f17b664-45664-50",
+      "sourceSha256": "3e870f1943a0525515479f5142194fed78d9817444797204bfed866f8f58a0d4",
+      "sourceFile": "esnext-stage2-after-stage1.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "markers": [1, 1],
+        "methods": {
+          "entries": "undefined",
+          "values": "undefined",
+          "flat": "undefined",
+          "flatMap": "undefined",
+          "at": "undefined"
+        },
+        "probes": {
+          "keys": ["2", "1", "b", "a"],
+          "stringKeys": ["0", "1"],
+          "inheritedKeys": ["own"],
+          "arrayIsArray": true,
+          "deletedHoleIn": false,
+          "deletedHoleOwn": false,
+          "defineProperty": "undefined"
+        },
+        "items": 6,
+        "dirty": false
+      }
+    },
+    "ordering": {
+      "requestId": "req-18e2f15914d2af28-45664-51",
+      "sourceSha256": "a6cccc76d5cb4fecb9b5f4f779ee223f33e3db3dc3640870ce6c093069030b27",
+      "sourceFile": "esnext-stage2-ordering.jsx.txt",
+      "result": {
+        "keys": ["10", "2", "01", "4294967295", "0", "z", "a"],
+        "problemKeys": ["propertyIsEnumerable", "hasOwnProperty", "toString"],
+        "stringKeys": ["0", "1"],
+        "ownAndEnum": {
+          "deleted": false,
+          "propertyName": true
+        },
+        "methods": {
+          "getOwnPropertyNames": "undefined",
+          "getOwnPropertyDescriptor": "undefined",
+          "sort": "function"
+        },
+        "arrayChecks": {
+          "deletedElement": false,
+          "nestedIsArray": true,
+          "literalElement": true
+        },
+        "items": 6,
+        "dirty": false
+      }
+    },
+    "stringKeys": {
+      "requestId": "req-18e2f15f6600947c-45664-52",
+      "sourceSha256": "2a00cd7218a41b9bb94c923fc851d218b0c6216fe6a78764d6fd2da1919c321d",
+      "sourceFile": "esnext-stage2-string-keys.jsx.txt",
+      "result": {
+        "string": {
+          "keys": ["0", "1"],
+          "p0": false,
+          "p1": false
+        },
+        "orderedKeys": ["4294967294", "3", "4294967295", "02", "0"],
+        "nullType": "object",
+        "undefinedType": "object",
+        "items": 6,
+        "dirty": false
+      }
+    },
+    "stringAttributes": {
+      "requestId": "req-18e2f1615b82d29c-45664-53",
+      "sourceSha256": "8555ab7aef33a2588d1cea0ae3c1515584e974d1d75ba08bdb08bcd02d865b93",
+      "sourceFile": "esnext-stage2-string-attrs.jsx.txt",
+      "result": {
+        "boxedClass": "[object String]",
+        "boxedLength": 2,
+        "boxedZero": "a",
+        "own0": true,
+        "enum0": false,
+        "in0": true,
+        "keys": ["0", "1"],
+        "string0": "a",
+        "items": 6,
+        "dirty": false
+      }
+    }
+  },
+  "verification": {
+    "runtimeSha256": "9dcd8f35f75358429970c91f7c8b79d3057da3fc2590b18f14a3f2236da5abf5",
+    "minifiedSha256": "5c81a763a05d375dcea790da6bfb89db165cc5a4da7003dee493e042a49d86f3",
+    "contractSha256": "6060d936ad2ed815d10a52c0c642a8513bfaedae55dbebeee8f0c86d37a54e84",
+    "previousRuntimeSha256": "7698ec8eedcd69cad16ba4219984d66efe91d02aec155ec93e14cf532f2ec986",
+    "raw": {
+      "requestId": "req-18e2f18dece06070-45664-57",
+      "sourceSha256": "80a032bb311640a7de530a93d5cca1e173bda874747b5de5b9e86a34035d584b",
+      "sourceFile": "esnext-stage2-raw.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "before": {
+          "old": 1,
+          "stage1": 1,
+          "flat": "undefined"
+        },
+        "first": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "prior": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "second": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "stable": true,
+        "literalFlatLength": 3,
+        "literalMiddle": "undefined",
+        "items": 6,
+        "dirty": false
+      }
+    },
+    "minified": {
+      "requestId": "req-18e2f1a9969db2dc-45664-58",
+      "sourceSha256": "667f6aeca578e9bfee2ec1be6c935f2f87d76b79a8175953e412108867bca05f",
+      "sourceFile": "esnext-stage2-minified.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "before": ["undefined", "undefined", "undefined"],
+        "stage2": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "stage1": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "polyfills": {
+          "total": 107,
+          "passed": 107,
+          "failures": []
+        },
+        "corrections": {
+          "total": 71,
+          "passed": 71,
+          "failures": []
+        },
+        "repeat": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "stable": true,
+        "items": 6,
+        "dirty": true
+      }
+    },
+    "replacement": {
+      "requestId": "req-18e2f1b2ed6d2a08-45664-59",
+      "sourceSha256": "1dabff8be12b414bb45266e934f4b73b2ce722be74ed46732099b40d96d17738",
+      "sourceFile": "esnext-stage2-replacement.jsx.txt",
+      "result": {
+        "goodRetained": true,
+        "broken": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "restored": true,
+        "items": 6,
+        "dirty": true
+      }
+    },
+    "reverse": {
+      "requestId": "req-18e2f1b587390d94-45664-5a",
+      "sourceSha256": "0bda2e426a6997577c40f229091c5323562a0d0b6867d0802fcf77269622685b",
+      "sourceFile": "esnext-stage2-reverse.jsx.txt",
+      "result": {
+        "markers": [1, 1, 1],
+        "stable": true,
+        "stage2": {
+          "total": 46,
+          "passed": 46,
+          "failures": []
+        },
+        "stage1": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "items": 6,
+        "dirty": true
+      }
+    }
+  },
+  "limitations": "Dedicated AE process. Raw and minified checks cleared the five methods and stage-2 marker after an initial unsuccessful test; stage 1 remained installed. Fresh AE engine first installation and other Adobe products were not checked. The test project had six items; it became dirty after the minified check for an unestablished reason and was saved separately."
+}

@@ -54,3 +54,11 @@ On 2026-10-29, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.
 After loading the 0.3.0 runtime, the unminified runtime passed 102 checks for the added methods and preserved function identity on re-evaluation. Loading the old version after the new version was also checked. Working existing methods were retained, and replacement of incomplete methods passed all 102 checks. The minified output was executed after removing the target methods and the new installation marker in the test process; it passed 102 new checks, 107 existing polyfill checks, 71 checks for the four corrections, and re-evaluation. First installation into a fresh AE engine was not checked in this run.
 
 The test project had no items but became dirty after the minified check, so it was saved temporarily; the cause was not established. Other Adobe products were not tested. The [investigation and validation record](evidence/esnext-stage1-ae-26.5.json) includes the executed code and hashes.
+
+## Validation of second-stage ES Next methods
+
+On 2026-10-29, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.1060872) process was checked. The five methods were absent, and `Object.keys` returned integer keys in insertion order. String indices appeared in `Object.keys` but did not always report own or enumerable attributes. Omitted positions in `[1,,3]` existed as own properties, while holes created with `delete` did not.
+
+After the first-stage runtime was applied, the five methods and second-stage marker were removed in the test engine before running the raw and minified outputs. Both passed 46 second-stage and 102 first-stage checks, re-evaluation, and function-identity checks. The minified output also passed 107 existing polyfill and 71 correction checks. Retention of working methods, replacement of incomplete methods, and loading the earlier runtime afterward were checked. First installation into a fresh AE engine and other Adobe products were not tested.
+
+The test project contained six items; its states before and after testing were saved separately. The cause of its dirty state after the minified check was not established. The [investigation and validation record](evidence/esnext-stage2-ae-26.5.json) includes the executed code and hashes.
