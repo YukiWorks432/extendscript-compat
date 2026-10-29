@@ -25,7 +25,7 @@
         "expected": false,
         "result": "timeout after 6000 ms; host not responding and CPU increased",
         "requestId": "req-18e2ea2cab41a470-45664-40",
-        "sourceFile": "regexp-risks-ae-26.5/ec18-timeout.jsx.txt",
+        "sourceFile": "regexp-risks-ae-26.5/ec18-timeout.jsx",
         "sourceSha256": "4eeed09ca425d56dc0ca12313cf930e97853ee84e84bb129e03cf48cf45c43e6"
       },
       { "pattern": "(aA?|b)+$", "input": "ax", "result": false },
@@ -38,7 +38,7 @@
       "comparison": "Matched standard result including captures and index for the original pattern on 156 strings of length 0 through 3 over abABx.",
       "requestId": "req-18e2ea22680cee6c-45664-3b",
       "resultFile": "regexp-risks-ae-26.5/ec18-candidate-results.json",
-      "sourceFile": "regexp-risks-ae-26.5/ec18-candidate.jsx.txt",
+      "sourceFile": "regexp-risks-ae-26.5/ec18-candidate.jsx",
       "sourceSha256": "7a636bcd358bf294d530b96f407c68bee252c3680e5d67557a3d9a857bd65a40",
       "mismatches": 0
     }
@@ -64,7 +64,7 @@
       "candidateMismatches": 0,
       "requestId": "req-18e2ea25152c6738-45664-3c",
       "resultFile": "regexp-risks-ae-26.5/ec19-candidate-results.json",
-      "sourceFile": "regexp-risks-ae-26.5/ec19-candidate.jsx.txt",
+      "sourceFile": "regexp-risks-ae-26.5/ec19-candidate.jsx",
       "sourceSha256": "87b71041148ff0a5f4206c355a5ed163e9f8d861d413ff1f1d9b63816ad677b1"
     }
   },

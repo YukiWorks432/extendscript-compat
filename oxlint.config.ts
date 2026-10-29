@@ -2,6 +2,7 @@ import { defineConfig } from "oxlint";
 
 export default defineConfig({
   ignorePatterns: [
+    "docs/evidence/**/*.jsx",
     "runtime-src/vendor/es5-shim.js",
     "runtime-src/vendor/es6-shim.js",
     "runtime-src/vendor/json2.js",

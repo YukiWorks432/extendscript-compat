@@ -12,7 +12,7 @@
     "baseline": {
       "requestId": "req-18e2effa40f4934c-45664-43",
       "sourceSha256": "796acbd4523603c85b17def2b8decb29494bae2ffdb72b9422bb9bae98d99c41",
-      "sourceFile": "esnext-stage1-baseline.jsx.txt",
+      "sourceFile": "esnext-stage1-baseline.jsx",
       "result": {
         "version": "26.5x89",
         "engine": "4.5.6",
@@ -45,7 +45,7 @@
     "afterOldRuntime": {
       "requestId": "req-18e2f00202cef294-45664-44",
       "sourceSha256": "cb1ec4bb8d2c3d33b493026cce94ce84763d2fc314a6de20a64952fd44855f5f",
-      "sourceFile": "esnext-stage1-afterOld.jsx.txt",
+      "sourceFile": "esnext-stage1-afterOld.jsx",
       "result": {
         "version": "26.5x89",
         "engine": "4.5.6",
@@ -80,7 +80,7 @@
     "oldRuntimeFirst": {
       "requestId": "req-18e2f022ad1ccd78-45664-45",
       "sourceSha256": "44f58ee3905b6009f569b3845f156ea3b568766cb7ce8898e55835f71cac0e6c",
-      "sourceFile": "esnext-stage1-raw.jsx.txt",
+      "sourceFile": "esnext-stage1-raw.jsx",
       "result": {
         "version": "26.5x89",
         "engine": "4.5.6",
@@ -108,7 +108,7 @@
     "minified": {
       "requestId": "req-18e2f037d3078108-45664-46",
       "sourceSha256": "7bfbca85250e297e30fafc48afa4752f2e557498421e58cfe4fd5e3039486fea",
-      "sourceFile": "esnext-stage1-minified.jsx.txt",
+      "sourceFile": "esnext-stage1-minified.jsx",
       "result": {
         "version": "26.5x89",
         "engine": "4.5.6",
@@ -142,7 +142,7 @@
     "replacement": {
       "requestId": "req-18e2f0736f609b58-45664-48",
       "sourceSha256": "d32d76b717c23802bdc84d503a24c2edd853ff24d3caf8423ef4179dfe3ad369",
-      "sourceFile": "esnext-stage1-replacement.jsx.txt",
+      "sourceFile": "esnext-stage1-replacement.jsx",
       "result": {
         "goodRetained": true,
         "broken": {
@@ -158,7 +158,7 @@
     "reverse": {
       "requestId": "req-18e2f07e6e697340-45664-49",
       "sourceSha256": "8d414102c29e6f291d565fa741664dd2e556d6cf0f4bfcd59085b098232b0873",
-      "sourceFile": "esnext-stage1-reverse.jsx.txt",
+      "sourceFile": "esnext-stage1-reverse.jsx",
       "oldRuntimeSha256": "a4c6abd275353234d398892955aca9a53f83f913b01752b595c9a4da5d5f200a",
       "result": {
         "oldMarker": 1,

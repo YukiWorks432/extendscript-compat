@@ -21,7 +21,7 @@ test/runtime/ contains integration tests for later APIs; test/contracts/ contain
 
 docs/evidence/ preserves historical validation records. Records from the three ES Next stages are grouped under 2026-10-29/ae-26.5/; other existing records retain their locations. Do not reformat archived execution code or rewrite it to use current paths. Absolute paths and target identifiers describe the original execution.
 
-.jsx.txt stores executed code rather than a reusable execution entry. JSON sourceFile references a file in the same directory. For stage 3 records, sha256 hashes the UTF-8 execution string, matching the stored file after removing exactly one final LF. Distinguish this from output and contract file hashes.
+Archived execution code uses .jsx within the evidence directories. These records are not reusable execution entries. They are excluded from formatting and lint to preserve the executed content. JSON sourceFile references a file in the same directory. For stage 3 records, sha256 hashes the UTF-8 execution string, matching the stored file after removing exactly one final LF. Distinguish this from output and contract file hashes.
 
 ## Checks
 
