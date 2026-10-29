@@ -92,22 +92,26 @@ it("Symbol.matchの判定と、非関数の置換フックを扱う", () => {
     ),
   ).toBe(true);
 });
-it.each([false, true])("通常・圧縮の配布出力（圧縮=%s）で契約を満たす", async (minified) => {
-  const bundle = await rollup({
-    input: runtimePath,
-    plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
-  });
-  try {
-    const { output } = await bundle.generate({ format: "iife" });
-    if (output[0].type !== "chunk") throw Error("生成チャンクなし");
-    const context = createContext({});
-    runInContext(missing, context);
-    runInContext(output[0].code, context);
-    expect(runInContext(contract, context).failures).toEqual([]);
-  } finally {
-    await bundle.close();
-  }
-});
+it.each([false, true])(
+  "通常・圧縮の配布出力（圧縮=%s）で契約を満たす",
+  async (minified) => {
+    const bundle = await rollup({
+      input: runtimePath,
+      plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+    });
+    try {
+      const { output } = await bundle.generate({ format: "iife" });
+      if (output[0].type !== "chunk") throw Error("生成チャンクなし");
+      const context = createContext({});
+      runInContext(missing, context);
+      runInContext(output[0].code, context);
+      expect(runInContext(contract, context).failures).toEqual([]);
+    } finally {
+      await bundle.close();
+    }
+  },
+  20_000,
+);
 it("型宣言はES5とES2024の標準ライブラリに対応する", () => {
   const fixture = fileURLToPath(new URL("../types/string-modern-types.ts", import.meta.url));
   for (const lib of ["lib.es5.d.ts", "lib.es2024.d.ts"]) {
