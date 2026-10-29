@@ -71,6 +71,8 @@ With the earlier runtime already installed, the two methods and the stage marker
 
 ## Array copying and reverse search host validation
 
+This section records host validation of commit d6a1752, which included with. The current implementation provides the remaining five methods. Saved code and hashes are historical; the build after removing with has not been rerun in AE.
+
 On October 29, 2026, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 process was tested. None of the six methods existed; dot access to with failed because it is a reserved word. Raw and minified builds each passed 49 cases, including function identity on re-evaluation. The minified build also passed the existing 36, 46, 102, 107, and 71-case contracts. Preservation of working methods, replacement of broken methods, and loading the older runtime after the new one were checked. The six methods were absent before initial raw installation; the minified build was checked after removing the methods and their marker.
 
 The test project contained no items and was clean in all recorded results. Other Adobe products and older AE versions were not tested. See [executed code, results, and hashes](evidence/2026-10-29/ae-26.5/array-copy-search/results.json).

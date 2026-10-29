@@ -74,38 +74,11 @@
   check("splice minus infinity", a.toSpliced(-Infinity, 1).join(","), "1,2");
   check("splice binary index", a.toSpliced("0b1", 1).join(","), "3,2");
   check("splice negative delete", a.toSpliced(1, -1, 9).join(","), "3,9,1,2");
-  check("with negative", a["with"](-1, 9).join(","), "3,1,9");
-  check("with unchanged", a.join(","), "3,1,2");
-  check("with fractional", a["with"](1.9, 9).join(","), "3,9,2");
-  check("with binary", a["with"]("0b10", 9).join(","), "3,1,9");
-  check("with NaN", a["with"](NaN, 9).join(","), "9,1,2");
-  assertThrows(
-    "with boundary",
-    function () {
-      a["with"](3, 9);
-    },
-    RangeError
-  );
-  assertThrows(
-    "with negative boundary",
-    function () {
-      a["with"](-4, 9);
-    },
-    RangeError
-  );
-  assertThrows(
-    "with infinity",
-    function () {
-      a["with"](Infinity, 9);
-    },
-    RangeError
-  );
   var sparse = [1, 2, 3];
   delete sparse[1];
   check("reverse dense", Object.hasOwn(sparse.toReversed(), "1"), true);
   check("sort dense", Object.hasOwn(sparse.toSorted(), "2"), true);
   check("splice dense", Object.hasOwn(sparse.toSpliced(), "1"), true);
-  check("with dense", Object.hasOwn(sparse["with"](0, 9), "1"), true);
   check(
     "reverse generic",
     Array.prototype.toReversed.call({ 0: "a", 1: "b", length: 2 }).join(","),
@@ -117,7 +90,6 @@
     Array.prototype.toSpliced.call({ 0: 1, 1: 2, length: 2 }, 1, 1, 9).join(","),
     "1,9"
   );
-  check("with generic", Array.prototype["with"].call({ 0: 1, length: 1 }, 0, 9)[0], 9);
   check(
     "findLast",
     a.findLast(function (x) {
@@ -204,7 +176,6 @@
         throw Error("read removed");
       }
     });
-    check("with skips replaced getter", Array.prototype["with"].call(obj, 0, 9)[0], 9);
     check("splice skips deleted getter", Array.prototype.toSpliced.call(obj, 0, 1)[0], 2);
     check("skipped getter unread", read, 0);
   }

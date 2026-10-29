@@ -44,20 +44,17 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 
 ## 配列のコピー操作と末尾検索
 
-toSortedはECMAScriptとes-shimsのArray.prototype.toSortedを参考にし、AEのsortに依存しない安定したマージソートとして実装しています。他の5メソッドはECMAScriptの手順に沿って実装しています。
+toSortedはECMAScriptとes-shimsのArray.prototype.toSortedを参考にし、AEのsortに依存しない安定したマージソートとして実装しています。他の4メソッドはECMAScriptの手順に沿って実装しています。
 
-toSorted・toReversed・toSpliced・withは元の配列を変更せず、通常の新しい配列を返します。toSortedは文字列としての標準順序または比較関数で安定して並べ替え、同順位の要素の順序を保持します。これらのコピー操作では配列の穴もundefinedの要素として読み取ります。Symbol.speciesによる派生配列の生成は行いません。コピーの要素数はホストの配列長・メモリ上限に制約されます。
+toSorted・toReversed・toSplicedは元の配列を変更せず、通常の新しい配列を返します。toSortedは文字列としての標準順序または比較関数で安定して並べ替え、同順位の要素の順序を保持します。これらのコピー操作では配列の穴もundefinedの要素として読み取ります。Symbol.speciesによる派生配列の生成は行いません。コピーの要素数はホストの配列長・メモリ上限に制約されます。
 
 findLast・findLastIndexは末尾から先頭へ検索し、穴にもundefinedを渡します。コールバックには値・位置・対象オブジェクトを渡し、thisArgを指定できます。BigIntの補完は対象外です。
-
-AEのExtendScriptではwithが予約語のため、次のように角括弧で呼び出してください。
 
 ```js
 var original = [3, 1, 2];
 var sorted = original.toSorted(); // [1, 2, 3]
 var reversed = original.toReversed(); // [2, 1, 3]
 var spliced = original.toSpliced(1, 1, 9); // [3, 9, 2]
-var replaced = original["with"](-1, 9); // [3, 1, 9]
 var last = original.findLast(function (value) {
   return value > 1;
 }); // 2

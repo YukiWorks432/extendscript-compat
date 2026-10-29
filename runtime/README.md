@@ -44,20 +44,17 @@ The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object
 
 ## Array copying and searching from the end
 
-toSorted follows ECMAScript and es-shims Array.prototype.toSorted, using a stable merge sort independent of AE's sort. The other five methods follow the ECMAScript algorithms.
+toSorted follows ECMAScript and es-shims Array.prototype.toSorted, using a stable merge sort independent of AE's sort. The other four methods follow the ECMAScript algorithms.
 
-toSorted, toReversed, toSpliced, and with return new ordinary arrays without changing the receiver. toSorted uses stable ordering with the default string comparison or a comparator, retaining the order of equal elements. These copying operations read holes as undefined elements. They do not use Symbol.species. Output size is subject to host array length and memory limits.
+toSorted, toReversed, and toSpliced return new ordinary arrays without changing the receiver. toSorted uses stable ordering with the default string comparison or a comparator, retaining the order of equal elements. These copying operations read holes as undefined elements. They do not use Symbol.species. Output size is subject to host array length and memory limits.
 
 findLast and findLastIndex search from the end, visiting holes as undefined. Predicates receive the value, index, and source object and support thisArg. BigInt polyfills are outside the scope.
-
-ExtendScript treats with as a reserved word; use bracket access:
 
 ```js
 var original = [3, 1, 2];
 var sorted = original.toSorted(); // [1, 2, 3]
 var reversed = original.toReversed(); // [2, 1, 3]
 var spliced = original.toSpliced(1, 1, 9); // [3, 9, 2]
-var replaced = original["with"](-1, 9); // [3, 1, 9]
 var last = original.findLast(function (value) {
   return value > 1;
 }); // 2

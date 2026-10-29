@@ -14,7 +14,7 @@ const contract = readFileSync(
   new URL("../contracts/array-copy-search-contract.js", import.meta.url),
   "utf8",
 );
-const names = ["toSorted", "toReversed", "toSpliced", "with", "findLast", "findLastIndex"];
+const names = ["toSorted", "toReversed", "toSpliced", "findLast", "findLastIndex"];
 const missing = names
   .map((name) => "delete Array.prototype[" + JSON.stringify(name) + "];")
   .join("");

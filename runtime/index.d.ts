@@ -26,7 +26,6 @@ declare global {
     toReversed(): T[];
     toSpliced(start: number, deleteCount?: number): T[];
     toSpliced(start: number, deleteCount: number, ...items: T[]): T[];
-    with(index: number, value: T): T[];
     findLast<S extends T>(
       predicate: (value: T, index: number, array: T[]) => value is S,
       thisArg?: any,
@@ -52,7 +51,6 @@ declare global {
     toReversed(): T[];
     toSpliced(start: number, deleteCount?: number): T[];
     toSpliced(start: number, deleteCount: number, ...items: T[]): T[];
-    with(index: number, value: T): T[];
     findLast<S extends T>(
       predicate: (value: T, index: number, array: readonly T[]) => value is S,
       thisArg?: any,

@@ -202,17 +202,6 @@ function __compatToSpliced(start, deleteCount) {
   for (i = actual + removed; i < length; i++) result[index++] = source[i];
   return result;
 }
-function __compatWith(index, value) {
-  if (this === null || typeof this === "undefined") throw new TypeError("with requires an object");
-  var source = Object(this),
-    length = __compatLength(source.length),
-    relative = __compatInteger(index);
-  var actual = relative >= 0 ? relative : length + relative;
-  if (actual < 0 || actual >= length) throw new RangeError("Index outside array");
-  var result = new Array(length);
-  for (var i = 0; i < length; i++) result[i] = i === actual ? value : source[i];
-  return result;
-}
 function __compatFindFromEnd(source, predicate, thisArg, indexOnly) {
   if (source === null || typeof source === "undefined")
     throw new TypeError("findLast requires an object");
@@ -256,10 +245,6 @@ function __compatCopyMethodWorks(method, name) {
     if (name === "toSpliced") {
       result = method.call(a, "0b1", 1, 9);
       return result.join(",") === "3,9,2" && a[1] === 1;
-    }
-    if (name === "with") {
-      result = method.call(a, -1, 9);
-      return result.join(",") === "3,1,9" && a[2] === 2;
     }
     var visited = [];
     result = method.call({ 0: 1, length: 2 }, function (value, index) {

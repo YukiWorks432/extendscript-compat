@@ -4498,15 +4498,6 @@
         for (i = actual + removed; i < length; i++) result[index++] = source[i];
         return result;
     }
-    function __compatWith(index, value) {
-        if (this === null || typeof this === "undefined") throw new TypeError("with requires an object");
-        var source = Object(this), length = __compatLength(source.length), relative = __compatInteger(index);
-        var actual = relative >= 0 ? relative : length + relative;
-        if (actual < 0 || actual >= length) throw new RangeError("Index outside array");
-        var result = new Array(length);
-        for (var i = 0; i < length; i++) result[i] = i === actual ? value : source[i];
-        return result;
-    }
     function __compatFindFromEnd(source, predicate, thisArg, indexOnly) {
         if (source === null || typeof source === "undefined") throw new TypeError("findLast requires an object");
         var object = Object(source), length = __compatLength(object.length);
@@ -4547,10 +4538,6 @@
             if (name === "toSpliced") {
                 result = method.call(a, "0b1", 1, 9);
                 return result.join(",") === "3,9,2" && a[1] === 1;
-            }
-            if (name === "with") {
-                result = method.call(a, -1, 9);
-                return result.join(",") === "3,1,9" && a[2] === 2;
             }
             var visited = [];
             result = method.call({
@@ -4755,7 +4742,6 @@
         if (!__compatCopyMethodWorks(Array.prototype["toSorted"], "toSorted")) __compatInstall(Array.prototype, "toSorted", __compatToSorted);
         if (!__compatCopyMethodWorks(Array.prototype["toReversed"], "toReversed")) __compatInstall(Array.prototype, "toReversed", __compatToReversed);
         if (!__compatCopyMethodWorks(Array.prototype["toSpliced"], "toSpliced")) __compatInstall(Array.prototype, "toSpliced", __compatToSpliced);
-        if (!__compatCopyMethodWorks(Array.prototype["with"], "with")) __compatInstall(Array.prototype, "with", __compatWith);
         if (!__compatCopyMethodWorks(Array.prototype["findLast"], "findLast")) __compatInstall(Array.prototype, "findLast", __compatFindLast);
         if (!__compatCopyMethodWorks(Array.prototype["findLastIndex"], "findLastIndex")) __compatInstall(Array.prototype, "findLastIndex", __compatFindLastIndex);
         root.__extendscriptCompatArrayCopy__ = 1;
