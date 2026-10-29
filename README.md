@@ -5,7 +5,7 @@
 A library providing build-time bug corrections and runtime compatibility for Adobe ExtendScript.
 
 - Corrects expression precedence, `continue` across `switch` statements, and regular-expression hyphens at build time.
-- Provides JSON, selected ES5 and ES6 polyfills, and corrections for `parseInt` and three string methods when explicitly imported.
+- Provides JSON, selected ES5, ES6, and later polyfills, and corrections for `parseInt` and three string methods when explicitly imported.
 - Provides explicit helpers for `UnitValue` subtraction and `null` comparison.
 
 ## Installation
@@ -38,7 +38,7 @@ A later generator or minifier that removes parentheses can undo the precedence p
 
 ## Runtime corrections
 
-Import the runtime before initializing the application or its dependencies. It applies JSON, ES5, and ES6 polyfills followed by the four function corrections:
+Import the runtime before initializing the application or its dependencies. It applies JSON, selected ES5, ES6, and later polyfills, as well as the four function corrections:
 
 ```js
 import "extendscript-compat/runtime";

@@ -4296,3 +4296,160 @@
     Number.parseInt = root.parseInt;
     root.__extendscriptCompatPolyfills__ = 1;
 })(typeof $ === "undefined" ? globalThis : $.global);
+
+(function(root) {
+    if (root.__extendscriptCompatESNext1__ === 1) return;
+    function toNumber(value) {
+        if (arguments.length === 0) return 0;
+        var nativeNumber = Number;
+        if (value !== null && (typeof value === "object" || typeof value === "function")) {
+            var primitive = value;
+            var method;
+            var exotic = typeof Symbol === "function" && Symbol.toPrimitive ? value[Symbol.toPrimitive] : undefined;
+            if (exotic !== undefined && exotic !== null) {
+                if (typeof exotic !== "function") throw new TypeError("Cannot convert object to primitive value");
+                primitive = exotic.call(value, "number");
+            } else {
+                method = value.valueOf;
+                if (typeof method === "function") primitive = method.call(value);
+                if (primitive !== null && (typeof primitive === "object" || typeof primitive === "function")) {
+                    method = value.toString;
+                    if (typeof method === "function") primitive = method.call(value);
+                }
+            }
+            if (primitive !== null && (typeof primitive === "object" || typeof primitive === "function")) {
+                throw new TypeError("Cannot convert object to primitive value");
+            }
+            value = primitive;
+        }
+        if (typeof value !== "string") return nativeNumber(value);
+        var start = 0;
+        var end = value.length;
+        while (start < end && isNumberWhitespace(value.charCodeAt(start))) start++;
+        while (end > start && isNumberWhitespace(value.charCodeAt(end - 1))) end--;
+        value = value.slice(start, end);
+        if (value === "") return 0;
+        if (/^0[bB][01]+$/.test(value)) return parseInt(value.slice(2), 2);
+        if (/^0[oO][0-7]+$/.test(value)) return parseInt(value.slice(2), 8);
+        if (!/^(?:0[xX][0-9a-fA-F]+|[+-]?(?:Infinity|(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?))$/.test(value)) return NaN;
+        return nativeNumber(value);
+    }
+    function isNumberWhitespace(code) {
+        return (code >= 9 && code <= 13) || code === 32 || code === 160 || code === 5760 || (code >= 8192 && code <= 8202) || code === 8232 || code === 8233 || code === 8239 || code === 8287 || code === 12288 || code === 65279;
+    }
+    function __compatInteger(value) {
+        var number = toNumber(value);
+        if (number !== number || number === 0) return 0;
+        if (number === Infinity || number === -Infinity) return number;
+        return (number < 0 ? -1 : 1) * Math.floor(Math.abs(number));
+    }
+    function __compatLength(value) {
+        var length = __compatInteger(value);
+        return length <= 0 ? 0 : Math.min(length, 9007199254740991);
+    }
+    function __compatInstall(target, name, implementation) {
+        if (typeof Object.defineProperty === "function") {
+            try {
+                Object.defineProperty(target, name, {
+                    value: implementation,
+                    writable: true,
+                    configurable: true,
+                    enumerable: false
+                });
+                return;
+            } catch (_error) {}
+        }
+        target[name] = implementation;
+    }
+    function __compatIncludes(search, fromIndex) {
+        if (this === null || typeof this === "undefined") throw new TypeError("includes requires an object");
+        var object = Object(this);
+        var length = __compatLength(object.length);
+        if (length === 0) return false;
+        var from = __compatInteger(fromIndex);
+        var index = from >= 0 ? from : Math.max(length + from, 0);
+        while (index < length) {
+            var element = object[index];
+            if (element === search || (element !== element && search !== search)) return true;
+            index++;
+        }
+        return false;
+    }
+    function __compatIncludesWorks(method) {
+        if (typeof method !== "function") return false;
+        try {
+            return method.call([ 1, 2 ], 2) && method.call([ NaN ], NaN) && !method.call([ "a" ], "b") && !method.call([ 1, 2 ], 1, 1) && method.call([ 1, 2 ], 1, -Infinity) && method.call({
+                length: 1
+            }, undefined);
+        } catch (_error) {
+            return false;
+        }
+    }
+    function __compatPad(text, maxLength, filler, atStart) {
+        var length = __compatLength(maxLength);
+        if (length <= text.length) return text;
+        var fill = typeof filler === "undefined" ? " " : String(filler);
+        if (fill === "") return text;
+        var needed = length - text.length;
+        var padding = "";
+        while (padding.length < needed) {
+            if (needed - padding.length < fill.length) padding += fill.slice(0, needed - padding.length); else padding += fill;
+            if (fill.length < needed - padding.length) fill += fill;
+        }
+        return atStart ? padding + text : text + padding;
+    }
+    function __compatPadStart(maxLength, filler) {
+        if (this === null || typeof this === "undefined") throw new TypeError("padStart requires an object");
+        return __compatPad(String(this), maxLength, filler, true);
+    }
+    function __compatPadEnd(maxLength, filler) {
+        if (this === null || typeof this === "undefined") throw new TypeError("padEnd requires an object");
+        return __compatPad(String(this), maxLength, filler, false);
+    }
+    function __compatPadWorks(method, atStart) {
+        if (typeof method !== "function") return false;
+        try {
+            return method.call("x", 3) === (atStart ? "  x" : "x  ") && method.call("x", 3, "") === "x" && method.call("x", 4, "ab") === (atStart ? "abax" : "xaba") && method.call("x", "0b11", "0") === (atStart ? "00x" : "x00");
+        } catch (_error) {
+            return false;
+        }
+    }
+    function __compatTrimStart() {
+        if (this === null || typeof this === "undefined") throw new TypeError("trimStart requires an object");
+        var text = String(this), index = 0;
+        while (index < text.length && isNumberWhitespace(text.charCodeAt(index))) index++;
+        return text.slice(index);
+    }
+    function __compatTrimEnd() {
+        if (this === null || typeof this === "undefined") throw new TypeError("trimEnd requires an object");
+        var text = String(this), index = text.length;
+        while (index > 0 && isNumberWhitespace(text.charCodeAt(index - 1))) index--;
+        return text.slice(0, index);
+    }
+    function __compatTrimWorks(method, atStart) {
+        if (typeof method !== "function") return false;
+        var spaces = [ 9, 10, 11, 12, 13, 32, 160, 5760, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8232, 8233, 8239, 8287, 12288, 65279 ];
+        var nonspaces = [ 133, 6158, 8203, 8204, 8205, 65534 ];
+        try {
+            for (var i = 0; i < spaces.length; i++) {
+                var c = String.fromCharCode(spaces[i]);
+                if (method.call(c + "x" + c) !== (atStart ? "x" + c : c + "x")) return false;
+            }
+            for (var j = 0; j < nonspaces.length; j++) {
+                var n = String.fromCharCode(nonspaces[j]);
+                if (method.call(n + "x" + n) !== n + "x" + n) return false;
+            }
+            return true;
+        } catch (_error) {
+            return false;
+        }
+    }
+    if (!__compatIncludesWorks(Array.prototype.includes)) __compatInstall(Array.prototype, "includes", __compatIncludes);
+    if (!__compatPadWorks(String.prototype.padStart, true)) __compatInstall(String.prototype, "padStart", __compatPadStart);
+    if (!__compatPadWorks(String.prototype.padEnd, false)) __compatInstall(String.prototype, "padEnd", __compatPadEnd);
+    if (!__compatTrimWorks(String.prototype.trimStart, true)) __compatInstall(String.prototype, "trimStart", __compatTrimStart);
+    if (!__compatTrimWorks(String.prototype.trimEnd, false)) __compatInstall(String.prototype, "trimEnd", __compatTrimEnd);
+    if (String.prototype.trimLeft !== String.prototype.trimStart) __compatInstall(String.prototype, "trimLeft", String.prototype.trimStart);
+    if (String.prototype.trimRight !== String.prototype.trimEnd) __compatInstall(String.prototype, "trimRight", String.prototype.trimEnd);
+    root.__extendscriptCompatESNext1__ = 1;
+})(typeof $ === "undefined" ? globalThis : $.global);

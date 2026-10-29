@@ -46,3 +46,11 @@ The first run passed 107 of 109 checks. The other two involved string conversion
 With those two checks separated from the shared contract, subsequent tests of both the unminified and minified outputs passed 107 / 107 polyfill cases and 71 / 71 existing correction cases. Repeated loading passed all 107 cases and preserved function identities. The source template passed 48 / 48 cases. The minified output and final shared fixture were checked in the shared engine after the unminified installation. The unminified executable has the same hash as the one first loaded.
 
 A separate ASCII-only probe loaded through `$.evalFile` preserved U+200C, U+200D, and U+FEFF in a string and correctly matched and rejected inputs for a regular expression containing U+200C. The project had six items and was dirty before and after testing. The [host evidence](evidence/trim-unicode-ae-26.5.json) records versions, hashes, and the two initial discrepancies. Other Adobe products and older versions were not tested.
+
+## Validation of selected ES Next methods
+
+On 2026-10-29, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.1060872) process was checked. The seven target methods and `Object.defineProperty` were absent before installation, and properties assigned to prototypes were enumerable.
+
+After loading the 0.3.0 runtime, the unminified runtime passed 102 checks for the added methods and preserved function identity on re-evaluation. Loading the old version after the new version was also checked. Working existing methods were retained, and replacement of incomplete methods passed all 102 checks. The minified output was executed after removing the target methods and the new installation marker in the test process; it passed 102 new checks, 107 existing polyfill checks, 71 checks for the four corrections, and re-evaluation. First installation into a fresh AE engine was not checked in this run.
+
+The test project had no items but became dirty after the minified check, so it was saved temporarily; the cause was not established. Other Adobe products were not tested. The [investigation and validation record](evidence/esnext-stage1-ae-26.5.json) includes the executed code and hashes.

@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-29",
+  "host": {
+    "app": "After Effects",
+    "version": "26.5x89",
+    "engine": "4.5.6",
+    "build": "80.1060872",
+    "os": "Windows"
+  },
+  "investigation": {
+    "baseline": {
+      "requestId": "req-18e2effa40f4934c-45664-43",
+      "sourceSha256": "796acbd4523603c85b17def2b8decb29494bae2ffdb72b9422bb9bae98d99c41",
+      "sourceFile": "esnext-stage1-baseline.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "items": 0,
+        "dirty": false,
+        "methods": {
+          "includes": "undefined",
+          "padStart": "undefined",
+          "padEnd": "undefined",
+          "trimStart": "undefined",
+          "trimEnd": "undefined",
+          "trimLeft": "undefined",
+          "trimRight": "undefined"
+        },
+        "probes": {
+          "defineProperty": "undefined",
+          "getOwnPropertyDescriptor": "undefined",
+          "stringIndex": "a",
+          "stringLength": 2,
+          "numberBinary": "NaN",
+          "arrayHoles": true,
+          "protoWritable": true,
+          "protoEnumerable": true,
+          "definePropertyWorks": false
+        }
+      },
+      "resultNormalization": "The host JSON output used the non-JSON literal NaN for numberBinary; it is recorded here as the string NaN."
+    },
+    "afterOldRuntime": {
+      "requestId": "req-18e2f00202cef294-45664-44",
+      "sourceSha256": "cb1ec4bb8d2c3d33b493026cce94ce84763d2fc314a6de20a64952fd44855f5f",
+      "sourceFile": "esnext-stage1-afterOld.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "items": 0,
+        "dirty": false,
+        "marker": 1,
+        "methods": {
+          "includes": "undefined",
+          "padStart": "undefined",
+          "padEnd": "undefined",
+          "trimStart": "undefined",
+          "trimEnd": "undefined",
+          "trimLeft": "undefined",
+          "trimRight": "undefined"
+        },
+        "probes": {
+          "defineProperty": "undefined",
+          "stringIndex": "a",
+          "numberBinary": "NaN",
+          "sparseHasZero": true,
+          "arrayPrototypeWritable": true,
+          "arrayPrototypeEnumerable": true
+        }
+      }
+    }
+  },
+  "verification": {
+    "runtimeSha256": "7698ec8eedcd69cad16ba4219984d66efe91d02aec155ec93e14cf532f2ec986",
+    "minifiedSha256": "d9f8180ca8f18d6855e458daed7605a8a121fed212f41bf8d3e4360f9c37c2fc",
+    "contractSha256": "93097f3e7ca78ef8b9c32e33f4277d3fc357119ad5ac201ad024e035d909f46f",
+    "oldRuntimeFirst": {
+      "requestId": "req-18e2f022ad1ccd78-45664-45",
+      "sourceSha256": "44f58ee3905b6009f569b3845f156ea3b568766cb7ce8898e55835f71cac0e6c",
+      "sourceFile": "esnext-stage1-raw.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "before": {
+          "oldMarker": 1,
+          "includes": "undefined"
+        },
+        "first": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "second": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "stable": true,
+        "enumerated": true,
+        "items": 0,
+        "dirty": false
+      }
+    },
+    "minified": {
+      "requestId": "req-18e2f037d3078108-45664-46",
+      "sourceSha256": "7bfbca85250e297e30fafc48afa4752f2e557498421e58cfe4fd5e3039486fea",
+      "sourceFile": "esnext-stage1-minified.jsx.txt",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "before": ["undefined", "undefined", "undefined"],
+        "first": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "second": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "old": {
+          "total": 107,
+          "passed": 107,
+          "failures": []
+        },
+        "corrections": {
+          "total": 71,
+          "passed": 71,
+          "failures": []
+        },
+        "stable": true,
+        "items": 0,
+        "dirty": true
+      }
+    },
+    "replacement": {
+      "requestId": "req-18e2f0736f609b58-45664-48",
+      "sourceSha256": "d32d76b717c23802bdc84d503a24c2edd853ff24d3caf8423ef4179dfe3ad369",
+      "sourceFile": "esnext-stage1-replacement.jsx.txt",
+      "result": {
+        "goodRetained": true,
+        "broken": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "restored": true,
+        "items": 0,
+        "dirty": false
+      }
+    },
+    "reverse": {
+      "requestId": "req-18e2f07e6e697340-45664-49",
+      "sourceSha256": "8d414102c29e6f291d565fa741664dd2e556d6cf0f4bfcd59085b098232b0873",
+      "sourceFile": "esnext-stage1-reverse.jsx.txt",
+      "oldRuntimeSha256": "a4c6abd275353234d398892955aca9a53f83f913b01752b595c9a4da5d5f200a",
+      "result": {
+        "oldMarker": 1,
+        "newMarker": 1,
+        "stable": true,
+        "contract": {
+          "total": 102,
+          "passed": 102,
+          "failures": []
+        },
+        "items": 0,
+        "dirty": false
+      }
+    }
+  },
+  "limitations": "Dedicated AE process, no project items. Minified check observed dirty project state; source of that flag was not established. Other Adobe hosts were not tested."
+}

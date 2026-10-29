@@ -2,11 +2,11 @@
 
 [English](README.md) | 日本語（正本）
 
-`extendscript-compat/runtime`は、JSONとES5・ES6の一部を補完し、`parseInt`、`String.prototype.charAt`、`split`、`replace`の不具合を補正する副作用専用の入口です。4関数は存在する場合も置き換えます。
+`extendscript-compat/runtime`は、JSON・ES5・ES6と後年の一部メソッドを補完し、`parseInt`、`String.prototype.charAt`、`split`、`replace`の不具合を補正する副作用専用の入口です。4関数は存在する場合も置き換えます。
 
 ## 導入と読み込み順
 
-アプリケーションや依存ライブラリの初期化前に読み込んでください。JSON、ES5、ES6の順に補完し、その後に4関数を補正します。別の互換コードを併用する場合も、最後の互換補正として読み込んでください。
+アプリケーションや依存ライブラリの初期化前に読み込んでください。JSON、ES5、ES6の順に補完して4関数を補正し、後年の一部メソッドを追加します。別の互換コードを併用する場合も、最後の互換補正として読み込んでください。
 
 ```js
 import "extendscript-compat/runtime";
@@ -19,6 +19,22 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 配布する`runtime/index.js`はASCIIだけで構成されます。利用側のバンドラや圧縮器がUnicode文字を再出力する場合でも、最終段の`extendscriptCompat()`は文字列と正規表現のU+200C・U+200D・U+FEFFを補正します。出力全体のASCII化は保証しないため、必要に応じて利用側で確認してください。補正の対象と制限は[Unicode文字の補正](../docs/build-compatibility.ja.md#unicode文字の補正)を参照してください。
 
 同じエンジンを利用する別のスクリプトにも補正が及びます。適用前に別の変数へ保存された関数への参照は変わりません。同じエンジンでの再評価は内部の版付き印で省略し、関数を重ねて包みません。後から別のライブラリが対象関数を書き換えた場合、その書き換えを監視したり自動で取り消したりはしません。
+
+## 後年のメソッド
+
+`Array.prototype.includes`、`String.prototype.padStart`・`padEnd`・`trimStart`・`trimEnd`と、その別名`trimLeft`・`trimRight`を補完します。既存メソッドは代表的な動作を確認し、不足または不完全な場合に置き換えます。`trimLeft`と`trimRight`はそれぞれ`trimStart`と`trimEnd`と同じ関数にします。動作確認はすべての不具合を検出するものではありません。
+
+```js
+[1, 2, NaN].includes(NaN); // true
+"7".padStart(3, "0"); // "007"
+"  text  ".trimStart(); // "text  "
+```
+
+`includes`は`NaN`、検索開始位置、配列に似たオブジェクトを扱います。`padStart`・`padEnd`は空の埋め文字を指定すると元の文字列を返します。長さと検索位置の数値変換には、AEで不足する二進数・八進数表記などを補う既存の数値変換を使います。片側の空白除去は`trim`と同じ空白の範囲を使い、U+180E・U+200Bなどは保持します。
+
+`/runtime`をTypeScriptから読み込むと、上記メソッドの型も追加されます。`lib: ["ES5"]`でも利用でき、未対応の`Promise`や`flat`の型は追加しません。構文の変換は引き続き利用側で必要です。
+
+非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage1-ae-26.5.json)
 
 ## 補正する挙動
 
@@ -90,7 +106,7 @@ splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es
 
 parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
 
-[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。無効だったESNext補完は含めていません。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
+[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。テンプレートの無効だったES Next補完は移植していません。今回の追加メソッドはes-shimsの`array-includes`、`String.prototype.padStart`、`String.prototype.trimStart`を参考にES3向けに実装し、現行仕様の空の埋め文字と型変換の順序、およびAEの数値変換に合わせて補正しました。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
 
 ## 検証
 

@@ -2,11 +2,11 @@
 
 [日本語（正本）](README.ja.md) | English
 
-`extendscript-compat/runtime` is a side-effect-only entry point that adds JSON and selected ES5 and ES6 polyfills and corrects `parseInt`, `String.prototype.charAt`, `split`, and `replace`. The four functions are replaced even when they already exist.
+`extendscript-compat/runtime` is a side-effect-only entry point that adds JSON, selected ES5, ES6, and later polyfills, and corrects `parseInt`, `String.prototype.charAt`, `split`, and `replace`. The four functions are replaced even when they already exist.
 
 ## Installation and load order
 
-Load it before initializing the application or its dependencies. It applies JSON, ES5, and ES6 polyfills in that order, followed by the four corrections. When using other compatibility code, load this entry after it:
+Load it before initializing the application or its dependencies. It applies JSON, ES5, and ES6 polyfills in that order, followed by the four corrections and selected later methods. When using other compatibility code, load this entry after it:
 
 ```js
 import "extendscript-compat/runtime";
@@ -19,6 +19,22 @@ You can also include `runtime/index.js` directly in JSX. It uses ES3 syntax and 
 The distributed `runtime/index.js` contains only ASCII. A consumer's bundler or minifier may reintroduce Unicode characters, but a final `extendscriptCompat()` pass corrects U+200C, U+200D, and U+FEFF in strings and regular expressions. It does not guarantee ASCII-only output; verify that separately when needed. See [Unicode protection](../docs/build-compatibility.md#unicode-protection) for its scope and limitations.
 
 The corrections also affect other scripts sharing the engine. References saved to another variable before installation remain unchanged. A versioned internal marker prevents repeated evaluation from wrapping the functions again. If another library subsequently replaces one of the functions, this package does not monitor or automatically undo that change.
+
+## Later methods
+
+The runtime supplies `Array.prototype.includes`, `String.prototype.padStart`, `padEnd`, `trimStart`, and `trimEnd`, as well as the aliases `trimLeft` and `trimRight`. It checks representative behavior and replaces missing or incomplete methods. `trimLeft` and `trimRight` become the same functions as `trimStart` and `trimEnd`, respectively. The checks do not detect every possible defect.
+
+```js
+[1, 2, NaN].includes(NaN); // true
+"7".padStart(3, "0"); // "007"
+"  text  ".trimStart(); // "text  "
+```
+
+`includes` supports `NaN`, a starting position, and array-like objects. `padStart` and `padEnd` return the original string for an empty filler. Length and position conversion reuses the existing number conversion, including binary and octal strings missing in AE. One-sided trimming uses the same whitespace set as `trim` and preserves characters such as U+180E and U+200B.
+
+Importing `/runtime` from TypeScript also supplies declarations for these methods. They work with `lib: ["ES5"]` and do not add declarations for unsupported features such as `Promise` or `flat`. Syntax transformation remains the consumer's responsibility.
+
+The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object.defineProperty`, so methods are added by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage1-ae-26.5.json).
 
 ## Corrected behavior
 
@@ -90,7 +106,7 @@ Changes from the original cover ES3 flags, forced replacement, shared-engine re-
 
 `parseInt`, `charAt`, and `replace` are implemented for ExtendScript-specific bugs observed in this investigation. es5-shim's `parseInt` delegates to the original function and does not fix EC-04; its existing `replace` correction does not cover the replacement-string issue addressed here, so those implementations were not adopted unchanged.
 
-The JSON, ES5, and ES6 polyfills are adapted from a [fixed extendscript-ts-template commit](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453). They retain its shared-engine cache, with corrections to ES5 whitespace checks, ES6 global lookup, and trim whitespace handling. The trim correction tests UTF-16 code units without relying on regular expressions. The template's disabled ESNext polyfill is not included. Copyright notices and license texts are in [third-party licenses](../THIRD-PARTY-LICENSES.txt). `runtime/index.js` is generated ES3 code. In a repository checkout, run `node scripts/build-runtime.mjs` to regenerate it from the internal sources.
+The JSON, ES5, and ES6 polyfills are adapted from a [fixed extendscript-ts-template commit](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453). They retain its shared-engine cache, with corrections to ES5 whitespace checks, ES6 global lookup, and trim whitespace handling. The trim correction tests UTF-16 code units without relying on regular expressions. The disabled ES Next polyfill from the template was not copied. The added methods were implemented for ES3 with reference to es-shims `array-includes`, `String.prototype.padStart`, and `String.prototype.trimStart`, and adjusted for current empty-filler and conversion-order requirements and AE number conversion. Copyright notices and license texts are in [third-party licenses](../THIRD-PARTY-LICENSES.txt). `runtime/index.js` is generated ES3 code. In a repository checkout, run `node scripts/build-runtime.mjs` to regenerate it from the internal sources.
 
 ## Validation
 
