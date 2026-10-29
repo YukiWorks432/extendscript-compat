@@ -1,23 +1,32 @@
 {
   "schemaVersion": 1,
-  "baseCommit": "3e46445d35506440a22e16ecc33dfa4b5f6ac9f7",
-  "sourceNote": "基点からpackage.jsonの版を0.3.0に更新して梱包。変更案内とこの記録は配布対象外。",
-  "tools": { "node": "24.22.1", "pnpm": "12.15.0", "npm": "11.19.1" },
+  "baseCommit": "1cf22a2905924a1f9352e48f5cf8c2a4719eb651",
+  "sourceNote": "最新mainに0.3.0の版更新を取り込んで梱包。変更案内とこの記録は配布対象外。",
+  "tools": {
+    "node": "24.22.1",
+    "pnpm": "12.15.0",
+    "npm": "11.19.1"
+  },
   "package": {
     "version": "0.3.0",
     "fileCount": 20,
-    "sha256": "daa675d14dbfe901bae5e7c770d0e936050f146cd4c604fdaf838067fb4fae9b",
-    "integrity": "sha512-qD7U9vSsjQcn/Txss+oQdQIFsrGEDPp2YCfy+hF5h2vk2CBiYmSXXUuRse09kRrunGhM0FHTZJX7HTQ/881wFw==",
+    "sha256": "bd0de718c85c76e943751fa0b80e7538dd1f79ef57732ed767d671aa42e6f8c9",
+    "integrity": "sha512-tV3eMXti23KWhXavhOuWIx0ugkZxG6fNeoOaL23nK8lmMCEWEVtcota3l+WwiidrrxCmMIAknIKgmEFOcFCWHw==",
     "installedFilesMatch": true,
     "sourceFilesMatchExceptPackageJson": true,
     "entries": [".", "./rollup", "./runtime", "./number", "./unit-value"],
     "consumerTypecheck": true,
     "rollupVariants": ["normal", "minified"],
-    "sourceMaps": true
+    "sourceMaps": true,
+    "bomOnOffAndWarning": true
   },
   "checks": {
     "frozenInstall": true,
-    "repositoryCheck": { "command": "pnpm check", "testFiles": 11, "tests": 145 },
+    "repositoryCheck": {
+      "command": "pnpm check",
+      "testFiles": 11,
+      "tests": 154
+    },
     "npmPublishDryRun": true
   },
   "host": {
@@ -27,9 +36,10 @@
       "trim-unicode-ae-26.5.json",
       "unicode-output-ae-26.5.json",
       "number-ponyfill-ae-26.5.json",
-      "number-constructor-alias-ae-26.5.json"
+      "number-constructor-alias-ae-26.5.json",
+      "bom-ae-2025-2026.json"
     ],
-    "regeneratedHashesMatch": "runtime通常版・圧縮版、Unicode出力26件、数値ポニーフィル通常版・圧縮版、コンストラクタ・別名通常版・圧縮版",
-    "limitations": "保存済み実機結果との照合。別のAdobe製品や旧版は未検証。"
+    "regeneratedHashesMatch": "Unicode出力は既存証跡と一致。数値変換・コンストラクタと別名の出力は、先頭BOMを除くと既存証跡と一致。BOM検証用4出力は既存証跡と完全一致。",
+    "limitations": "保存済み実機結果との照合。BOM付き数値変換出力は今回実機未再実行。BOMの2024実機結果はPR #15本文を参照。検証した版以外と別のAdobe製品は未検証。"
   }
 }
