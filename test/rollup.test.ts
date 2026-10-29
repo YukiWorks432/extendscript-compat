@@ -432,7 +432,7 @@ it("BOMの有無を出力ファイル名のハッシュへ反映する", async (
 
 it.each([false, true])("実機と共通のBOM検証資料の値を保つ 圧縮=%s", async (compressed) => {
   const bundle = await rollup({
-    input: "test/fixtures/bom-host-contract.js",
+    input: "test/contracts/bom-host-contract.js",
     plugins: [
       ...(compressed ? [terser({ format: { ascii_only: false, ecma: 5 } })] : []),
       extendscriptCompat(),

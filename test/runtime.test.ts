@@ -9,7 +9,7 @@ import { extendscriptCompat } from "../src/rollup.js";
 
 const runtimePath = fileURLToPath(new URL("../runtime/index.js", import.meta.url));
 const runtime = readFileSync(runtimePath, "utf8");
-const contract = readFileSync(new URL("./fixtures/runtime-contract.js", import.meta.url), "utf8");
+const contract = readFileSync(new URL("./contracts/runtime-contract.js", import.meta.url), "utf8");
 
 it("上書きした公開関数の戻り値・型変換・副作用を独立した期待値で検証する", () => {
   const context = createContext({});

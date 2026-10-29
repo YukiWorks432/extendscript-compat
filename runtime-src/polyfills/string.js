@@ -1,39 +1,4 @@
-// ES2016以降の一部。es-shimsを参考に、現在の仕様に沿ってES3向けに実装する。
-// 空の埋め文字と変換の順序は仕様に合わせ、AEの数値変換はtoNumberで補正する。
-// 参考元の許諾はTHIRD-PARTY-LICENSES.txtを参照。正常な既存関数は維持する。
-function __compatIncludes(search, fromIndex) {
-  if (this === null || typeof this === "undefined")
-    throw new TypeError("includes requires an object");
-  var object = Object(this);
-  var length = __compatLength(object.length);
-  if (length === 0) return false;
-  var from = __compatInteger(fromIndex);
-  var index = from >= 0 ? from : Math.max(length + from, 0);
-  while (index < length) {
-    var element = object[index];
-    if (element === search || (element !== element && search !== search)) return true;
-    index++;
-  }
-  return false;
-}
-
-function __compatIncludesWorks(method) {
-  if (typeof method !== "function") return false;
-  try {
-    return (
-      method.call([1, 2], 2) &&
-      method.call([NaN], NaN) &&
-      !method.call(["a"], "b") &&
-      !method.call([1, 2], 1, 1) &&
-      method.call([1, 2], 1, -Infinity) &&
-      method.call({ length: 1 }, undefined)
-    );
-    // oxlint-disable-next-line no-unused-vars -- ES3 requires a catch binding
-  } catch (_error) {
-    return false;
-  }
-}
-
+// es-shimsを参考にした補完。取り込み元と許諾はTHIRD-PARTY-LICENSES.txtを参照。
 function __compatPad(text, maxLength, filler, atStart) {
   var length = __compatLength(maxLength);
   if (length <= text.length) return text;
@@ -54,11 +19,13 @@ function __compatPadStart(maxLength, filler) {
     throw new TypeError("padStart requires an object");
   return __compatPad(String(this), maxLength, filler, true);
 }
+
 function __compatPadEnd(maxLength, filler) {
   if (this === null || typeof this === "undefined")
     throw new TypeError("padEnd requires an object");
   return __compatPad(String(this), maxLength, filler, false);
 }
+
 function __compatPadWorks(method, atStart) {
   if (typeof method !== "function") return false;
   try {
@@ -82,6 +49,7 @@ function __compatTrimStart() {
   while (index < text.length && isNumberWhitespace(text.charCodeAt(index))) index++;
   return text.slice(index);
 }
+
 function __compatTrimEnd() {
   if (this === null || typeof this === "undefined")
     throw new TypeError("trimEnd requires an object");
@@ -90,6 +58,7 @@ function __compatTrimEnd() {
   while (index > 0 && isNumberWhitespace(text.charCodeAt(index - 1))) index--;
   return text.slice(0, index);
 }
+
 function __compatTrimWorks(method, atStart) {
   if (typeof method !== "function") return false;
   var spaces = [
@@ -113,17 +82,26 @@ function __compatTrimWorks(method, atStart) {
   }
 }
 
-if (!__compatIncludesWorks(Array.prototype.includes))
-  __compatInstall(Array.prototype, "includes", __compatIncludes);
-if (!__compatPadWorks(String.prototype.padStart, true))
-  __compatInstall(String.prototype, "padStart", __compatPadStart);
-if (!__compatPadWorks(String.prototype.padEnd, false))
-  __compatInstall(String.prototype, "padEnd", __compatPadEnd);
-if (!__compatTrimWorks(String.prototype.trimStart, true))
-  __compatInstall(String.prototype, "trimStart", __compatTrimStart);
-if (!__compatTrimWorks(String.prototype.trimEnd, false))
-  __compatInstall(String.prototype, "trimEnd", __compatTrimEnd);
-if (String.prototype.trimLeft !== String.prototype.trimStart)
-  __compatInstall(String.prototype, "trimLeft", String.prototype.trimStart);
-if (String.prototype.trimRight !== String.prototype.trimEnd)
-  __compatInstall(String.prototype, "trimRight", String.prototype.trimEnd);
+function __compatStringAt(index) {
+  if (this === null || typeof this === "undefined") throw new TypeError("at requires an object");
+  var text = String(this),
+    length = text.length,
+    relative = __compatInteger(index);
+  var actual = relative >= 0 ? relative : length + relative;
+  return actual < 0 || actual >= length ? undefined : text.charAt(actual);
+}
+
+function __compatStringAtWorks(method) {
+  if (typeof method !== "function") return false;
+  try {
+    return (
+      method.call("abc", -1) === "c" &&
+      typeof method.call("abc", 3) === "undefined" &&
+      method.call("abc", "0b10") === "c" &&
+      method.call(String.fromCharCode(0xd83d, 0xde00), 0).length === 1
+    );
+    // oxlint-disable-next-line no-unused-vars -- ES3 requires a catch binding
+  } catch (_error) {
+    return false;
+  }
+}

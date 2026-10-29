@@ -68,13 +68,18 @@ const manifest = {
   minifiedSha256: sha256(minified),
   templateProbeSha256: sha256(templateProbe),
   unicodeProbeSha256: sha256(unicodeProbe),
-  polyfillFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/polyfill-contract.js"))),
-  correctionFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/runtime-contract.js"))),
-  esnextStage2FixtureSha256: sha256(
-    readFileSync(resolve(root, "test/fixtures/esnext-stage2-contract.js")),
+  polyfillFixtureSha256: sha256(readFileSync(resolve(root, "test/contracts/polyfill-contract.js"))),
+  correctionFixtureSha256: sha256(
+    readFileSync(resolve(root, "test/contracts/runtime-contract.js")),
   ),
-  esnextFixtureSha256: sha256(
-    readFileSync(resolve(root, "test/fixtures/esnext-stage1-contract.js")),
+  arrayAtHasOwnFixtureSha256: sha256(
+    readFileSync(resolve(root, "test/contracts/array-at-has-own-contract.js")),
+  ),
+  entriesFlatteningStringAtFixtureSha256: sha256(
+    readFileSync(resolve(root, "test/contracts/entries-flattening-string-at-contract.js")),
+  ),
+  includesPaddingTrimmingFixtureSha256: sha256(
+    readFileSync(resolve(root, "test/contracts/includes-padding-trimming-contract.js")),
   ),
 };
 writeFileSync(resolve(directory, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");

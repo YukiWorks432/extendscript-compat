@@ -5,7 +5,7 @@ import terser from "@rollup/plugin-terser";
 import { expect, it } from "vitest";
 import { extendscriptCompat } from "../src/rollup.js";
 import { toNumber } from "../runtime/number.js";
-import { run as runHostContract } from "./fixtures/number-host-contract.js";
+import { run as runHostContract } from "./contracts/number-host-contract.js";
 
 it("数値変換の入力を標準の結果へ変換し、グローバルは変更しない", () => {
   const original = globalThis.Number;
@@ -133,7 +133,7 @@ it("実機と共有する契約資料を通常のJavaScriptでも実行する", 
 
 it.each([false, true])("通常版・圧縮版 %s がES3構文で同じ変換契約を満たす", async (compressed) => {
   const bundle = await rollup({
-    input: "test/fixtures/number-host-contract.js",
+    input: "test/contracts/number-host-contract.js",
     plugins: [
       ...(compressed ? [terser({ format: { ascii_only: true, ecma: 5 } })] : []),
       extendscriptCompat(),

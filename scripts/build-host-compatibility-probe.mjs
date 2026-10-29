@@ -9,7 +9,7 @@ import { findCompatibilityIssues } from "../src/index.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 let contract = readFileSync(
-  new URL("../test/fixtures/compatibility-contract.js", import.meta.url),
+  new URL("../test/contracts/compatibility-contract.js", import.meta.url),
   "utf8",
 )
   .trim()
@@ -35,7 +35,7 @@ if (!contract.includes(returnReport)) throw new Error("Missing host contract res
 contract = contract.replace(returnReport, continueChecks + "\n" + returnReport);
 
 const runtimeContract = readFileSync(
-  new URL("../test/fixtures/runtime-contract.js", import.meta.url),
+  new URL("../test/contracts/runtime-contract.js", import.meta.url),
   "utf8",
 )
   .trim()
@@ -57,7 +57,8 @@ for (const minified of [false, true]) {
         name: "probe-input",
         resolveId(id) {
           if (id === "compatibility-probe") return id;
-          if (id === "extendscript-compat/runtime") return resolve(root, "runtime-src/fixes.js");
+          if (id === "extendscript-compat/runtime")
+            return resolve(root, "runtime-src/builtin-corrections.js");
           if (id === "extendscript-compat/unit-value")
             return resolve(root, "runtime/unit-value.js");
         },

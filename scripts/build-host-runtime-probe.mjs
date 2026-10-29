@@ -6,7 +6,9 @@ import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { extendscriptCompat } from "../src/rollup.js";
 
-const runtimePath = fileURLToPath(new URL("../runtime-src/fixes.js", import.meta.url));
+const runtimePath = fileURLToPath(
+  new URL("../runtime-src/builtin-corrections.js", import.meta.url),
+);
 const bundle = await rollup({
   input: runtimePath,
   plugins: [terser({ format: { ascii_only: true, comments: /^!/ } }), extendscriptCompat()],
@@ -19,7 +21,7 @@ try {
   await bundle.close();
 }
 const contract = readFileSync(
-  new URL("../test/fixtures/runtime-contract.js", import.meta.url),
+  new URL("../test/contracts/runtime-contract.js", import.meta.url),
   "utf8",
 )
   .trim()
