@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-29",
+  "platform": "Windows",
+  "generator": "scripts/build-host-bom-probe.mjs",
+  "fixture": "test/fixtures/bom-host-contract.js",
+  "scenario": "先頭に2200文字のASCIIコメントを置き、非ASCII文字を含む通常版と圧縮版のJavaScriptを生成。BOMありとなしの双方を確認。",
+  "files": {
+    "bom-normal-on.jsx": "002c17a39d0838c4770af86811d36f7a5a1d7a88fa23b34d07a971e12144745c",
+    "bom-normal-off.jsx": "0ba540da366f1dee1803485180e5a1bf59b4eded36dd34796f5313de5aa64a04",
+    "bom-minified-on.jsx": "d61e04ca19a62dc3d0112c0b3b4dd603cf223ca783c8f64635565937e614a08a",
+    "bom-minified-off.jsx": "9cfd897cd6224500e3e40cbaf9ccd86b41c4cac42781ad49bf7e32110a62f155"
+  },
+  "results": [
+    {
+      "host": "After Effects 25.6.6x4",
+      "engine": "ExtendScript 4.5.6 build 80.1060872",
+      "evalFile": {
+        "bomOn": "通常版・圧縮版とも3項目成功",
+        "bomOff": "通常版・圧縮版ともCannot convertエラー"
+      },
+      "cepEvalScript": {
+        "inline": "BOMあり・なしの通常版・圧縮版すべて3項目成功",
+        "evalFile": "BOMありは通常版・圧縮版とも3項目成功、BOMなしはともにCannot convertエラー"
+      },
+      "project": { "itemsBefore": 6, "itemsAfter": 6, "dirtyBefore": true, "dirtyAfter": true }
+    },
+    {
+      "host": "After Effects 26.5x89",
+      "engine": "ExtendScript 4.5.6 build 80.1060872",
+      "evalFile": {
+        "bomOn": "通常版・圧縮版とも3項目成功",
+        "bomOff": "通常版・圧縮版とも3項目成功"
+      },
+      "cepEvalScript": {
+        "inline": "BOMあり・なしの通常版・圧縮版すべて3項目成功",
+        "evalFile": "BOMあり・なしの通常版・圧縮版すべて3項目成功"
+      },
+      "project": { "itemsBefore": 6, "itemsAfter": 6, "dirtyBefore": true, "dirtyAfter": true }
+    }
+  ],
+  "limitations": "使用したWindows環境と実機版に限る。After Effectsのほかの版、Illustrator、Photoshop、JSXBinは未検証。"
+}
