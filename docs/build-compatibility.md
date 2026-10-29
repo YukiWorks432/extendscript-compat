@@ -66,6 +66,19 @@ Locally defined `Number` bindings and object methods are not rewritten. Indirect
 
 The rewrite runs while Rollup processes modules, after TypeScript and other syntax transforms and before bundling and minification. Code added later by include expansion is outside its scope. Source maps lost by earlier tools cannot be restored. Calling `protectCompatibility(source)` alone does not rewrite Number calls.
 
+## UTF-8 BOM
+
+Rollup's `extendscriptCompat()` adds a UTF-8 BOM at the start of each generated JavaScript chunk by default. An existing leading BOM is retained without duplication. The BOM prevents After Effects `$.evalFile` from misidentifying UTF-8 files whose initial bytes are ASCII as another encoding.
+
+```js
+// Disable BOM insertion.
+extendscriptCompat({ bom: false });
+```
+
+When disabled, output containing non-ASCII characters without a leading BOM produces a `MISSING_BOM` warning. ASCII-only output and output with an existing leading BOM do not produce the warning. This warning is emitted regardless of the `diagnostics` setting.
+
+A BOM marks the beginning of a UTF-8 file. Check the final output so that later processing does not remove or move it. `protectCompatibility` and `protectUnicode` preserve an existing leading BOM but do not add one when used directly. U+FEFF inside strings and regular expressions is still escaped. In the [After Effects 2025 and 2026 verification](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/bom-ae-2025-2026.json), only BOM-free output on 2025 failed to load through `$.evalFile`.
+
 ## Unicode protection
 
 In After Effects 26.5, `$.evalFile` can drop literal U+200C, U+200D, and U+FEFF characters from source code. `protectCompatibility` and Rollup’s `extendscriptCompat` escape these characters inside strings and regular expressions by default.

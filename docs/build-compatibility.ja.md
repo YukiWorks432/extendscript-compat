@@ -66,6 +66,19 @@ const another = convert("0b101");
 
 自動変換はRollupのモジュール処理中に行います。TypeScriptなどの変換後、バンドル・圧縮前に適用し、include展開でその後追加されたコードは対象になりません。先行する処理が失ったソースマップは復元できません。既存の`protectCompatibility(source)`単体ではNumberを自動変換しません。
 
+## UTF-8 BOMの付与
+
+Rollupの`extendscriptCompat()`は、生成した各JavaScriptチャンクの先頭へ既定でUTF-8 BOMを付けます。すでに先頭にBOMがある場合は重複させません。BOMは、先頭にASCIIが続くUTF-8ファイルをAfter Effectsの`$.evalFile`が別の文字コードとして読み込む問題を避けるためのものです。
+
+```js
+// BOMを付けない場合
+extendscriptCompat({ bom: false });
+```
+
+無効にした出力にBOMがなく非ASCII文字が残る場合は、`MISSING_BOM`として警告します。ASCIIだけの出力や、先頭にすでにBOMがある出力には警告しません。この警告は`diagnostics`の設定にかかわらず通知します。
+
+BOMはUTF-8のファイル先頭に付く目印です。後続の処理がBOMを除去したり別の位置へ移動したりしないよう、最終出力を確認してください。`protectCompatibility`と`protectUnicode`は先頭のBOMを保持しますが、単独ではBOMを追加しません。文字列や正規表現内のU+FEFFは引き続きエスケープします。 [After Effects 2025・2026での検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/bom-ae-2025-2026.json)では、2025のBOMなし出力のみ`$.evalFile`で読み込みエラーになりました。
+
 ## Unicode文字の補正
 
 After Effects 26.5の`$.evalFile`では、コード中に直接書かれたU+200C・U+200D・U+FEFFが失われることがあります。`protectCompatibility`とRollup用の`extendscriptCompat`は、文字列と正規表現の該当文字を標準で`\u`表記へ変換します。

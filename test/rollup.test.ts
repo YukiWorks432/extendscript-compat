@@ -276,7 +276,8 @@ it("圧縮後と先行includeの文字もUnicode補正し、無変換の識別�
   ]);
   const chunk = result.output[0] as OutputChunk;
   expect(runInNewContext(chunk.code + ";compiled.text")).toBe(value + "😀");
-  expect(chunk.code).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);
+  expect(chunk.code.startsWith("\uFEFF")).toBe(true);
+  expect(chunk.code.slice(1)).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);
   await expect(
     build("export var text=1;", [
       {
@@ -306,5 +307,146 @@ it("先行includeが追加した文字列にもUnicode補正を適用する", as
   ]);
   const chunk = result.output[0] as OutputChunk;
   expect(runInNewContext(chunk.code + ";included")).toBe(affected);
-  expect(chunk.code).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);
+  expect(chunk.code.startsWith("\uFEFF")).toBe(true);
+  expect(chunk.code.slice(1)).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);
+});
+
+it("BOMを標準で付け、既存のBOMやプラグインの重複適用でも一つに保つ", async () => {
+  const input = `export var text = "${String.fromCharCode(0x200c)}";`;
+  for (const [plugins, banner] of [
+    [[extendscriptCompat()], undefined],
+    [[extendscriptCompat()], "\uFEFF"],
+    [[extendscriptCompat(), extendscriptCompat()], undefined],
+  ] as const) {
+    const result = await build(input, [...plugins], { banner });
+    const chunk = result.output[0] as OutputChunk;
+    expect(Buffer.from(chunk.code, "utf8").subarray(0, 3)).toEqual(Buffer.from([0xef, 0xbb, 0xbf]));
+    expect(chunk.code.charCodeAt(1)).not.toBe(0xfeff);
+    expect(runInNewContext(chunk.code + ";compiled.text")).toBe(String.fromCharCode(0x200c));
+  }
+});
+
+it("BOMを無効化すると非ASCII出力に警告し、ASCII出力と既存BOMには警告しない", async () => {
+  const warnings: RollupLog[] = [];
+  const result = await build(
+    'export var text = "あ";',
+    [extendscriptCompat({ bom: false })],
+    {},
+    warnings,
+  );
+  const chunk = result.output[0] as OutputChunk;
+  expect(chunk.code.startsWith("\uFEFF")).toBe(false);
+  expect(runInNewContext(chunk.code + ";compiled.text")).toBe("あ");
+  const bomWarnings = warnings.filter(({ pluginCode }) => pluginCode === "MISSING_BOM");
+  expect(bomWarnings).toHaveLength(1);
+  expect(bomWarnings[0].loc?.file).toBe("custom.jsx");
+  const silentDiagnostics: RollupLog[] = [];
+  await build(
+    'export var text = "あ";',
+    [extendscriptCompat({ bom: false, diagnostics: "off" })],
+    {},
+    silentDiagnostics,
+  );
+  expect(silentDiagnostics.filter(({ pluginCode }) => pluginCode === "MISSING_BOM")).toHaveLength(
+    1,
+  );
+  const asciiWarnings: RollupLog[] = [];
+  await build(
+    'export var text = "hello";',
+    [extendscriptCompat({ bom: false })],
+    {},
+    asciiWarnings,
+  );
+  expect(asciiWarnings.filter(({ pluginCode }) => pluginCode === "MISSING_BOM")).toEqual([]);
+  const existingWarnings: RollupLog[] = [];
+  const existing = await build(
+    'export var text = "あ";',
+    [extendscriptCompat({ bom: false })],
+    { banner: "\uFEFF" },
+    existingWarnings,
+  );
+  expect((existing.output[0] as OutputChunk).code.startsWith("\uFEFF")).toBe(true);
+  expect(existingWarnings.filter(({ pluginCode }) => pluginCode === "MISSING_BOM")).toEqual([]);
+});
+
+it.each([true, "inline", "hidden"] as const)(
+  "先頭のBOMを追加してもソースマップ %s の先頭行の元位置を保つ",
+  async (sourcemap) => {
+    const input = "export var answer = marker;";
+    const result = await build(input, [extendscriptCompat()], { sourcemap, compact: true });
+    const chunk = result.output[0] as OutputChunk;
+    const offset = chunk.code.indexOf("marker");
+    expect(chunk.code.charCodeAt(0)).toBe(0xfeff);
+    const prefix = chunk.code.slice(0, offset).split("\n");
+    const position = originalPositionFor(new TraceMap(chunk.map!.toString()), {
+      line: prefix.length,
+      column: prefix.at(-1)!.length,
+    });
+    expect(position.line).toBe(1);
+    expect(position.column).toBe(input.indexOf("marker"));
+    if (sourcemap === "inline") {
+      const encoded = chunk.code.match(/sourceMappingURL=data:[^,]+,([^\r\n]+)/)![1];
+      expect(Buffer.from(encoded, "base64").toString()).toBe(chunk.map!.toString());
+    } else {
+      const asset = result.output.find(
+        (item) => item.type === "asset" && item.fileName.endsWith(".map"),
+      );
+      expect(asset?.type === "asset" && asset.source).toBe(chunk.map!.toString());
+    }
+  },
+);
+
+it("BOMの有無を出力ファイル名のハッシュへ反映する", async () => {
+  const names: string[] = [];
+  for (const bom of [true, false]) {
+    const bundle = await rollup({
+      input: "entry",
+      plugins: [
+        {
+          name: "fixture",
+          resolveId: (id) => (id === "entry" ? id : null),
+          load: (id) => (id === "entry" ? 'export var text = "あ";' : null),
+        },
+        extendscriptCompat({ bom }),
+      ],
+      onwarn: () => {},
+    });
+    try {
+      const output = await bundle.generate({
+        format: "iife",
+        name: "compiled",
+        entryFileNames: "[name]-[hash].js",
+      });
+      names.push((output.output[0] as OutputChunk).fileName);
+    } finally {
+      await bundle.close();
+    }
+  }
+  expect(names[0]).not.toBe(names[1]);
+});
+
+it.each([false, true])("実機と共通のBOM検証資料の値を保つ 圧縮=%s", async (compressed) => {
+  const bundle = await rollup({
+    input: "test/fixtures/bom-host-contract.js",
+    plugins: [
+      ...(compressed ? [terser({ format: { ascii_only: false, ecma: 5 } })] : []),
+      extendscriptCompat(),
+    ],
+  });
+  try {
+    const output = await bundle.generate({
+      format: "iife",
+      name: "bomProbe",
+      footer: "bomProbe.run();",
+    });
+    const chunk = output.output.find((file) => file.type === "chunk") as OutputChunk;
+    const actual = runInNewContext(chunk.code);
+    expect({
+      textMatches: actual.textMatches,
+      patternMatches: actual.patternMatches,
+      patternRejects: actual.patternRejects,
+    }).toEqual({ textMatches: true, patternMatches: true, patternRejects: true });
+  } finally {
+    await bundle.close();
+  }
 });

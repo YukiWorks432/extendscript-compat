@@ -107,10 +107,12 @@ function shiftSourceMap(before, after, edits, original, filename) {
 function updateSourceMappingUrl(code, url) {
   const lines = code.split(/(\r\n|\r|\n)/);
   let found = false;
-  for (let index = 0; index < lines.length; index += 2) {
-    if (!/^[ \t]*\/\/[#@]\s*sourceMappingURL=/.test(lines[index])) continue;
+  for (let index = lines.length - 1; index >= 0; index -= 2) {
+    const match = /\/\/[#@]\s*sourceMappingURL=[^\r\n]*$/.exec(lines[index]);
+    if (!match) continue;
     found = true;
-    lines[index] = url ? "//# sourceMappingURL=" + url : "";
+    lines[index] = lines[index].slice(0, match.index) + (url ? "//# sourceMappingURL=" + url : "");
+    break;
   }
   const result = lines.join("");
   return url && !found ? result + "\n//# sourceMappingURL=" + url : result;
@@ -119,6 +121,10 @@ function updateSourceMappingUrl(code, url) {
 /** @param {import("./rollup.d.ts").CompatibilityOptions} [options] @returns {import("rollup").Plugin} */
 export function extendscriptCompat(options = {}) {
   const diagnostics = options.diagnostics ?? "warn";
+  const bom = options.bom ?? true;
+  if (typeof bom !== "boolean") {
+    throw new TypeError("ExtendScript BOM option must be a boolean");
+  }
   if (!["warn", "error", "off"].includes(diagnostics)) {
     throw new TypeError("Unknown ExtendScript diagnostics mode: " + diagnostics);
   }
@@ -153,6 +159,9 @@ export function extendscriptCompat(options = {}) {
       }
       return result.code === undefined ? null : { code: result.code, map: result.map };
     },
+    augmentChunkHash() {
+      return bom ? "extendscript-compat-utf8-bom" : undefined;
+    },
     generateBundle(options, bundle) {
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;
@@ -170,11 +179,30 @@ export function extendscriptCompat(options = {}) {
           }
         }
         assertPrecedenceProtected(result.code);
-        chunk.code = result.code;
-        if (!options.sourcemap || result.edits.length === 0) continue;
+        const hasBom = result.code.startsWith("\uFEFF");
+        const addBom = bom && !hasBom;
+        if (!bom && !hasBom && /[^\p{ASCII}]/u.test(result.code)) {
+          this.warn({
+            code: "MISSING_BOM",
+            message:
+              "BOMのない非ASCII文字を含む出力は、ExtendScriptで文字コードが誤判定される場合があります。",
+            loc: { file: chunk.fileName, line: 1, column: 0 },
+          });
+        }
+        chunk.code = addBom ? "\uFEFF" + result.code : result.code;
+        if (!options.sourcemap || (result.edits.length === 0 && !addBom)) continue;
         if (!chunk.map)
           this.error("ExtendScript compatibility pass requires the preceding source map");
-        const map = shiftSourceMap(source, result.code, result.edits, chunk.map, chunk.fileName);
+        let map = shiftSourceMap(source, result.code, result.edits, chunk.map, chunk.fileName);
+        if (addBom) {
+          map = shiftSourceMap(
+            result.code,
+            chunk.code,
+            [{ start: 0, end: 0, text: "\uFEFF" }],
+            map,
+            chunk.fileName,
+          );
+        }
         chunk.map = map;
         if (options.sourcemap === "inline") {
           chunk.code = updateSourceMappingUrl(chunk.code, map.toUrl());
