@@ -61,3 +61,12 @@ it("ディレクティブ文字列も値を保ち、既定の互換補正でUnic
   expect(runInNewContext(result.code)).toBe(affected[1]);
   expect(result.code).not.toMatch(/(?:\u200c|\u200d|\ufeff)/);
 });
+
+it("ファイル先頭のBOMは保持し、文字列内のU+FEFFは値を保って変換する", () => {
+  const source = `\uFEFFvar text="${String.fromCharCode(0xfeff)}"; text;`;
+  const result = protectCompatibility(source);
+  expect(result.code.charCodeAt(0)).toBe(0xfeff);
+  expect(result.code.slice(1)).not.toContain(String.fromCharCode(0xfeff));
+  expect(runInNewContext(result.code)).toBe(String.fromCharCode(0xfeff));
+  expect(protectCompatibility(result.code).edits).toEqual([]);
+});

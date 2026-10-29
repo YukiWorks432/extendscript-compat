@@ -163,6 +163,7 @@ function findUnicodeEdits(source, program = parseScript(source)) {
   });
   for (let index = 0; index < source.length; index++) {
     const code = source.charCodeAt(index);
+    if (index === 0 && code === 0xfeff) continue;
     if ((code === 0x200c || code === 0x200d || code === 0xfeff) && !covered.has(index)) {
       const before = source.slice(0, index).split(/\r\n|[\r\n\u2028\u2029]/);
       throw new SyntaxError(
