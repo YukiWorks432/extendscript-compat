@@ -32,9 +32,13 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 
 `includes`は`NaN`、検索開始位置、配列に似たオブジェクトを扱います。`padStart`・`padEnd`は空の埋め文字を指定すると元の文字列を返します。長さと検索位置の数値変換には、AEで不足する二進数・八進数表記などを補う既存の数値変換を使います。片側の空白除去は`trim`と同じ空白の範囲を使い、U+180E・U+200Bなどは保持します。
 
-`/runtime`をTypeScriptから読み込むと、上記メソッドの型も追加されます。`lib: ["ES5"]`でも利用でき、未対応の`Promise`や`flat`の型は追加しません。構文の変換は引き続き利用側で必要です。
+`Object.entries`・`Object.values`、`Array.prototype.flat`・`flatMap`、`String.prototype.at`も補完します。オブジェクトの自身の列挙可能な文字列キーを取得し、整数インデックスは数値順に並べます。`flat`は削除された配列要素を飛ばし、`flatMap`は各要素を変換して1段階展開します。`String.prototype.at`はUTF-16のコード単位を返します。
 
-非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage1-ae-26.5.json)
+AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成されます。この要素と明示的な`undefined`は区別できないため、`flat`は保持します。`delete`で作られた穴は取り除きます。補完版の`flat`と`flatMap`は通常の配列を返し、`Symbol.species`による派生配列の生成はサポートしません。プロパティの属性情報が取得できない環境では、`entries`と`values`の処理中に列挙属性が変更される場合など、標準と異なる結果になることがあります。ホスト固有オブジェクトでの列挙順序はホストの挙動に依存します。
+
+`/runtime`をTypeScriptから読み込むと、上記メソッドの型も追加されます。`lib: ["ES5"]`でも利用でき、未対応の`Promise`の型は追加しません。構文の変換は引き続き利用側で必要です。
+
+非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/esnext-stage1-ae-26.5.json)
 
 ## 補正する挙動
 
@@ -106,7 +110,7 @@ splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es
 
 parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
 
-[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。テンプレートの無効だったES Next補完は移植していません。今回の追加メソッドはes-shimsの`array-includes`、`String.prototype.padStart`、`String.prototype.trimStart`を参考にES3向けに実装し、現行仕様の空の埋め文字と型変換の順序、およびAEの数値変換に合わせて補正しました。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
+[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。テンプレートの無効だったES Next補完は移植していません。今回の追加メソッドはes-shimsの`array-includes`、`String.prototype.padStart`、`String.prototype.trimStart`を参考にES3向けに実装し、現行仕様の空の埋め文字と型変換の順序、およびAEの数値変換に合わせて補正しました。第2段階はes-shimsの`Object.entries`・`Object.values`・`Array.prototype.flat`・`Array.prototype.flatMap`・`String.prototype.at`を参考にし、AEの列挙と文字列の挙動に合わせました。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
 
 ## 検証
 

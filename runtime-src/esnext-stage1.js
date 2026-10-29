@@ -1,34 +1,6 @@
 // ES2016以降の一部。es-shimsを参考に、現在の仕様に沿ってES3向けに実装する。
 // 空の埋め文字と変換の順序は仕様に合わせ、AEの数値変換はtoNumberで補正する。
 // 参考元の許諾はTHIRD-PARTY-LICENSES.txtを参照。正常な既存関数は維持する。
-function __compatInteger(value) {
-  var number = toNumber(value);
-  if (number !== number || number === 0) return 0;
-  if (number === Infinity || number === -Infinity) return number;
-  return (number < 0 ? -1 : 1) * Math.floor(Math.abs(number));
-}
-
-function __compatLength(value) {
-  var length = __compatInteger(value);
-  return length <= 0 ? 0 : Math.min(length, 9007199254740991);
-}
-
-function __compatInstall(target, name, implementation) {
-  if (typeof Object.defineProperty === "function") {
-    try {
-      Object.defineProperty(target, name, {
-        value: implementation,
-        writable: true,
-        configurable: true,
-        enumerable: false,
-      });
-      return;
-      // oxlint-disable-next-line no-unused-vars -- ES3 requires a catch binding
-    } catch (_error) {}
-  }
-  target[name] = implementation;
-}
-
 function __compatIncludes(search, fromIndex) {
   if (this === null || typeof this === "undefined")
     throw new TypeError("includes requires an object");

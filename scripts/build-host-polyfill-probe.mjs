@@ -70,6 +70,9 @@ const manifest = {
   unicodeProbeSha256: sha256(unicodeProbe),
   polyfillFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/polyfill-contract.js"))),
   correctionFixtureSha256: sha256(readFileSync(resolve(root, "test/fixtures/runtime-contract.js"))),
+  esnextStage2FixtureSha256: sha256(
+    readFileSync(resolve(root, "test/fixtures/esnext-stage2-contract.js")),
+  ),
   esnextFixtureSha256: sha256(
     readFileSync(resolve(root, "test/fixtures/esnext-stage1-contract.js")),
   ),

@@ -8,7 +8,12 @@ const trimmed: string = " x ".trimStart().trimEnd().trimLeft().trimRight();
 void included;
 void padded;
 void trimmed;
-// @ts-expect-error flat is not part of this stage
-values.flat();
+const flattened: number[] = [[1], [2]].flat();
+const mapped: number[] = values.flatMap((value) => [value, value]);
+const readonlyFlattened: number[] = ([[1], [2]] as readonly number[][]).flat();
+const pairs: [string, number][] = Object.entries({ a: 1 });
+const objectValues: number[] = Object.values({ a: 1 });
+const character: string | undefined = "abc".at(-1);
+void [flattened, mapped, readonlyFlattened, pairs, objectValues, character];
 // @ts-expect-error Promise is not provided by this runtime
 Promise.resolve(1);

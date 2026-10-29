@@ -3,14 +3,41 @@
  *
  * ExtendScriptの共有エンジンへJSON・ES5・ES6と後年の一部メソッドの補完、4関数の互換補正を適用する副作用専用の入口。
  */
+type ExtendScriptCompatFlatArray<Arr, Depth extends number> = {
+  done: Arr;
+  recur: Arr extends ReadonlyArray<infer Inner>
+    ? ExtendScriptCompatFlatArray<
+        Inner,
+        [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20][Depth]
+      >
+    : Arr;
+}[Depth extends -1 ? "done" : "recur"];
+
 declare global {
+  interface ObjectConstructor {
+    entries<T>(value: { [key: string]: T } | ArrayLike<T>): [string, T][];
+    entries(value: {}): [string, any][];
+    values<T>(value: { [key: string]: T } | ArrayLike<T>): T[];
+    values(value: {}): any[];
+  }
   interface Array<T> {
     includes(searchElement: T, fromIndex?: number): boolean;
+    flat<A, D extends number = 1>(this: A, depth?: D): ExtendScriptCompatFlatArray<A, D>[];
+    flatMap<U, This = undefined>(
+      callback: (this: This, value: T, index: number, array: T[]) => U | ReadonlyArray<U>,
+      thisArg?: This,
+    ): U[];
   }
   interface ReadonlyArray<T> {
     includes(searchElement: T, fromIndex?: number): boolean;
+    flat<A, D extends number = 1>(this: A, depth?: D): ExtendScriptCompatFlatArray<A, D>[];
+    flatMap<U, This = undefined>(
+      callback: (this: This, value: T, index: number, array: T[]) => U | ReadonlyArray<U>,
+      thisArg?: This,
+    ): U[];
   }
   interface String {
+    at(index: number): string | undefined;
     padStart(maxLength: number, fillString?: string): string;
     padEnd(maxLength: number, fillString?: string): string;
     trimStart(): string;
