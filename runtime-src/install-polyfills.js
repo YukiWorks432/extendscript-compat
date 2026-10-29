@@ -48,3 +48,19 @@ if (root.__extendscriptCompatESNext3__ !== 1) {
   if (!__compatHasOwnWorks(Object.hasOwn)) __compatInstall(Object, "hasOwn", __compatHasOwn);
   root.__extendscriptCompatESNext3__ = 1;
 }
+
+if (root.__extendscriptCompatArrayCopy__ !== 1) {
+  if (!__compatCopyMethodWorks(Array.prototype["toSorted"], "toSorted"))
+    __compatInstall(Array.prototype, "toSorted", __compatToSorted);
+  if (!__compatCopyMethodWorks(Array.prototype["toReversed"], "toReversed"))
+    __compatInstall(Array.prototype, "toReversed", __compatToReversed);
+  if (!__compatCopyMethodWorks(Array.prototype["toSpliced"], "toSpliced"))
+    __compatInstall(Array.prototype, "toSpliced", __compatToSpliced);
+  if (!__compatCopyMethodWorks(Array.prototype["with"], "with"))
+    __compatInstall(Array.prototype, "with", __compatWith);
+  if (!__compatCopyMethodWorks(Array.prototype["findLast"], "findLast"))
+    __compatInstall(Array.prototype, "findLast", __compatFindLast);
+  if (!__compatCopyMethodWorks(Array.prototype["findLastIndex"], "findLastIndex"))
+    __compatInstall(Array.prototype, "findLastIndex", __compatFindLastIndex);
+  root.__extendscriptCompatArrayCopy__ = 1;
+}
