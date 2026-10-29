@@ -42,6 +42,24 @@ Importing `/runtime` from TypeScript also supplies declarations for these method
 
 The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object.defineProperty`, so methods are added by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. The [second-stage investigation and verification](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json) is recorded separately. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json).
 
+## Full replacement and well-formed UTF-16
+
+The same `/runtime` import also provides `String.prototype.replaceAll`, `isWellFormed`, and `toWellFormed`. Missing implementations or implementations that fail representative checks are replaced; working existing implementations are retained.
+
+```js
+import "extendscript-compat/runtime";
+
+"a.b.a".replaceAll(".", "-"); // "a-b-a"
+"aba".replaceAll(/a/g, "x"); // "xbx"
+var text = String.fromCharCode(0xd800) + "x";
+text.isWellFormed(); // false
+text.toWellFormed(); // U+FFFD followed by "x"
+```
+
+`replaceAll` handles every string match, empty searches, replacement dollar tokens, and callbacks. A regular expression must have `g` or a `TypeError` is thrown. In AE, the native `RegExp.global` property supplies the missing `flags` information, and the existing `replace` correction handles empty matches, captures, and callbacks. `lastIndex` is reset to zero after replacement-value coercion. Regular-expression engine bugs and newer flags remain outside its scope. Environments that provide `Symbol` also honor `Symbol.match` and `Symbol.replace`; `Symbol` itself is not added.
+
+`isWellFormed` checks for lone surrogates; `toWellFormed` replaces only those code units with U+FFFD. Valid surrogate pairs, NUL, and noncharacters are preserved. These methods do not perform Unicode normalization, escape source characters, add a BOM, or fix source-decoding problems.
+
 ## Corrected behavior
 
 | Issue / function   | Correction                                                                                                                                                                                                                                                        |
@@ -113,6 +131,8 @@ Changes from the original cover ES3 flags, forced replacement, shared-engine re-
 `parseInt`, `charAt`, and `replace` are implemented for ExtendScript-specific bugs observed in this investigation. es5-shim's `parseInt` delegates to the original function and does not fix EC-04; its existing `replace` correction does not cover the replacement-string issue addressed here, so those implementations were not adopted unchanged.
 
 The JSON, ES5, and ES6 polyfills are adapted from a [fixed extendscript-ts-template commit](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453). They retain its shared-engine cache, with corrections to ES5 whitespace checks, ES6 global lookup, and trim whitespace handling. The trim correction tests UTF-16 code units without relying on regular expressions. The disabled ES Next polyfill from the template was not copied. The added methods were implemented for ES3 with reference to es-shims `array-includes`, `String.prototype.padStart`, and `String.prototype.trimStart`, and adjusted for current empty-filler and conversion-order requirements and AE number conversion. The third stage also draws on es-shims `Array.prototype.at` and `Object.hasOwn`. The second stage also draws on es-shims `Object.entries`, `Object.values`, `Array.prototype.flat`, `Array.prototype.flatMap`, and `String.prototype.at`, with adjustments for AE enumeration and strings. Copyright notices and license texts are in [third-party licenses](../THIRD-PARTY-LICENSES.txt). `runtime/index.js` is generated ES3 code. In a repository checkout, run `node scripts/build-runtime.mjs` to regenerate it from the internal sources.
+
+Full replacement and well-formed UTF-16 implementations draw on es-shims [String.prototype.replaceAll](https://github.com/es-shims/String.prototype.replaceAll/blob/139da66df7281142d1c49c46ffcecfb4fbaab0a0/implementation.js), [String.prototype.isWellFormed](https://github.com/es-shims/String.prototype.isWellFormed/blob/b6c2a6bbb961337854301160d4288b30efc48106/implementation.js), [String.prototype.toWellFormed](https://github.com/es-shims/String.prototype.toWellFormed/blob/591e5971d2a428a9bb400014785cb061b4bc3b3a/implementation.js) and current ECMAScript. Abstract operations are implemented directly for ES3, with AE-specific corrections for missing flags, replacement callbacks, and lastIndex. Copyright notices and licenses from these fixed commits are included in [third-party licenses](../THIRD-PARTY-LICENSES.txt).
 
 ## Validation
 

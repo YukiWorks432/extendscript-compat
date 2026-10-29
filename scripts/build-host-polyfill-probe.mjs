@@ -65,6 +65,9 @@ writeFileSync(resolve(directory, "unicode-evalfile.jsx"), unicodeProbe);
 const sha256 = (code) => createHash("sha256").update(code).digest("hex");
 const manifest = {
   rawSha256: sha256(raw),
+  stringModernFixtureSha256: sha256(
+    readFileSync(resolve(root, "test/contracts/string-modern-contract.js")),
+  ),
   minifiedSha256: sha256(minified),
   templateProbeSha256: sha256(templateProbe),
   unicodeProbeSha256: sha256(unicodeProbe),

@@ -105,3 +105,181 @@ function __compatStringAtWorks(method) {
     return false;
   }
 }
+
+// es-shimsとECMAScriptを参考に、全置換とUTF-16の整形式を補う。
+function __compatStringValue(value) {
+  if (typeof value === "symbol") throw new TypeError("Cannot convert Symbol to string");
+  return String(value);
+}
+function __compatReplaceAll(searchValue, replaceValue) {
+  if (this === null || typeof this === "undefined")
+    throw new TypeError("replaceAll requires a value");
+  var hasReplaceSymbol = typeof Symbol === "function" && Symbol.replace;
+  if (searchValue !== null && typeof searchValue !== "undefined") {
+    var actualRegex = __compatRegExpBrand(searchValue);
+    var match =
+      typeof Symbol === "function" && Symbol.match ? searchValue[Symbol.match] : undefined;
+    var isRegex = typeof match === "undefined" ? actualRegex : !!match;
+    if (isRegex) {
+      // AEはflagsを持たないため、純正RegExpの場合だけglobalから補う。
+      var flags =
+        actualRegex && !("flags" in Object(searchValue))
+          ? searchValue.global
+            ? "g"
+            : ""
+          : searchValue.flags;
+      if (flags === null || typeof flags === "undefined")
+        throw new TypeError("RegExp flags required");
+      if (__compatStringValue(flags).indexOf("g") < 0)
+        throw new TypeError("replaceAll requires a global RegExp");
+    }
+    if (hasReplaceSymbol) {
+      var replacer = searchValue[Symbol.replace];
+      if (replacer !== null && typeof replacer !== "undefined") {
+        if (typeof replacer !== "function")
+          throw new TypeError("Symbol.replace must be a function");
+        return replacer.call(searchValue, this, replaceValue);
+      }
+    } else if (isRegex) {
+      var input = __compatStringValue(this);
+      var replacementValue =
+        typeof replaceValue === "function"
+          ? function () {
+              return __compatStringValue(replaceValue.apply(undefined, arguments));
+            }
+          : __compatStringValue(replaceValue);
+      // AEのreplaceはlastIndexを初期化しない。変換を済ませてから開始位置を戻す。
+      searchValue.lastIndex = 0;
+      return String.prototype.replace.call(input, searchValue, replacementValue);
+    }
+  }
+  var text = __compatStringValue(this),
+    search = __compatStringValue(searchValue);
+  var functional = typeof replaceValue === "function";
+  var replacement = functional ? "" : __compatStringValue(replaceValue);
+  var position = text.indexOf(search),
+    cursor = 0,
+    result = "";
+  while (position >= 0) {
+    var substituted = functional
+      ? __compatStringValue(replaceValue(search, position, text))
+      : __compatLiteralSubstitution(replacement, search, text, position);
+    result += text.slice(cursor, position) + substituted;
+    cursor = position + search.length;
+    var next = position + Math.max(1, search.length);
+    if (next > text.length) break;
+    position = text.indexOf(search, next);
+  }
+  return result + text.slice(cursor);
+}
+function __compatLiteralSubstitution(replacement, matched, text, position) {
+  var result = "";
+  for (var i = 0; i < replacement.length; i++) {
+    if (replacement.charCodeAt(i) === 36) {
+      var next = replacement.charCodeAt(i + 1);
+      if (next === 36) {
+        result += "$";
+        i++;
+        continue;
+      }
+      if (next === 38) {
+        result += matched;
+        i++;
+        continue;
+      }
+      if (next === 96) {
+        result += text.slice(0, position);
+        i++;
+        continue;
+      }
+      if (next === 39) {
+        result += text.slice(position + matched.length);
+        i++;
+        continue;
+      }
+    }
+    result += replacement.slice(i, i + 1);
+  }
+  return result;
+}
+function __compatWellFormed(text, repair) {
+  var result = "",
+    cursor = 0;
+  for (var i = 0; i < text.length; i++) {
+    var code = text.charCodeAt(i);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      var next = text.charCodeAt(i + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) {
+        i++;
+        continue;
+      }
+    } else if (code < 0xdc00 || code > 0xdfff) continue;
+    if (!repair) return false;
+    result += text.slice(cursor, i) + String.fromCharCode(0xfffd);
+    cursor = i + 1;
+  }
+  return repair ? result + text.slice(cursor) : true;
+}
+function __compatIsWellFormed() {
+  if (this === null || typeof this === "undefined")
+    throw new TypeError("isWellFormed requires a value");
+  return __compatWellFormed(__compatStringValue(this), false);
+}
+function __compatToWellFormed() {
+  if (this === null || typeof this === "undefined")
+    throw new TypeError("toWellFormed requires a value");
+  return __compatWellFormed(__compatStringValue(this), true);
+}
+function __compatModernStringWorks(method, name) {
+  if (typeof method !== "function") return false;
+  try {
+    if (name === "replaceAll") {
+      var rejected = false;
+      try {
+        method.call("aa", /a/, "x");
+      }
+      // oxlint-disable-next-line no-unused-vars -- ES3構文ではcatch変数が必要
+      catch (_error) {
+        rejected = true;
+      }
+      return (
+        method.call("aba", "a", "x") === "xbx" &&
+        method.call("ab", "", "-") === "-a-b-" &&
+        method.call("aa", "a", function (match, index) {
+          return index;
+        }) === "01" &&
+        rejected
+      );
+    }
+    var high = String.fromCharCode(0xd800),
+      low = String.fromCharCode(0xdc00);
+    return name === "isWellFormed"
+      ? method.call(high + low) === true &&
+          method.call(high) === false &&
+          method.call(low) === false
+      : method.call(high + low) === high + low &&
+          method.call(high) === String.fromCharCode(0xfffd) &&
+          method.call(low) === String.fromCharCode(0xfffd);
+    // oxlint-disable-next-line no-unused-vars -- ES3構文ではcatch変数が必要
+  } catch (_error) {
+    return false;
+  }
+}
+
+function __compatRegExpBrand(value) {
+  // Symbol.toStringTagによる誤判定を避け、利用可能なら純正の属性取得で識別する。
+  if (typeof Object.getOwnPropertyDescriptor === "function") {
+    var descriptor = Object.getOwnPropertyDescriptor(RegExp.prototype, "global");
+    if (descriptor && typeof descriptor.get === "function") {
+      try {
+        descriptor.get.call(value);
+        return true;
+      }
+      // oxlint-disable-next-line no-unused-vars -- ES3構文ではcatch変数が必要
+      catch (_error) {
+        return false;
+      }
+    }
+  }
+  return Object.prototype.toString.call(value) === "[object RegExp]";
+}

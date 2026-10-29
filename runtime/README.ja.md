@@ -42,6 +42,24 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 
 非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
 
+## 全置換とUTF-16の整形式
+
+`String.prototype.replaceAll`、`isWellFormed`、`toWellFormed`も同じ`/runtime`の読み込みで補完します。不足または代表的な検査に通らない実装を置き換え、正常な既存実装は維持します。
+
+```js
+import "extendscript-compat/runtime";
+
+"a.b.a".replaceAll(".", "-"); // "a-b-a"
+"aba".replaceAll(/a/g, "x"); // "xbx"
+var text = String.fromCharCode(0xd800) + "x";
+text.isWellFormed(); // false
+text.toWellFormed(); // U+FFFDと"x"からなる文字列
+```
+
+`replaceAll`は文字列をすべて置換し、空文字列検索、置換文字列のドル記号、コールバックに対応します。正規表現には`g`が必要で、ない場合は`TypeError`にします。AEでは`flags`の代わりに純正の`RegExp.global`を確認し、既存の`replace`補正を使って空一致、キャプチャ、コールバックを扱います。置換値の型変換後に`lastIndex`を0へ戻します。正規表現エンジン自体の不具合や新しいフラグは補いません。`Symbol`を持つ環境では`Symbol.match`と`Symbol.replace`にも従いますが、`Symbol`自体は追加しません。
+
+`isWellFormed`は孤立サロゲートがないかを判定し、`toWellFormed`は孤立サロゲートだけをU+FFFDへ置き換えます。正しいサロゲートペア、NUL、非文字は保持します。Unicodeの正規化やソース内の文字のエスケープ、BOMの付与とは別の機能であり、スクリプトの読み込み時の文字化けは修正しません。
+
 ## 補正する挙動
 
 | 対象             | 補正内容                                                                                                                                                                                                        |
@@ -113,6 +131,8 @@ splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es
 parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
 
 [extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。テンプレートの無効だったES Next補完は移植していません。今回の追加メソッドはes-shimsの`array-includes`、`String.prototype.padStart`、`String.prototype.trimStart`を参考にES3向けに実装し、現行仕様の空の埋め文字と型変換の順序、およびAEの数値変換に合わせて補正しました。第3段階はes-shimsの`Array.prototype.at`と`Object.hasOwn`も参考にしています。第2段階はes-shimsの`Object.entries`・`Object.values`・`Array.prototype.flat`・`Array.prototype.flatMap`・`String.prototype.at`を参考にし、AEの列挙と文字列の挙動に合わせました。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
+
+全置換とUTF-16の整形式は、es-shimsの[String.prototype.replaceAll](https://github.com/es-shims/String.prototype.replaceAll/blob/139da66df7281142d1c49c46ffcecfb4fbaab0a0/implementation.js)、[String.prototype.isWellFormed](https://github.com/es-shims/String.prototype.isWellFormed/blob/b6c2a6bbb961337854301160d4288b30efc48106/implementation.js)、[String.prototype.toWellFormed](https://github.com/es-shims/String.prototype.toWellFormed/blob/591e5971d2a428a9bb400014785cb061b4bc3b3a/implementation.js)と現行のECMAScriptを参考にES3向けに実装しました。依存する抽象操作は直接実装し、AEのflags欠如、置換コールバック、lastIndexを補正しています。固定コミットの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に収録しています。
 
 ## 検証
 
