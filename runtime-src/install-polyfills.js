@@ -36,7 +36,7 @@ if (root.__extendscriptCompatESNext2__ !== 1) {
   root.__extendscriptCompatESNext2__ = 1;
 }
 
-if (root.__extendscriptCompatESNext3__ !== 1) {
+if (root.__extendscriptCompatESNext3__ !== 2) {
   __compatOwn = Object.prototype.hasOwnProperty;
   __compatStringOwnBroken = !__compatOwn.call(Object("x"), "0");
   __compatArrayLengthBroken = !__compatOwn.call([], "length");
@@ -46,10 +46,10 @@ if (root.__extendscriptCompatESNext3__ !== 1) {
   if (!__compatArrayAtWorks(Array.prototype.at))
     __compatInstall(Array.prototype, "at", __compatArrayAt);
   if (!__compatHasOwnWorks(Object.hasOwn)) __compatInstall(Object, "hasOwn", __compatHasOwn);
-  root.__extendscriptCompatESNext3__ = 1;
+  root.__extendscriptCompatESNext3__ = 2;
 }
 
-if (root.__extendscriptCompatArrayCopy__ !== 1) {
+if (root.__extendscriptCompatArrayCopy__ !== 2) {
   if (!__compatCopyMethodWorks(Array.prototype["toSorted"], "toSorted"))
     __compatInstall(Array.prototype, "toSorted", __compatToSorted);
   if (!__compatCopyMethodWorks(Array.prototype["toReversed"], "toReversed"))
@@ -60,7 +60,7 @@ if (root.__extendscriptCompatArrayCopy__ !== 1) {
     __compatInstall(Array.prototype, "findLast", __compatFindLast);
   if (!__compatCopyMethodWorks(Array.prototype["findLastIndex"], "findLastIndex"))
     __compatInstall(Array.prototype, "findLastIndex", __compatFindLastIndex);
-  root.__extendscriptCompatArrayCopy__ = 1;
+  root.__extendscriptCompatArrayCopy__ = 2;
 }
 
 if (root.__extendscriptCompatStringModern__ !== 1) {

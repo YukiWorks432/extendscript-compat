@@ -40,6 +40,8 @@ In AE 26.5, an omitted element in `[1,,3]` is created as an `undefined` element.
 
 `Array.prototype.at` supports negative indices and array-like objects. `Object.hasOwn` excludes inherited properties and compensates for AE's missing ownership attributes for array and string `length`, string indices, and function `length` and `name`. Ownership of host-specific objects and other built-in properties depends on the host.
 
+`Object.hasOwn` converts property keys once with a string hint, preserving a Symbol result. Its ownership corrections do not invoke unrelated `Symbol.toStringTag` or `length` getters.
+
 Importing `/runtime` from TypeScript also supplies declarations for these methods. They work with `lib: ["ES5"]` and do not add declarations for unsupported features such as `Promise`. Syntax transformation remains the consumer's responsibility.
 
 The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object.defineProperty`, so methods are added by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. The [second-stage investigation and verification](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json) is recorded separately. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json).
@@ -49,6 +51,8 @@ The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object
 toSorted follows ECMAScript and es-shims Array.prototype.toSorted, using a stable merge sort independent of AE's sort. The other four methods follow the ECMAScript algorithms.
 
 toSorted, toReversed, and toSpliced return new ordinary arrays without changing the receiver. toSorted uses stable ordering with the default string comparison or a comparator, retaining the order of equal elements. These copying operations read holes as undefined elements. They do not use Symbol.species. Output size is subject to host array length and memory limits.
+
+Where property descriptors are supported, copying creates ordinary own data properties, bypassing inherited non-writable numeric properties and accessors. Environments without that API, including AE 26.5, retain assignment-based copying. Earlier installation markers trigger renewed checks so incomplete implementations can be updated.
 
 findLast and findLastIndex search from the end, visiting holes as undefined. Predicates receive the value, index, and source object and support thisArg. BigInt polyfills are outside the scope.
 

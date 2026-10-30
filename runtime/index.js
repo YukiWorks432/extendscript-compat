@@ -4563,15 +4563,18 @@
     function __compatToReversed() {
         if (this === null || typeof this === "undefined") throw new TypeError("toReversed requires an object");
         var source = Object(this), length = __compatLength(source.length), result = new Array(length);
-        for (var i = 0; i < length; i++) result[i] = source[length - i - 1];
+        for (var i = 0; i < length; i++) __compatCopyElement(result, i, source[length - i - 1]);
         return result;
     }
     function __compatToSorted(compare) {
         if (typeof compare !== "undefined" && typeof compare !== "function") throw new TypeError("compare must be a function");
         if (this === null || typeof this === "undefined") throw new TypeError("toSorted requires an object");
         var source = Object(this), length = __compatLength(source.length), result = new Array(length);
-        for (var i = 0; i < length; i++) result[i] = source[i];
         var temporary = new Array(length);
+        for (var i = 0; i < length; i++) {
+            __compatCopyElement(result, i, source[i]);
+            __compatCopyElement(temporary, i, undefined);
+        }
         for (var width = 1; width < length; width *= 2) {
             for (var start = 0; start < length; start += width * 2) {
                 var middle = Math.min(start + width, length), end = Math.min(start + width * 2, length);
@@ -4608,10 +4611,22 @@
         var newLength = length + inserted - removed;
         if (newLength > 9007199254740991) throw new TypeError("Array exceeds maximum length");
         var result = new Array(newLength), index = 0, i;
-        for (i = 0; i < actual; i++) result[index++] = source[i];
-        for (i = 0; i < inserted; i++) result[index++] = arguments[i + 2];
-        for (i = actual + removed; i < length; i++) result[index++] = source[i];
+        for (i = 0; i < actual; i++) __compatCopyElement(result, index++, source[i]);
+        for (i = 0; i < inserted; i++) __compatCopyElement(result, index++, arguments[i + 2]);
+        for (i = actual + removed; i < length; i++) __compatCopyElement(result, index++, source[i]);
         return result;
+    }
+    function __compatCopyElement(target, index, value) {
+        if (typeof Object.defineProperty === "function") {
+            Object.defineProperty(target, index, {
+                value: value,
+                writable: true,
+                enumerable: true,
+                configurable: true
+            });
+        } else {
+            target[index] = value;
+        }
     }
     function __compatFindFromEnd(source, predicate, thisArg, indexOnly) {
         if (source === null || typeof source === "undefined") throw new TypeError("findLast requires an object");
@@ -4644,15 +4659,15 @@
                 } ], function(x, y) {
                     return x.n - y.n;
                 });
-                return result.join(",") === "1,2,3" && a[0] === 3 && stable[0].id === 1;
+                return result.join(",") === "1,2,3" && a[0] === 3 && stable[0].id === 1 && __compatCopyDefinesElements(method);
             }
             if (name === "toReversed") {
                 result = method.call(a);
-                return result.join(",") === "2,1,3" && a[0] === 3;
+                return result.join(",") === "2,1,3" && a[0] === 3 && __compatCopyDefinesElements(method);
             }
             if (name === "toSpliced") {
                 result = method.call(a, "0b1", 1, 9);
-                return result.join(",") === "3,9,2" && a[1] === 1;
+                return result.join(",") === "3,9,2" && a[1] === 1 && __compatCopyDefinesElements(method);
             }
             var visited = [];
             result = method.call({
@@ -4665,6 +4680,23 @@
             return result === (name === "findLast" ? 1 : 0) && visited.join(",") === "1,0";
         } catch (_error) {
             return false;
+        }
+    }
+    function __compatCopyDefinesElements(method) {
+        if (typeof Object.defineProperty !== "function" || typeof Object.getOwnPropertyDescriptor !== "function") return true;
+        var descriptor = Object.getOwnPropertyDescriptor(Array.prototype, "0");
+        if (descriptor && !descriptor.configurable) return true;
+        try {
+            Object.defineProperty(Array.prototype, "0", {
+                value: undefined,
+                writable: false,
+                enumerable: false,
+                configurable: true
+            });
+            var result = method.call([ 1 ]);
+            return Object.prototype.hasOwnProperty.call(result, "0") && result[0] === 1;
+        } finally {
+            if (descriptor) Object.defineProperty(Array.prototype, "0", descriptor); else delete Array.prototype[0];
         }
     }
     function __compatPad(text, maxLength, filler, atStart) {
@@ -4926,25 +4958,41 @@
     function __compatHasOwn(value, property) {
         if (value === null || typeof value === "undefined") throw new TypeError("Object conversion requires a value");
         var object = Object(value);
-        var key = property;
-        if (key !== null && (typeof key === "object" || typeof key === "function") && typeof Symbol === "function" && Symbol.toPrimitive) {
-            var exotic = key[Symbol.toPrimitive];
-            if (exotic != null) {
-                if (typeof exotic !== "function") throw new TypeError("Invalid property key conversion");
-                key = exotic.call(key, "string");
-                if (key !== null && (typeof key === "object" || typeof key === "function")) throw new TypeError("Invalid property key conversion");
-            }
-        }
-        if (typeof key !== "symbol") key = String(key);
+        var key = __compatPropertyKey(property);
         if (Object.prototype.hasOwnProperty.call(object, key)) return true;
-        var kind = Object.prototype.toString.call(object);
-        if (key === "length" && ((kind === "[object Array]" && __compatArrayLengthBroken) || (kind === "[object String]" && __compatStringLengthBroken) || (kind === "[object Function]" && __compatFunctionLengthBroken))) return true;
-        if (key === "name" && kind === "[object Function]" && __compatFunctionNameBroken && key in object) return true;
-        if (__compatStringOwnBroken && kind === "[object String]" && typeof key === "string") {
-            var number = +key;
-            return number >= 0 && number < object.length && Math.floor(number) === number && String(number) === key;
+        if (key === "length") {
+            if (__compatArrayLengthBroken && Array.isArray(object)) return true;
+            if (__compatFunctionLengthBroken && typeof object === "function") return true;
+        }
+        if (key === "name" && __compatFunctionNameBroken && typeof object === "function" && key in object) return true;
+        if ((__compatStringLengthBroken && key === "length") || (__compatStringOwnBroken && typeof key === "string")) {
+            try {
+                var text = String.prototype.valueOf.call(object);
+                if (key === "length") return true;
+                var number = +key;
+                return number >= 0 && number < text.length && Math.floor(number) === number && String(number) === key;
+            } catch (_error) {}
         }
         return false;
+    }
+    function __compatPropertyKey(value) {
+        var key = value;
+        if (value !== null && (typeof value === "object" || typeof value === "function")) {
+            var exotic = typeof Symbol === "function" && Symbol.toPrimitive ? value[Symbol.toPrimitive] : undefined;
+            if (exotic !== null && typeof exotic !== "undefined") {
+                if (typeof exotic !== "function") throw new TypeError("Invalid property key conversion");
+                key = exotic.call(value, "string");
+            } else {
+                var method = value.toString;
+                if (typeof method === "function") key = method.call(value);
+                if (key !== null && (typeof key === "object" || typeof key === "function")) {
+                    method = value.valueOf;
+                    if (typeof method === "function") key = method.call(value);
+                }
+            }
+            if (key !== null && (typeof key === "object" || typeof key === "function")) throw new TypeError("Invalid property key conversion");
+        }
+        return typeof key === "symbol" ? key : String(key);
     }
     function __compatHasOwnWorks(method) {
         if (typeof method !== "function") return false;
@@ -4952,6 +5000,24 @@
             var obj = {
                 hasOwnProperty: 1
             };
+            if (typeof Symbol === "function") {
+                var symbol = Symbol("key");
+                obj[symbol] = 1;
+                if (!method(obj, {
+                    toString: function() {
+                        return symbol;
+                    }
+                })) return false;
+                if (Symbol.toStringTag && typeof Object.defineProperty === "function") {
+                    var tagged = {};
+                    Object.defineProperty(tagged, Symbol.toStringTag, {
+                        get: function() {
+                            throw new Error("Unexpected tag access");
+                        }
+                    });
+                    if (method(tagged, "missing")) return false;
+                }
+            }
             return method(obj, "hasOwnProperty") && !method(obj, "toString") && method("ab", "0") && method([], "length") && !method("ab", "2");
         } catch (_error) {
             return false;
@@ -4976,7 +5042,7 @@
         if (!__compatStringAtWorks(String.prototype.at)) __compatInstall(String.prototype, "at", __compatStringAt);
         root.__extendscriptCompatESNext2__ = 1;
     }
-    if (root.__extendscriptCompatESNext3__ !== 1) {
+    if (root.__extendscriptCompatESNext3__ !== 2) {
         __compatOwn = Object.prototype.hasOwnProperty;
         __compatStringOwnBroken = !__compatOwn.call(Object("x"), "0");
         __compatArrayLengthBroken = !__compatOwn.call([], "length");
@@ -4985,15 +5051,15 @@
         __compatFunctionNameBroken = !__compatOwn.call(function named() {}, "name");
         if (!__compatArrayAtWorks(Array.prototype.at)) __compatInstall(Array.prototype, "at", __compatArrayAt);
         if (!__compatHasOwnWorks(Object.hasOwn)) __compatInstall(Object, "hasOwn", __compatHasOwn);
-        root.__extendscriptCompatESNext3__ = 1;
+        root.__extendscriptCompatESNext3__ = 2;
     }
-    if (root.__extendscriptCompatArrayCopy__ !== 1) {
+    if (root.__extendscriptCompatArrayCopy__ !== 2) {
         if (!__compatCopyMethodWorks(Array.prototype["toSorted"], "toSorted")) __compatInstall(Array.prototype, "toSorted", __compatToSorted);
         if (!__compatCopyMethodWorks(Array.prototype["toReversed"], "toReversed")) __compatInstall(Array.prototype, "toReversed", __compatToReversed);
         if (!__compatCopyMethodWorks(Array.prototype["toSpliced"], "toSpliced")) __compatInstall(Array.prototype, "toSpliced", __compatToSpliced);
         if (!__compatCopyMethodWorks(Array.prototype["findLast"], "findLast")) __compatInstall(Array.prototype, "findLast", __compatFindLast);
         if (!__compatCopyMethodWorks(Array.prototype["findLastIndex"], "findLastIndex")) __compatInstall(Array.prototype, "findLastIndex", __compatFindLastIndex);
-        root.__extendscriptCompatArrayCopy__ = 1;
+        root.__extendscriptCompatArrayCopy__ = 2;
     }
     if (root.__extendscriptCompatStringModern__ !== 1) {
         if (!__compatModernStringWorks(String.prototype.replaceAll, "replaceAll")) __compatInstall(String.prototype, "replaceAll", __compatReplaceAll);

@@ -71,6 +71,25 @@
   };
   check("hasOwn key conversion", Object.hasOwn(obj, key), true);
   check("hasOwn key conversion once", count, 1);
+  var fallbackKey = {
+    toString: function () {
+      return {};
+    },
+    valueOf: function () {
+      return "own";
+    }
+  };
+  check("hasOwn valueOf fallback", Object.hasOwn(obj, fallbackKey), true);
+  assertThrows("hasOwn invalid key conversion", function () {
+    Object.hasOwn(obj, {
+      toString: function () {
+        return {};
+      },
+      valueOf: function () {
+        return {};
+      }
+    });
+  });
   assertThrows("hasOwn null", function () {
     Object.hasOwn(null, "x");
   });
@@ -87,6 +106,27 @@
       withSymbol = {};
     withSymbol[sym] = 1;
     check("hasOwn symbol", Object.hasOwn(withSymbol, sym), true);
+    check(
+      "hasOwn symbol from ordinary conversion",
+      Object.hasOwn(withSymbol, {
+        toString: function () {
+          return sym;
+        }
+      }),
+      true
+    );
+    check(
+      "hasOwn symbol from valueOf",
+      Object.hasOwn(withSymbol, {
+        toString: function () {
+          return {};
+        },
+        valueOf: function () {
+          return sym;
+        }
+      }),
+      true
+    );
   }
   return { total: total, passed: total - failures.length, failures: failures };
 })();

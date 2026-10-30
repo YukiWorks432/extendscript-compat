@@ -40,6 +40,8 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 
 `Array.prototype.at`は負の位置と配列に似たオブジェクトにも対応します。`Object.hasOwn`は継承されたプロパティを除外し、AEで所有属性を取得できない配列・文字列の`length`や文字列の添字も補います。AEの組み込み関数の`length`と`name`も補います。ホスト固有オブジェクトやその他の組み込みプロパティの所有属性は、ホストの判定に依存します。
 
+`Object.hasOwn`のキーは文字列優先で一度だけ基本値へ変換し、Symbolを返す場合も保持します。所有属性を補う判別では、対象と無関係な`Symbol.toStringTag`や`length`の取得処理を呼びません。
+
 `/runtime`をTypeScriptから読み込むと、上記メソッドの型も追加されます。`lib: ["ES5"]`でも利用でき、未対応の`Promise`の型は追加しません。構文の変換は引き続き利用側で必要です。
 
 非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
@@ -49,6 +51,8 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 toSortedはECMAScriptとes-shimsのArray.prototype.toSortedを参考にし、AEのsortに依存しない安定したマージソートとして実装しています。他の4メソッドはECMAScriptの手順に沿って実装しています。
 
 toSorted・toReversed・toSplicedは元の配列を変更せず、通常の新しい配列を返します。toSortedは文字列としての標準順序または比較関数で安定して並べ替え、同順位の要素の順序を保持します。これらのコピー操作では配列の穴もundefinedの要素として読み取ります。Symbol.speciesによる派生配列の生成は行いません。コピーの要素数はホストの配列長・メモリ上限に制約されます。
+
+プロパティ属性を定義できる環境では、コピー先に通常のデータプロパティを作成するため、プロトタイプ上の書き込み不可な数値プロパティや取得・設定処理に妨げられません。AE 26.5のように属性定義APIがない環境では、従来どおり代入でコピーします。旧版の導入済み印がある場合も動作を再確認し、不完全な既存実装を更新します。
 
 findLast・findLastIndexは末尾から先頭へ検索し、穴にもundefinedを渡します。コールバックには値・位置・対象オブジェクトを渡し、thisArgを指定できます。BigIntの補完は対象外です。
 
