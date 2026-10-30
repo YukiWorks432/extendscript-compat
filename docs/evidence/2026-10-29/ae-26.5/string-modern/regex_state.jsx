@@ -1,0 +1,1 @@
+(function(){var rx=/a/g;rx.lastIndex=2;var seen=[];var value='aba'.replaceAll(rx,function(){seen.push(rx.lastIndex);return 'x';});return JSON.stringify({value:value,seen:seen,lastIndex:rx.lastIndex});})()

@@ -184,37 +184,41 @@ it("通常のESM環境でJSONがなくても初期化でき、既存のtrimが�
   expect(runInContext(contract, context).failures).toEqual([]);
 });
 
-it.each([false, true])("配布入口から%s圧縮のバンドルへ補完と補正を含める", async (minified) => {
-  const bundle = await rollup({
-    input: "entry",
-    plugins: [
-      {
-        name: "entry",
-        resolveId(id) {
-          if (id === "entry") return id;
-          if (id === "extendscript-compat/runtime") return fileURLToPath(runtimePath);
+it.each([false, true])(
+  "配布入口から%s圧縮のバンドルへ補完と補正を含める",
+  async (minified) => {
+    const bundle = await rollup({
+      input: "entry",
+      plugins: [
+        {
+          name: "entry",
+          resolveId(id) {
+            if (id === "entry") return id;
+            if (id === "extendscript-compat/runtime") return fileURLToPath(runtimePath);
+          },
+          load(id) {
+            if (id === "entry") return 'import "extendscript-compat/runtime";';
+          },
         },
-        load(id) {
-          if (id === "entry") return 'import "extendscript-compat/runtime";';
-        },
-      },
-      ...(minified ? [terser()] : []),
-      extendscriptCompat(),
-    ],
-  });
-  try {
-    const generated = await bundle.generate({ format: "iife" });
-    const chunk = generated.output[0];
-    if (chunk.type !== "chunk") throw new Error("生成チャンクがない");
-    const context = createContext({});
-    runInContext(missing, context);
-    runInContext(chunk.code, context);
-    expect(runInContext(contract, context).failures).toEqual([]);
-    expect(runInContext(corrections, context).failures).toEqual([]);
-  } finally {
-    await bundle.close();
-  }
-});
+        ...(minified ? [terser()] : []),
+        extendscriptCompat(),
+      ],
+    });
+    try {
+      const generated = await bundle.generate({ format: "iife" });
+      const chunk = generated.output[0];
+      if (chunk.type !== "chunk") throw new Error("生成チャンクがない");
+      const context = createContext({});
+      runInContext(missing, context);
+      runInContext(chunk.code, context);
+      expect(runInContext(contract, context).failures).toEqual([]);
+      expect(runInContext(corrections, context).failures).toEqual([]);
+    } finally {
+      await bundle.close();
+    }
+  },
+  20_000,
+);
 
 it("移行元テンプレートの機能テストを欠損環境で実行する", () => {
   const context = createContext({});

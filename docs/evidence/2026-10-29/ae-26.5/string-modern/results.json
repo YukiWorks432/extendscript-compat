@@ -1,0 +1,171 @@
+{
+  "product": "After Effects 26.5x89",
+  "engine": "ExtendScript 4.5.6 build 80.1060872",
+  "processId": 18868,
+  "previousMainCommit": "439b9329e6499b6d436e5d8cd38268071316f1a8",
+  "limits": [
+    "Final raw/minified builds were checked after removing only the three target methods and their marker in an already initialized engine.",
+    "Other Adobe products and older AE versions were not checked.",
+    "Symbol hooks are checked in Node; AE has no Symbol."
+  ],
+  "artifacts": {
+    "rawSha256": "e08a9c76eb52bfb22f1d70100e00ba5efddb91ceb1a014f53643964067e8634f",
+    "stringModernFixtureSha256": "910a95ba8ab9918bc6e9391139ce9026e867af11ed0a8982ca1df5a242a91a34",
+    "minifiedSha256": "73f20d1322a576ab86d488957413138bbdfe11213f30058e1847988d385508bb",
+    "templateProbeSha256": "019542afea86f18ccb6c834b981593a46753cd7bd00db90e056d6b912a00aa8f",
+    "unicodeProbeSha256": "33e3c6787a42bfab120798591bab2eb6cfc3438ceff644f9dde297d8ee1dda17",
+    "polyfillFixtureSha256": "d190ce3e2d55206d57781e790b3c8a6131daf680d61fad49923e9e6e639db283",
+    "correctionFixtureSha256": "eca8cb7390199aa4625ded0a2c5e1e76a1d467615f311a673bab815503767126",
+    "arrayAtHasOwnFixtureSha256": "c30d5884cf78683208f664edbd1f519158d20f25231a5bf1ceb3d90ab289d669",
+    "entriesFlatteningStringAtFixtureSha256": "6060d936ad2ed815d10a52c0c642a8513bfaedae55dbebeee8f0c86d37a54e84",
+    "includesPaddingTrimmingFixtureSha256": "93097f3e7ca78ef8b9c32e33f4277d3fc357119ad5ac201ad024e035d909f46f"
+  },
+  "runs": {
+    "baseline": {
+      "requestId": "req-18e2fb2c875d06ec-24996-1b",
+      "status": "completed",
+      "createdAt": "2026-10-29T11:02:50.315034600+00:00",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "build": "80.1060872",
+        "methods": {
+          "replaceAll": "undefined",
+          "isWellFormed": "undefined",
+          "toWellFormed": "undefined"
+        },
+        "probes": {
+          "regexFlags": "undefined",
+          "regexGlobal": true,
+          "regexTag": "[object RegExp]",
+          "pairLength": 2,
+          "highCode": 55296,
+          "lowCode": 56320,
+          "nulSlice": 1,
+          "stringCallback": "\nfunction (){calls++;return 'x';}\na",
+          "callbackCalls": 0,
+          "regexEmpty": "-a-b"
+        },
+        "items": 0,
+        "dirty": false
+      },
+      "codeFile": "baseline.jsx",
+      "requestSha256": "e4f161e56d15421aa27403007af5ce895bddd7b8cc0dea85cccce9f4e7b3a155",
+      "fileSha256": "c9d11e672d2252afad230cabafccb9560b20dbe7b107bcd390eff29ae23ae204"
+    },
+    "raw": {
+      "requestId": "req-18e2fb99ce2ee5f0-24996-21",
+      "status": "completed",
+      "createdAt": "2026-10-29T11:10:39.654629200+00:00",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "resetTargets": true,
+        "first": {
+          "total": 56,
+          "passed": 56,
+          "failures": []
+        },
+        "repeat": {
+          "total": 56,
+          "passed": 56,
+          "failures": []
+        },
+        "stable": true,
+        "items": 0,
+        "dirty": true
+      },
+      "codeFile": "raw.jsx",
+      "requestSha256": "e4d3c32490e97bf8b17dfd952b3623e4cac25e069143e2014f16966b08077175",
+      "fileSha256": "399d6e0b17291ab4292210ad6094fedd749551659c51ba0ae745b6e726ec1a26"
+    },
+    "minified": {
+      "requestId": "req-18e2fb9a76c41adc-24996-22",
+      "status": "completed",
+      "createdAt": "2026-10-29T11:10:42.482979700+00:00",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "resetTargets": true,
+        "results": {
+          "string-modern": {
+            "total": 56,
+            "passed": 56,
+            "failures": []
+          },
+          "array-at-has-own": {
+            "total": 36,
+            "passed": 36,
+            "failures": []
+          },
+          "entries-flattening-string-at": {
+            "total": 46,
+            "passed": 46,
+            "failures": []
+          },
+          "includes-padding-trimming": {
+            "total": 102,
+            "passed": 102,
+            "failures": []
+          },
+          "polyfill": {
+            "total": 107,
+            "passed": 107,
+            "failures": []
+          },
+          "runtime": {
+            "total": 71,
+            "passed": 71,
+            "failures": []
+          }
+        }
+      },
+      "codeFile": "minified.jsx",
+      "requestSha256": "d4b9b8fb4527555583c52c42738c1b6648f05d9b6f51bdddbbf53d5242e4144d",
+      "fileSha256": "7c9d24981d81854aa22f357c161d76276cae53d22290c7f9e31e4f4ae60f72d1"
+    },
+    "replacement": {
+      "requestId": "req-18e2fb9b82790d3c-24996-23",
+      "status": "completed",
+      "createdAt": "2026-10-29T11:10:46.974354600+00:00",
+      "result": {
+        "retained": true,
+        "repaired": {
+          "total": 56,
+          "passed": 56,
+          "failures": []
+        },
+        "previousAfter": {
+          "total": 56,
+          "passed": 56,
+          "failures": []
+        },
+        "previousBefore": ["undefined", "undefined", "undefined"],
+        "upgraded": {
+          "total": 56,
+          "passed": 56,
+          "failures": []
+        },
+        "items": 0,
+        "dirty": true
+      },
+      "codeFile": "replacement.jsx",
+      "requestSha256": "c721193f3301b2d9ad0a48b169124876855a3d606bff7700cf9b3d7a3a979d52",
+      "fileSha256": "4e53761f96509830d3902611fd01db80080557887983835a01467e98b541a250"
+    },
+    "regex_state": {
+      "requestId": "req-18e2fb5e24f36244-24996-1d",
+      "status": "completed",
+      "createdAt": "2026-10-29T11:06:23.412308600+00:00",
+      "result": {
+        "value": "xbx",
+        "seen": [2, 2],
+        "lastIndex": 2
+      },
+      "codeFile": "regex_state.jsx",
+      "requestSha256": "bd0ba63fa217f5c5ade1b92cb8cac248ec31b2ff8f144dc3aa9340e6044a1607",
+      "fileSha256": "6a93507e0092c5e071fcf1f260393bf52f023a3b92d94b29f5709209a7d4918b"
+    }
+  },
+  "preliminaryFinding": "regex_state records the initial implementation, before lastIndex reset was added. Final raw/minified contract runs include regression cases for lastIndex and coercion order."
+}

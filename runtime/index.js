@@ -4625,6 +4625,140 @@
             return false;
         }
     }
+    function __compatStringValue(value) {
+        if (typeof value === "symbol") throw new TypeError("Cannot convert Symbol to string");
+        return String(value);
+    }
+    function __compatReplaceAll(searchValue, replaceValue) {
+        if (this === null || typeof this === "undefined") throw new TypeError("replaceAll requires a value");
+        var hasReplaceSymbol = typeof Symbol === "function" && Symbol.replace;
+        if (searchValue !== null && typeof searchValue !== "undefined") {
+            var actualRegex = __compatRegExpBrand(searchValue);
+            var match = typeof Symbol === "function" && Symbol.match ? searchValue[Symbol.match] : undefined;
+            var isRegex = typeof match === "undefined" ? actualRegex : !!match;
+            if (isRegex) {
+                var flags = actualRegex && !("flags" in Object(searchValue)) ? (searchValue.global ? "g" : "") : searchValue.flags;
+                if (flags === null || typeof flags === "undefined") throw new TypeError("RegExp flags required");
+                if (__compatStringValue(flags).indexOf("g") < 0) throw new TypeError("replaceAll requires a global RegExp");
+            }
+            if (hasReplaceSymbol) {
+                var replacer = searchValue[Symbol.replace];
+                if (replacer !== null && typeof replacer !== "undefined") {
+                    if (typeof replacer !== "function") throw new TypeError("Symbol.replace must be a function");
+                    return replacer.call(searchValue, this, replaceValue);
+                }
+            } else if (isRegex) {
+                var input = __compatStringValue(this);
+                var replacementValue = typeof replaceValue === "function" ? function() {
+                    return __compatStringValue(replaceValue.apply(undefined, arguments));
+                } : __compatStringValue(replaceValue);
+                searchValue.lastIndex = 0;
+                return String.prototype.replace.call(input, searchValue, replacementValue);
+            }
+        }
+        var text = __compatStringValue(this), search = __compatStringValue(searchValue);
+        var functional = typeof replaceValue === "function";
+        var replacement = functional ? "" : __compatStringValue(replaceValue);
+        var position = text.indexOf(search), cursor = 0, result = "";
+        while (position >= 0) {
+            var substituted = functional ? __compatStringValue(replaceValue(search, position, text)) : __compatLiteralSubstitution(replacement, search, text, position);
+            result += text.slice(cursor, position) + substituted;
+            cursor = position + search.length;
+            var next = position + Math.max(1, search.length);
+            if (next > text.length) break;
+            position = text.indexOf(search, next);
+        }
+        return result + text.slice(cursor);
+    }
+    function __compatLiteralSubstitution(replacement, matched, text, position) {
+        var result = "";
+        for (var i = 0; i < replacement.length; i++) {
+            if (replacement.charCodeAt(i) === 36) {
+                var next = replacement.charCodeAt(i + 1);
+                if (next === 36) {
+                    result += "$";
+                    i++;
+                    continue;
+                }
+                if (next === 38) {
+                    result += matched;
+                    i++;
+                    continue;
+                }
+                if (next === 96) {
+                    result += text.slice(0, position);
+                    i++;
+                    continue;
+                }
+                if (next === 39) {
+                    result += text.slice(position + matched.length);
+                    i++;
+                    continue;
+                }
+            }
+            result += replacement.slice(i, i + 1);
+        }
+        return result;
+    }
+    function __compatWellFormed(text, repair) {
+        var result = "", cursor = 0;
+        for (var i = 0; i < text.length; i++) {
+            var code = text.charCodeAt(i);
+            if (code >= 55296 && code <= 56319) {
+                var next = text.charCodeAt(i + 1);
+                if (next >= 56320 && next <= 57343) {
+                    i++;
+                    continue;
+                }
+            } else if (code < 56320 || code > 57343) continue;
+            if (!repair) return false;
+            result += text.slice(cursor, i) + String.fromCharCode(65533);
+            cursor = i + 1;
+        }
+        return repair ? result + text.slice(cursor) : true;
+    }
+    function __compatIsWellFormed() {
+        if (this === null || typeof this === "undefined") throw new TypeError("isWellFormed requires a value");
+        return __compatWellFormed(__compatStringValue(this), false);
+    }
+    function __compatToWellFormed() {
+        if (this === null || typeof this === "undefined") throw new TypeError("toWellFormed requires a value");
+        return __compatWellFormed(__compatStringValue(this), true);
+    }
+    function __compatModernStringWorks(method, name) {
+        if (typeof method !== "function") return false;
+        try {
+            if (name === "replaceAll") {
+                var rejected = false;
+                try {
+                    method.call("aa", /a/, "x");
+                } catch (_error) {
+                    rejected = true;
+                }
+                return method.call("aba", "a", "x") === "xbx" && method.call("ab", "", "-") === "-a-b-" && method.call("aa", "a", function(match, index) {
+                    return index;
+                }) === "01" && rejected;
+            }
+            var high = String.fromCharCode(55296), low = String.fromCharCode(56320);
+            return name === "isWellFormed" ? method.call(high + low) === true && method.call(high) === false && method.call(low) === false : method.call(high + low) === high + low && method.call(high) === String.fromCharCode(65533) && method.call(low) === String.fromCharCode(65533);
+        } catch (_error) {
+            return false;
+        }
+    }
+    function __compatRegExpBrand(value) {
+        if (typeof Object.getOwnPropertyDescriptor === "function") {
+            var descriptor = Object.getOwnPropertyDescriptor(RegExp.prototype, "global");
+            if (descriptor && typeof descriptor.get === "function") {
+                try {
+                    descriptor.get.call(value);
+                    return true;
+                } catch (_error) {
+                    return false;
+                }
+            }
+        }
+        return Object.prototype.toString.call(value) === "[object RegExp]";
+    }
     function __compatObjectValues(value, entries) {
         if (value === null || typeof value === "undefined") throw new TypeError("Object conversion requires a value");
         var object = Object(value);
@@ -4745,5 +4879,11 @@
         if (!__compatCopyMethodWorks(Array.prototype["findLast"], "findLast")) __compatInstall(Array.prototype, "findLast", __compatFindLast);
         if (!__compatCopyMethodWorks(Array.prototype["findLastIndex"], "findLastIndex")) __compatInstall(Array.prototype, "findLastIndex", __compatFindLastIndex);
         root.__extendscriptCompatArrayCopy__ = 1;
+    }
+    if (root.__extendscriptCompatStringModern__ !== 1) {
+        if (!__compatModernStringWorks(String.prototype.replaceAll, "replaceAll")) __compatInstall(String.prototype, "replaceAll", __compatReplaceAll);
+        if (!__compatModernStringWorks(String.prototype.isWellFormed, "isWellFormed")) __compatInstall(String.prototype, "isWellFormed", __compatIsWellFormed);
+        if (!__compatModernStringWorks(String.prototype.toWellFormed, "toWellFormed")) __compatInstall(String.prototype, "toWellFormed", __compatToWellFormed);
+        root.__extendscriptCompatStringModern__ = 1;
     }
 })(typeof $ === "undefined" ? globalThis : $.global);

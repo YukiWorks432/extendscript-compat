@@ -62,3 +62,13 @@ if (root.__extendscriptCompatArrayCopy__ !== 1) {
     __compatInstall(Array.prototype, "findLastIndex", __compatFindLastIndex);
   root.__extendscriptCompatArrayCopy__ = 1;
 }
+
+if (root.__extendscriptCompatStringModern__ !== 1) {
+  if (!__compatModernStringWorks(String.prototype.replaceAll, "replaceAll"))
+    __compatInstall(String.prototype, "replaceAll", __compatReplaceAll);
+  if (!__compatModernStringWorks(String.prototype.isWellFormed, "isWellFormed"))
+    __compatInstall(String.prototype, "isWellFormed", __compatIsWellFormed);
+  if (!__compatModernStringWorks(String.prototype.toWellFormed, "toWellFormed"))
+    __compatInstall(String.prototype, "toWellFormed", __compatToWellFormed);
+  root.__extendscriptCompatStringModern__ = 1;
+}

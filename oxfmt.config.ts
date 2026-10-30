@@ -12,6 +12,7 @@ export default defineConfig({
         "test/contracts/entries-flattening-string-at-contract.js",
         "test/contracts/array-at-has-own-contract.js",
         "test/contracts/array-copy-search-contract.js",
+        "test/contracts/string-modern-contract.js",
       ],
       options: { trailingComma: "none" },
     },

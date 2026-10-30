@@ -72,6 +72,13 @@ declare global {
     ): U[];
   }
   interface String {
+    replaceAll(searchValue: string | RegExp, replaceValue: string): string;
+    replaceAll(
+      searchValue: string | RegExp,
+      replacer: (substring: string, ...args: any[]) => string,
+    ): string;
+    isWellFormed(): boolean;
+    toWellFormed(): string;
     at(index: number): string | undefined;
     padStart(maxLength: number, fillString?: string): string;
     padEnd(maxLength: number, fillString?: string): string;
