@@ -84,3 +84,13 @@ On 2026-10-29, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.
 Further investigation of the initial implementation showed that AE replace did not reset lastIndex and callbacks observed the previous value. A reset after replacement-value coercion and regression cases were added. For the final builds, the three methods and their marker were removed from an engine that already had the earlier runtime installed, then the raw and minified outputs were loaded. Both passed 56 new cases; re-evaluating the raw output preserved function identities. The minified output also passed 184 stage 1–3 cases, 107 earlier polyfill cases, and 71 correction cases. Retention of working methods, replacement of incomplete methods, and loading the previous main runtime before and after the new runtime also passed.
 
 The test project had no items. It became dirty during verification and was saved temporarily before shutdown. This environment has an extension that records project-open time and can mark a project dirty without manual edits. First installation of the final build in a fresh engine, older AE versions, and other Adobe products were not tested. Symbol delegation was checked in Node; AE exercised the path without Symbol. The [results and executed code](evidence/2026-10-29/ae-26.5/string-modern/results.json) separately record hashes for generated artifacts, the shared contract, execution requests, and saved files.
+
+## Verification of split at a final boundary
+
+On October 30, 2026, the minified and precedence-protected output for the four corrected functions was verified in After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.1060872). All 73 shared contract cases passed both after installation and after reapplication. Function identity and restoration of the original functions were also verified. Before installation, 39 of 73 cases passed. The project was unmodified and contained no items before the test.
+
+- Request ID: `req-18e335111dd8fc0c-45372-2`
+- Minified correction SHA-256: `6b4e452da9360f838419628f3b7688c9392cd36c75f296595052edd27234b25d`
+- Probe SHA-256: `a4e2e0484124ef25654b868368eba46b7b7db8da7a71316432e9ea3533bfb6e6`
+
+Other Adobe products and older versions were not verified.

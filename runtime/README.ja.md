@@ -154,7 +154,7 @@ parseInt・charAt・replaceは、この調査で確認したExtendScript固有�
 
 ## 検証
 
-`test/contracts/runtime-contract.js`は、仕様から求めた期待値と実際の動作を比べる71項目の実機・Node共用資料です。製品の型検査対象とは分け、NodeとAEで実行します。
+`test/contracts/runtime-contract.js`は、仕様から求めた期待値と実際の動作を比べる73項目の実機・Node共用資料です。製品の型検査対象とは分け、NodeとAEで実行できます。追加した末尾の単語境界に関する2項目を含む73項目は、AE 26.5でも確認しました。
 
 ```sh
 pnpm check
