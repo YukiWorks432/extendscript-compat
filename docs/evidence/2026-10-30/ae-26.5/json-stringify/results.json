@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-30T05:31:13.715679900+00:00",
+  "requestId": "req-18e337a88eef67ac-45372-6",
+  "probeSha256": "11a01d80725233974c4b5d30bcf0d6bd3656f595f34844f5c802c76a5434ec21",
+  "engineVersion": "4.5.6",
+  "scope": "JSON以外の導入済み印を設定し、JSONだけを検証。新規エンジンへの全機能の初回導入は対象外。",
+  "hashes": {
+    "rawSha256": "6ce1e4df22de30c18fe30c7248fd8342e24f81f61fd9db97c27a55627d0a9e49",
+    "minifiedSha256": "bf00b929c72fbdb68355e60b4b640c6f0224d65e837ebe5a01789517f1ae89e6",
+    "contractSha256": "3fdddb0984d2e63f8373d53dce8776a58345d9bee08443e9890f9f768050a813",
+    "legacySha256": "6a551769fb57a79530122884dd163b3b74ffa529c7a2288c131141cea4c0b8e8"
+  },
+  "cases": [
+    {
+      "failures": [],
+      "legacyAfterIdentity": true,
+      "parsePreserved": true,
+      "previousJSON": "missing",
+      "repeatedIdentity": true,
+      "total": 15,
+      "variant": "raw"
+    },
+    {
+      "failures": [],
+      "legacyAfterIdentity": true,
+      "parsePreserved": true,
+      "previousJSON": "legacy",
+      "repeatedIdentity": true,
+      "total": 15,
+      "variant": "raw"
+    },
+    {
+      "failures": [],
+      "legacyAfterIdentity": true,
+      "parsePreserved": true,
+      "previousJSON": "missing",
+      "repeatedIdentity": true,
+      "total": 15,
+      "variant": "minified"
+    },
+    {
+      "failures": [],
+      "legacyAfterIdentity": true,
+      "parsePreserved": true,
+      "previousJSON": "legacy",
+      "repeatedIdentity": true,
+      "total": 15,
+      "variant": "minified"
+    }
+  ],
+  "projectUnchanged": true,
+  "restored": true,
+  "appVersion": "26.5x89"
+}

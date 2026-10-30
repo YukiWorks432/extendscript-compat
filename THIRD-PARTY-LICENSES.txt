@@ -76,10 +76,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-The template's minified json2.js follows Douglas Crockford's JSON-js project:
-https://github.com/douglascrockford/JSON-js/blob/master/json2.js
-The original json2.js is public domain. The exact upstream revision of the
-minified template file is not recorded; the template's license is above.
+runtime-src/vendor/json2.js is adapted from Douglas Crockford's JSON-js:
+https://github.com/douglascrockford/JSON-js/blob/7e83f38a2312429fd4933169c1f6a27fd65e889c/json2.js
+Upstream commit: 7e83f38a2312429fd4933169c1f6a27fd65e889c
+The original json2.js is public domain. Local modifications isolate stringify
+state per call and normalize array replacer keys once, preserving order and
+removing duplicates. The upstream header is retained in the source file.
+test/fixtures/json2-legacy.js preserves the template's earlier minified copy
+for upgrade regression tests. Its exact upstream revision is not recorded;
+the template's license is above.
 
 
 ES-shims array-includes (reference for ES Next compatibility)

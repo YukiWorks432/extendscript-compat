@@ -13,6 +13,7 @@ export default defineConfig({
         "test/contracts/array-at-has-own-contract.js",
         "test/contracts/array-copy-search-contract.js",
         "test/contracts/string-modern-contract.js",
+        "test/contracts/json-stringify-contract.js",
       ],
       options: { trailingComma: "none" },
     },
@@ -26,6 +27,7 @@ export default defineConfig({
     "runtime-src/vendor/json2.js",
     "runtime/index.js",
     "test/fixtures/runtime-0.2.js",
+    "test/fixtures/json2-legacy.js",
     "test/fixtures/template-polyfills.ts",
   ],
 });
