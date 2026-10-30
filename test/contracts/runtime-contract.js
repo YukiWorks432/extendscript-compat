@@ -271,6 +271,20 @@
     ["a", "b", "c"],
   );
   add(
+    "split: word boundaries at the end",
+    function () {
+      return "a b".split(/\b/);
+    },
+    ["a", " ", "b"],
+  );
+  add(
+    "split: consuming match at the end",
+    function () {
+      return "ab".split(/b\b/);
+    },
+    ["a", ""],
+  );
+  add(
     "split: capture",
     function () {
       return "a-b".split(/(-)/);

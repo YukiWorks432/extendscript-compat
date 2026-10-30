@@ -154,7 +154,7 @@ Full replacement and well-formed UTF-16 implementations draw on es-shims [String
 
 ## Validation
 
-`test/contracts/runtime-contract.js` contains 71 cases shared by host and Node tests, comparing behavior with expectations derived from the specification. It is kept outside the product type-checking scope and run in Node and AE.
+`test/contracts/runtime-contract.js` contains 73 cases shared by host and Node tests, comparing behavior with expectations derived from the specification. It is kept outside the product type-checking scope and can be run in Node and AE. All 73 cases, including the two new cases for word boundaries at the end, were also verified in AE 26.5.
 
 ```sh
 pnpm check

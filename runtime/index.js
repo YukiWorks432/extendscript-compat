@@ -4203,7 +4203,7 @@
                 match = exec.call(separatorCopy, string);
             }
             if (lastLastIndex === string.length) {
-                if (lastLength || !exec.call(emptyMatcher, "")) push.call(output, "");
+                if (lastLength) push.call(output, "");
             } else {
                 push.call(output, slice.call(string, lastLastIndex));
             }

@@ -132,7 +132,8 @@
       match = exec.call(separatorCopy, string);
     }
     if (lastLastIndex === string.length) {
-      if (lastLength || !exec.call(emptyMatcher, "")) push.call(output, "");
+      // 末尾で文字を消費した区切りだけが、最後の空要素を作る。
+      if (lastLength) push.call(output, "");
     } else {
       push.call(output, slice.call(string, lastLastIndex));
     }
