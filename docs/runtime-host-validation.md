@@ -94,3 +94,9 @@ On October 30, 2026, the minified and precedence-protected output for the four c
 - Probe SHA-256: `a4e2e0484124ef25654b868368eba46b7b7db8da7a71316432e9ea3533bfb6e6`
 
 Other Adobe products and older versions were not verified.
+
+## Nested JSON.stringify calls and array replacers
+
+On October 30, 2026, the raw and minified, precedence-protected runtime passed all 15 shared JSON contract cases in After Effects 26.5x89 / ExtendScript 4.5.6. Each build was checked with JSON absent and with the legacy json2 plus the earlier runtime installation marker present. Cases covered nested replacers and indentation, number and boxed keys, property order, deduplication, and a key list captured before recursion. Re-evaluation and loading legacy json2 afterward preserved function identity; existing parse functions were retained.
+
+Non-JSON installations were skipped using their markers. JSON, markers, and toJSON properties were restored afterward, and the project item count and dirty state were unchanged. First installation of all runtime features in a fresh engine, older AE versions, and other Adobe products were not checked. See the [results and artifact hashes](evidence/2026-10-30/ae-26.5/json-stringify/results.json). Run `node scripts/build-host-json-probe.mjs` to regenerate the probe and hashes.
