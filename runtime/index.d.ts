@@ -34,6 +34,11 @@ declare global {
      * @remarks 属性情報が取得できない環境では標準と異なる場合があります。
      */
     entries<T>(value: { [key: string]: T } | ArrayLike<T>): [string, T][];
+    /**
+     * Returns an array of key/values of the enumerable own properties of an object.
+     * @param value Object that contains the properties and methods.
+     * @remarks 属性情報が取得できない環境では標準と異なる場合があります。
+     */
     entries(value: {}): [string, any][];
     /**
      * Returns an array of values of the enumerable own properties of an object
@@ -42,6 +47,11 @@ declare global {
      * @remarks 属性情報が取得できない環境では標準と異なる場合があります。
      */
     values<T>(value: { [key: string]: T } | ArrayLike<T>): T[];
+    /**
+     * Returns an array of values of the enumerable own properties of an object.
+     * @param value Object that contains the properties and methods.
+     * @remarks 属性情報が取得できない環境では標準と異なる場合があります。
+     */
     values(value: {}): any[];
   }
   interface Array<T> {
@@ -87,6 +97,11 @@ declare global {
       predicate: (value: T, index: number, array: T[]) => value is S,
       thisArg?: any,
     ): S | undefined;
+    /**
+     * Returns the last element for which predicate is true, or undefined if none matches.
+     * @param predicate Called for each element in descending order until it returns true.
+     * @param thisArg The value used as this when invoking the predicate.
+     */
     findLast(
       predicate: (value: T, index: number, array: T[]) => unknown,
       thisArg?: any,
@@ -184,6 +199,11 @@ declare global {
       predicate: (value: T, index: number, array: readonly T[]) => value is S,
       thisArg?: any,
     ): S | undefined;
+    /**
+     * Returns the last element for which predicate is true, or undefined if none matches.
+     * @param predicate Called for each element in descending order until it returns true.
+     * @param thisArg The value used as this when invoking the predicate.
+     */
     findLast(
       predicate: (value: T, index: number, array: readonly T[]) => unknown,
       thisArg?: any,

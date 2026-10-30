@@ -13,6 +13,7 @@ it.each(["lib.es5.d.ts", "lib.es2022.d.ts", "lib.es2024.d.ts"])(
       "values.toSorted();",
       "values.findLast(x => x > 1);",
       "Object.entries({ a: 1 });",
+      "Object.values({ a: 1 });",
       '"test".replaceAll("e", () => "a");',
     ].join("\n");
     const options: ts.CompilerOptions = {
@@ -42,6 +43,16 @@ it.each(["lib.es5.d.ts", "lib.es2022.d.ts", "lib.es2024.d.ts"])(
       for (const name of ["toSorted", "findLast", "entries", "replaceAll"]) {
         const info = service.getQuickInfoAtPosition(file, source.indexOf(name) + 1);
         expect(ts.displayPartsToString(info?.documentation)).not.toEqual("");
+      }
+      for (const name of ["findLast", "entries", "values"]) {
+        const position = source.indexOf(`${name}(`) + name.length + 1;
+        const help = service.getSignatureHelpItems(file, position, undefined);
+        expect(help?.items.length).toBeGreaterThan(0);
+        // 標準ライブラリ由来の追加オーバーロードは対象外。
+        for (const item of help?.items.slice(0, 2) ?? []) {
+          expect(ts.displayPartsToString(item.documentation)).not.toEqual("");
+          expect(ts.displayPartsToString(item.parameters[0].documentation)).not.toEqual("");
+        }
       }
     } finally {
       service.dispose();
