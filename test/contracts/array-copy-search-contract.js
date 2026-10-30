@@ -178,6 +178,24 @@
     });
     check("splice skips deleted getter", Array.prototype.toSpliced.call(obj, 0, 1)[0], 2);
     check("skipped getter unread", read, 0);
+    var inherited = Object.getOwnPropertyDescriptor(Array.prototype, "0");
+    var reversed, sorted, spliced;
+    try {
+      Object.defineProperty(Array.prototype, "0", {
+        value: "inherited",
+        writable: false,
+        configurable: true
+      });
+      reversed = [3, 1, 2].toReversed();
+      sorted = [3, 1, 2].toSorted();
+      spliced = [3, 1, 2].toSpliced(1, 1, 9);
+    } finally {
+      if (inherited) Object.defineProperty(Array.prototype, "0", inherited);
+      else delete Array.prototype[0];
+    }
+    check("reversed ignores inherited readonly index", reversed.join(","), "2,1,3");
+    check("sorted ignores inherited readonly index", sorted.join(","), "1,2,3");
+    check("spliced ignores inherited readonly index", spliced.join(","), "3,9,2");
   }
   return { total: total, passed: total - failures.length, failures: failures };
 })();

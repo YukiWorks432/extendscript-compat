@@ -73,6 +73,65 @@ it("削除された関数名は継承プロパティとして扱う", () => {
   ).toBe(false);
 });
 
+it("通常の文字列優先変換が返すSymbolとvalueOfへの移行に従う", () => {
+  const context = createContext({});
+  runInContext(missing, context);
+  runInContext(runtime, context);
+  expect(
+    runInContext(
+      `
+    var symbol = Symbol('key'), object = {}, calls = [];
+    object[symbol] = 1;
+    var direct = Object.hasOwn(object, { toString: function () { calls.push('string'); return symbol; } });
+    var fallback = Object.hasOwn(object, {
+      toString: function () { calls.push('object'); return {}; },
+      valueOf: function () { calls.push('value'); return symbol; }
+    });
+    direct && fallback && calls.join(',') === 'string,object,value';
+  `,
+      context,
+    ),
+  ).toBe(true);
+});
+
+it("存在しないキーの所有判定で無関係な取得処理を呼ばない", () => {
+  const context = createContext({});
+  runInContext(missing, context);
+  runInContext(runtime, context);
+  expect(
+    runInContext(
+      `
+    var object = {};
+    Object.defineProperty(object, Symbol.toStringTag, { get: function () { throw Error('tag getter'); } });
+    Object.defineProperty(object, 'length', { get: function () { throw Error('length getter'); } });
+    !Object.hasOwn(object, 'missing') && !Object.hasOwn(object, Symbol('missing'));
+  `,
+      context,
+    ),
+  ).toBe(true);
+});
+
+it("旧導入済み印がある不完全な所有判定を更新する", () => {
+  const context = createContext({});
+  runInContext(
+    `
+    globalThis.__extendscriptCompatESNext3__ = 1;
+    Object.hasOwn = function (object, key) { return Object.prototype.hasOwnProperty.call(Object(object), String(key)); };
+  `,
+    context,
+  );
+  runInContext(runtime, context);
+  expect(
+    runInContext(
+      `
+    var key = Symbol('key'), object = {}; object[key] = 1;
+    Object.hasOwn(object, { toString: function () { return key; } });
+  `,
+      context,
+    ),
+  ).toBe(true);
+});
+
 it("AEで取得できない文字列と配列の所有属性を補う", () => {
   const context = createContext({});
   runInContext(

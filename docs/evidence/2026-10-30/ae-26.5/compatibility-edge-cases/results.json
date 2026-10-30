@@ -1,0 +1,82 @@
+{
+  "checkedAt": "2026-10-30T05:51:20.909338700+00:00",
+  "requestId": "req-18e338c1a148d07c-45372-8",
+  "probeSha256": "7a601ab6cfd16abfd407bb37637fd34696a2d11d68d7ad7fe571567df4eabeb8",
+  "scope": "対象の導入段階だけを検証。未実装のArray.isArrayは一時的に補い、他の導入段階は印で省略。全変更を復元。",
+  "hashes": {
+    "previousCommit": "fdee7a92269e085f33b50613de3b3b8604cad0ba",
+    "rawSha256": "a33a8ee94c05846a0fc708c2541d8c5decd45e935ee5c3e2784505462872ca53",
+    "minifiedSha256": "6c3312ec371af651c261ed2dfcda74098991c47569acb287a548e7ba46be623a",
+    "previousSha256": "6ce1e4df22de30c18fe30c7248fd8342e24f81f61fd9db97c27a55627d0a9e49",
+    "ownContractSha256": "08dc0818f87f71662fb257a27fb008cdfb92d74f87cec6043bb3e868eb49736a",
+    "copyContractSha256": "7f85307cfacf016e308eb3906e6a2683d6987425d000710fecd51eafa2d71a0f"
+  },
+  "appVersion": "26.5x89",
+  "cases": [
+    {
+      "copy": {
+        "failures": [],
+        "passed": 39,
+        "total": 39
+      },
+      "own": {
+        "failures": [],
+        "passed": 38,
+        "total": 38
+      },
+      "previousRuntime": false,
+      "repeatedAndOldAfterIdentity": true,
+      "variant": "raw"
+    },
+    {
+      "copy": {
+        "failures": [],
+        "passed": 39,
+        "total": 39
+      },
+      "own": {
+        "failures": [],
+        "passed": 38,
+        "total": 38
+      },
+      "previousRuntime": true,
+      "repeatedAndOldAfterIdentity": true,
+      "variant": "raw"
+    },
+    {
+      "copy": {
+        "failures": [],
+        "passed": 39,
+        "total": 39
+      },
+      "own": {
+        "failures": [],
+        "passed": 38,
+        "total": 38
+      },
+      "previousRuntime": false,
+      "repeatedAndOldAfterIdentity": true,
+      "variant": "minified"
+    },
+    {
+      "copy": {
+        "failures": [],
+        "passed": 39,
+        "total": 39
+      },
+      "own": {
+        "failures": [],
+        "passed": 38,
+        "total": 38
+      },
+      "previousRuntime": true,
+      "repeatedAndOldAfterIdentity": true,
+      "variant": "minified"
+    }
+  ],
+  "descriptors": "undefined",
+  "engineVersion": "4.5.6",
+  "projectUnchanged": true,
+  "restored": true,
+  "symbols": "undefined"
+}

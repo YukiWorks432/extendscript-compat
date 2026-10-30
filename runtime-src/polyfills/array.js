@@ -128,7 +128,7 @@ function __compatToReversed() {
   var source = Object(this),
     length = __compatLength(source.length),
     result = new Array(length);
-  for (var i = 0; i < length; i++) result[i] = source[length - i - 1];
+  for (var i = 0; i < length; i++) __compatCopyElement(result, i, source[length - i - 1]);
   return result;
 }
 function __compatToSorted(compare) {
@@ -139,9 +139,12 @@ function __compatToSorted(compare) {
   var source = Object(this),
     length = __compatLength(source.length),
     result = new Array(length);
-  for (var i = 0; i < length; i++) result[i] = source[i];
-  // ホストのsortの安定性に依存せず、同順位の順序を保つ。
   var temporary = new Array(length);
+  for (var i = 0; i < length; i++) {
+    __compatCopyElement(result, i, source[i]);
+    __compatCopyElement(temporary, i, undefined);
+  }
+  // 作業用配列にも自身の要素を作ってから代入し、安定したマージソートを行う。
   for (var width = 1; width < length; width *= 2) {
     for (var start = 0; start < length; start += width * 2) {
       var middle = Math.min(start + width, length),
@@ -197,10 +200,23 @@ function __compatToSpliced(start, deleteCount) {
   var result = new Array(newLength),
     index = 0,
     i;
-  for (i = 0; i < actual; i++) result[index++] = source[i];
-  for (i = 0; i < inserted; i++) result[index++] = arguments[i + 2];
-  for (i = actual + removed; i < length; i++) result[index++] = source[i];
+  for (i = 0; i < actual; i++) __compatCopyElement(result, index++, source[i]);
+  for (i = 0; i < inserted; i++) __compatCopyElement(result, index++, arguments[i + 2]);
+  for (i = actual + removed; i < length; i++) __compatCopyElement(result, index++, source[i]);
   return result;
+}
+function __compatCopyElement(target, index, value) {
+  if (typeof Object.defineProperty === "function") {
+    Object.defineProperty(target, index, {
+      value: value,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+  } else {
+    // AEのように属性を定義できない環境では、従来どおり代入する。
+    target[index] = value;
+  }
 }
 function __compatFindFromEnd(source, predicate, thisArg, indexOnly) {
   if (source === null || typeof source === "undefined")
@@ -236,15 +252,20 @@ function __compatCopyMethodWorks(method, name) {
           return x.n - y.n;
         },
       );
-      return result.join(",") === "1,2,3" && a[0] === 3 && stable[0].id === 1;
+      return (
+        result.join(",") === "1,2,3" &&
+        a[0] === 3 &&
+        stable[0].id === 1 &&
+        __compatCopyDefinesElements(method)
+      );
     }
     if (name === "toReversed") {
       result = method.call(a);
-      return result.join(",") === "2,1,3" && a[0] === 3;
+      return result.join(",") === "2,1,3" && a[0] === 3 && __compatCopyDefinesElements(method);
     }
     if (name === "toSpliced") {
       result = method.call(a, "0b1", 1, 9);
-      return result.join(",") === "3,9,2" && a[1] === 1;
+      return result.join(",") === "3,9,2" && a[1] === 1 && __compatCopyDefinesElements(method);
     }
     var visited = [];
     result = method.call({ 0: 1, length: 2 }, function (value, index) {
@@ -255,5 +276,29 @@ function __compatCopyMethodWorks(method, name) {
     // oxlint-disable-next-line no-unused-vars -- ES3 requires a catch binding
   } catch (_error) {
     return false;
+  }
+}
+
+function __compatCopyDefinesElements(method) {
+  if (
+    typeof Object.defineProperty !== "function" ||
+    typeof Object.getOwnPropertyDescriptor !== "function"
+  )
+    return true;
+  var descriptor = Object.getOwnPropertyDescriptor(Array.prototype, "0");
+  if (descriptor && !descriptor.configurable) return true;
+  // 旧補完の通常代入を識別する。変更はこの同期検査中だけに限定し、必ず復元する。
+  try {
+    Object.defineProperty(Array.prototype, "0", {
+      value: undefined,
+      writable: false,
+      enumerable: false,
+      configurable: true,
+    });
+    var result = method.call([1]);
+    return Object.prototype.hasOwnProperty.call(result, "0") && result[0] === 1;
+  } finally {
+    if (descriptor) Object.defineProperty(Array.prototype, "0", descriptor);
+    else delete Array.prototype[0];
   }
 }

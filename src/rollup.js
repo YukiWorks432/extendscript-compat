@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { parse } from "@babel/core";
 import { addSegment, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 import { eachMapping, TraceMap } from "@jridgewell/trace-mapping";
 import { protectCompatibility, assertPrecedenceProtected, findRegExpRisks } from "./index.js";
@@ -105,17 +106,25 @@ function shiftSourceMap(before, after, edits, original, filename) {
 
 /** @param {string} code @param {string | undefined} url */
 function updateSourceMappingUrl(code, url) {
-  const lines = code.split(/(\r\n|\r|\n)/);
-  let found = false;
-  for (let index = lines.length - 1; index >= 0; index -= 2) {
-    const match = /\/\/[#@]\s*sourceMappingURL=[^\r\n]*$/.exec(lines[index]);
-    if (!match) continue;
-    found = true;
-    lines[index] = lines[index].slice(0, match.index) + (url ? "//# sourceMappingURL=" + url : "");
-    break;
+  const program = parse(code, {
+    babelrc: false,
+    configFile: false,
+    sourceType: "script",
+    parserOpts: { allowReturnOutsideFunction: true },
+  });
+  // 文字列・テンプレート・ブロックコメント内の同じ文字列は更新しない。
+  for (const comment of (program?.comments ?? []).toReversed()) {
+    if (comment.type !== "CommentLine" || !/^[#@]\s*sourceMappingURL=/.test(comment.value))
+      continue;
+    if (comment.start == null || comment.end == null)
+      throw new Error("ExtendScript source map comment has no source positions");
+    return (
+      code.slice(0, comment.start) +
+      (url ? "//# sourceMappingURL=" + url : "") +
+      code.slice(comment.end)
+    );
   }
-  const result = lines.join("");
-  return url && !found ? result + "\n//# sourceMappingURL=" + url : result;
+  return url ? code + "\n//# sourceMappingURL=" + url : code;
 }
 
 /** @param {import("./rollup.d.ts").CompatibilityOptions} [options] @returns {import("rollup").Plugin} */

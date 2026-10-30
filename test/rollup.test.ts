@@ -48,6 +48,32 @@ async function build(
 }
 
 describe("Rollupで生成した最終コードの保護", () => {
+  it("実際のソースマップコメントが削除されていても文字列を保持してURLを追加する", async () => {
+    const result = await build(
+      source,
+      [
+        {
+          name: "remove-map-comment",
+          generateBundle(_options, bundle) {
+            for (const chunk of Object.values(bundle)) {
+              if (chunk.type === "chunk")
+                chunk.code =
+                  chunk.code.replace(/^\/\/# sourceMappingURL=.*$/m, "") +
+                  '\nvar included = "//# sourceMappingURL=keep";';
+            }
+          },
+        },
+        extendscriptCompat(),
+      ],
+      { sourcemap: "inline" },
+    );
+    const chunk = result.output[0] as OutputChunk;
+    expect(runInNewContext(chunk.code + "\n;included", { a: 0, b: 0, c: 0 })).toBe(
+      "//# sourceMappingURL=keep",
+    );
+    const encoded = chunk.code.match(/^\/\/# sourceMappingURL=data:[^,]+,([^\r\n]+)$/m)![1];
+    expect(Buffer.from(encoded, "base64").toString()).toBe(chunk.map!.toString());
+  });
   it("出力名に依存せず、圧縮後の分岐と短絡評価を保つ", async () => {
     const result = await build(source, [terser(), extendscriptCompat()]);
     const chunk = result.output[0] as OutputChunk;
@@ -144,6 +170,39 @@ describe("Rollupで生成した最終コードの保護", () => {
       ]),
     ).rejects.toThrow();
   });
+
+  it.each([
+    ['var included = "//# sourceMappingURL=keep";', "//# sourceMappingURL=keep"],
+    ["var included = '//@ sourceMappingURL=keep';", "//@ sourceMappingURL=keep"],
+    [
+      "var included = `first\n//# sourceMappingURL=keep\nlast`;",
+      "first\n//# sourceMappingURL=keep\nlast",
+    ],
+    ['var included = "keep"; /*\n//# sourceMappingURL=block\n*/', "keep"],
+  ])(
+    "末尾に追加された文字列やブロックコメントをソースマップURLとして置換しない: %s",
+    async (included, expected) => {
+      const result = await build(
+        source,
+        [
+          {
+            name: "include-mapping-text",
+            generateBundle(_options, bundle) {
+              for (const chunk of Object.values(bundle)) {
+                if (chunk.type === "chunk") chunk.code += "\n" + included;
+              }
+            },
+          },
+          extendscriptCompat(),
+        ],
+        { sourcemap: "inline" },
+      );
+      const chunk = result.output[0] as OutputChunk;
+      expect(runInNewContext(chunk.code + ";included", { a: 0, b: 0, c: 0 })).toBe(expected);
+      const encoded = chunk.code.match(/^\/\/# sourceMappingURL=data:[^,]+,([^\r\n]+)$/m)![1];
+      expect(Buffer.from(encoded, "base64").toString()).toBe(chunk.map!.toString());
+    },
+  );
 });
 
 it("EC-03を既定で通知し、選択に応じてビルド停止または通知省略する", async () => {
