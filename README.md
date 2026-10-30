@@ -8,6 +8,28 @@ A library providing build-time bug corrections and runtime compatibility for Ado
 - Provides JSON, selected ES5, ES6, and later polyfills, and corrections for `parseInt` and three string methods when explicitly imported.
 - Provides explicit helpers for `UnitValue` subtraction and `null` comparison.
 
+In this example, an expression that returns `true` in ordinary JavaScript returns `false` in After Effects ExtendScript. Adding parentheses to the generated code preserves the intended evaluation order.
+
+![With isAdmin true and isOwner and isReady false, AE returns false without correction and true with correction](https://raw.githubusercontent.com/YukiWorks432/extendscript-compat/main/docs/images/readme/logical-precedence.en.png)
+
+<details>
+<summary>Code used in the comparison</summary>
+
+<!-- prettier-ignore -->
+```js
+var isAdmin = true;
+var isOwner = false;
+var isReady = false;
+
+// Before correction: false in AE.
+var enabled = isAdmin || isOwner && isReady;
+
+// Generated code after correction: true in AE.
+var enabled = isAdmin || (isOwner && isReady);
+```
+
+</details>
+
 ## Installation
 
 Node.js 22 or later is required.
@@ -38,11 +60,17 @@ A later generator or minifier that removes parentheses can undo the precedence p
 
 ## Runtime corrections
 
-Import the runtime before initializing the application or its dependencies. It applies JSON, selected ES5, ES6, and later polyfills, as well as the four function corrections:
+Import the runtime before initializing the application or its dependencies. It applies JSON, selected ES5, ES6, and later polyfills, as well as the four function corrections. Bundle the following application code with Rollup or a similar tool before running it:
 
 ```js
 import "extendscript-compat/runtime";
+
+parseInt("a?", 16); // 10
 ```
+
+For example, `parseInt("a?", 16)` returns `175` in uncorrected After Effects. After importing the runtime, it stops at the invalid `?` character and returns `10`.
+
+![The same parseInt("a?", 16) call returns 175 in AE before the runtime import and the expected 10 afterward](https://raw.githubusercontent.com/YukiWorks432/extendscript-compat/main/docs/images/readme/parse-int.en.png)
 
 This entry adds and replaces built-in functions and also affects other scripts in the same engine. `UnitValue` arithmetic and comparisons are not corrected automatically; use `subtractUnitValues` and `isNull` at the affected sites. See [runtime compatibility](runtime/README.md) for load order and limitations.
 

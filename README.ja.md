@@ -8,6 +8,28 @@ Adobe ExtendScript向けに、ビルド時の不具合補正と実行時の互�
 - 明示的な読み込みにより、JSON・ES5・ES6と後年の一部メソッドを補完し、`parseInt`と3つの文字列メソッドを実行時に補正します。
 - `UnitValue`の減算と`null`比較には、明示的な補助APIを提供します。
 
+下の例では、通常のJavaScriptで`true`になる式が、After EffectsのExtendScriptでは`false`になります。生成済みコードへ括弧を追加し、意図した演算順序を保ちます。
+
+![isAdminがtrue、isOwnerとisReadyがfalseのとき、AEでは補正なしでfalse、補正ありでtrueになる比較](https://raw.githubusercontent.com/YukiWorks432/extendscript-compat/main/docs/images/readme/logical-precedence.ja.png)
+
+<details>
+<summary>比較したコード</summary>
+
+<!-- prettier-ignore -->
+```js
+var isAdmin = true;
+var isOwner = false;
+var isReady = false;
+
+// 補正前のコード。AEでの結果はfalse。
+var enabled = isAdmin || isOwner && isReady;
+
+// 補正後の生成コード。AEでの結果はtrue。
+var enabled = isAdmin || (isOwner && isReady);
+```
+
+</details>
+
 ## インストール
 
 Node.js 22以降が必要です。
@@ -38,11 +60,17 @@ export default {
 
 ## 実行時の補正
 
-アプリケーションや依存ライブラリの初期化前に読み込みます。JSON・ES5・ES6と後年の一部メソッドの補完、および4関数の不具合補正を適用します。
+アプリケーションや依存ライブラリの初期化前に読み込みます。JSON・ES5・ES6と後年の一部メソッドの補完、および4関数の不具合補正を適用します。以下の利用側コードをRollupなどでまとめて実行します。
 
 ```js
 import "extendscript-compat/runtime";
+
+parseInt("a?", 16); // 10
 ```
+
+たとえば、`parseInt("a?", 16)`は未補正のAfter Effectsでは`175`を返します。実行時補正を読み込むと、無効な文字`?`の手前までを解析し、`10`を返します。
+
+![parseInt("a?", 16)はAEの実行時補正なしで175、読み込み後は期待どおり10になる比較](https://raw.githubusercontent.com/YukiWorks432/extendscript-compat/main/docs/images/readme/parse-int.ja.png)
 
 この入口は組み込み機能を追加・置換し、同じエンジンを使う他のスクリプトにも影響します。`UnitValue`の演算や比較は自動では補正されないため、`subtractUnitValues`と`isNull`を該当箇所で使ってください。読み込み順と制限は[実行時の互換補正](runtime/README.ja.md)を参照してください。
 
