@@ -9,5 +9,6 @@ export default defineConfig({
     "runtime-src/vendor/json2.js",
     "runtime/index.js",
     "test/fixtures/template-polyfills.ts",
+    "test/fixtures/json2-legacy.js",
   ],
 });

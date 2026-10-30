@@ -20,6 +20,8 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 
 同じエンジンを利用する別のスクリプトにも補正が及びます。適用前に別の変数へ保存された関数への参照は変わりません。同じエンジンでの再評価は内部の版付き印で省略し、関数を重ねて包みません。後から別のライブラリが対象関数を書き換えた場合、その書き換えを監視したり自動で取り消したりはしません。
 
+JSONの補完は専用の導入済み印で管理し、旧ランタイムの導入済み印があるエンジンでも更新します。`JSON.stringify`の置換関数や`toJSON`から別の`JSON.stringify`を呼び出しても、外側の置換関数と字下げを保持します。配列形式の置換指定は、数値と文字列、およびそのラッパーをキーへ変換し、指定順を保って重複を除きます。キー一覧は再帰処理の前に一度だけ作成します。これらの代表的な確認を満たす既存関数は保持します。
+
 ## 後年のメソッド
 
 `Array.prototype.includes`、`String.prototype.padStart`・`padEnd`・`trimStart`・`trimEnd`と、その別名`trimLeft`・`trimRight`を補完します。既存メソッドは代表的な動作を確認し、不足または不完全な場合に置き換えます。`trimLeft`と`trimRight`はそれぞれ`trimStart`と`trimEnd`と同じ関数にします。動作確認はすべての不具合を検出するものではありません。
@@ -148,9 +150,11 @@ splitは、MITライセンスの[es5-shim v4.6.7](https://github.com/es-shims/es
 
 parseInt・charAt・replaceは、この調査で確認したExtendScript固有の不具合に合わせた実装です。es5-shimのparseIntは元の関数へ委譲するためEC-04を直せず、replaceの既存補正も今回の置換文字列の問題を覆わないため、そのままは採用していません。
 
-[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からJSON、ES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。テンプレートの無効だったES Next補完は移植していません。今回の追加メソッドはes-shimsの`array-includes`、`String.prototype.padStart`、`String.prototype.trimStart`を参考にES3向けに実装し、現行仕様の空の埋め文字と型変換の順序、およびAEの数値変換に合わせて補正しました。第3段階はes-shimsの`Array.prototype.at`と`Object.hasOwn`も参考にしています。第2段階はes-shimsの`Object.entries`・`Object.values`・`Array.prototype.flat`・`Array.prototype.flatMap`・`String.prototype.at`を参考にし、AEの列挙と文字列の挙動に合わせました。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
+[extendscript-ts-templateの固定コミット](https://github.com/YukiWorks432/extendscript-ts-template/tree/5fdc02dc818f8263a368166c180b9e4ed93a9453)からES5、ES6の補完を移植しています。共有エンジンでの再評価防止を引き継ぎ、ES5の空白判定、ES6のグローバル取得、trimの空白処理を補正しました。trimは正規表現に依存せずUTF-16のコード単位で判定します。テンプレートの無効だったES Next補完は移植していません。今回の追加メソッドはes-shimsの`array-includes`、`String.prototype.padStart`、`String.prototype.trimStart`を参考にES3向けに実装し、現行仕様の空の埋め文字と型変換の順序、およびAEの数値変換に合わせて補正しました。第3段階はes-shimsの`Array.prototype.at`と`Object.hasOwn`も参考にしています。第2段階はes-shimsの`Object.entries`・`Object.values`・`Array.prototype.flat`・`Array.prototype.flatMap`・`String.prototype.at`を参考にし、AEの列挙と文字列の挙動に合わせました。各コードの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に記載しています。`runtime/index.js`は内部ソースから生成したES3コードです。リポジトリの作業コピーでは`node scripts/build-runtime.mjs`で再生成できます。
 
 全置換とUTF-16の整形式は、es-shimsの[String.prototype.replaceAll](https://github.com/es-shims/String.prototype.replaceAll/blob/139da66df7281142d1c49c46ffcecfb4fbaab0a0/implementation.js)、[String.prototype.isWellFormed](https://github.com/es-shims/String.prototype.isWellFormed/blob/b6c2a6bbb961337854301160d4288b30efc48106/implementation.js)、[String.prototype.toWellFormed](https://github.com/es-shims/String.prototype.toWellFormed/blob/591e5971d2a428a9bb400014785cb061b4bc3b3a/implementation.js)と現行のECMAScriptを参考にES3向けに実装しました。依存する抽象操作は直接実装し、AEのflags欠如、置換コールバック、lastIndexを補正しています。固定コミットの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に収録しています。
+
+JSONの補完は、パブリックドメインの[JSON-jsの固定コミット](https://github.com/douglascrockford/JSON-js/blob/7e83f38a2312429fd4933169c1f6a27fd65e889c/json2.js)を基にしています。`runtime-src/vendor/json2.js`に読めるソースを保持し、`stringify`の呼び出し状態の分離と配列形式のキー指定を独自に修正しています。`parse`の解析方式と既知の制限は維持しています。
 
 ## 検証
 
