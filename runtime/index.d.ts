@@ -22,6 +22,22 @@ declare global {
     values(value: {}): any[];
   }
   interface Array<T> {
+    toSorted(compareFn?: (a: T, b: T) => number): T[];
+    toReversed(): T[];
+    toSpliced(start: number, deleteCount?: number): T[];
+    toSpliced(start: number, deleteCount: number, ...items: T[]): T[];
+    findLast<S extends T>(
+      predicate: (value: T, index: number, array: T[]) => value is S,
+      thisArg?: any,
+    ): S | undefined;
+    findLast(
+      predicate: (value: T, index: number, array: T[]) => unknown,
+      thisArg?: any,
+    ): T | undefined;
+    findLastIndex(
+      predicate: (value: T, index: number, array: T[]) => unknown,
+      thisArg?: any,
+    ): number;
     at(index: number): T | undefined;
     includes(searchElement: T, fromIndex?: number): boolean;
     flat<A, D extends number = 1>(this: A, depth?: D): ExtendScriptCompatFlatArray<A, D>[];
@@ -31,6 +47,22 @@ declare global {
     ): U[];
   }
   interface ReadonlyArray<T> {
+    toSorted(compareFn?: (a: T, b: T) => number): T[];
+    toReversed(): T[];
+    toSpliced(start: number, deleteCount?: number): T[];
+    toSpliced(start: number, deleteCount: number, ...items: T[]): T[];
+    findLast<S extends T>(
+      predicate: (value: T, index: number, array: readonly T[]) => value is S,
+      thisArg?: any,
+    ): S | undefined;
+    findLast(
+      predicate: (value: T, index: number, array: readonly T[]) => unknown,
+      thisArg?: any,
+    ): T | undefined;
+    findLastIndex(
+      predicate: (value: T, index: number, array: readonly T[]) => unknown,
+      thisArg?: any,
+    ): number;
     at(index: number): T | undefined;
     includes(searchElement: T, fromIndex?: number): boolean;
     flat<A, D extends number = 1>(this: A, depth?: D): ExtendScriptCompatFlatArray<A, D>[];

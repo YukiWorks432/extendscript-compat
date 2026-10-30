@@ -42,6 +42,24 @@ Importing `/runtime` from TypeScript also supplies declarations for these method
 
 The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object.defineProperty`, so methods are added by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. The [second-stage investigation and verification](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json) is recorded separately. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json).
 
+## Array copying and searching from the end
+
+toSorted follows ECMAScript and es-shims Array.prototype.toSorted, using a stable merge sort independent of AE's sort. The other four methods follow the ECMAScript algorithms.
+
+toSorted, toReversed, and toSpliced return new ordinary arrays without changing the receiver. toSorted uses stable ordering with the default string comparison or a comparator, retaining the order of equal elements. These copying operations read holes as undefined elements. They do not use Symbol.species. Output size is subject to host array length and memory limits.
+
+findLast and findLastIndex search from the end, visiting holes as undefined. Predicates receive the value, index, and source object and support thisArg. BigInt polyfills are outside the scope.
+
+```js
+var original = [3, 1, 2];
+var sorted = original.toSorted(); // [1, 2, 3]
+var reversed = original.toReversed(); // [2, 1, 3]
+var spliced = original.toSpliced(1, 1, 9); // [3, 9, 2]
+var last = original.findLast(function (value) {
+  return value > 1;
+}); // 2
+```
+
 ## Corrected behavior
 
 | Issue / function   | Correction                                                                                                                                                                                                                                                        |

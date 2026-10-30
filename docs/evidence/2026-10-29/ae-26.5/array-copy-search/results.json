@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-29",
+  "environment": "Windows / AE 26.5x89 / ExtendScript 4.5.6",
+  "runtimeSha256": "73947be1927cf1c0e818d8f6fe81746edb004004ffc3feb12384c6f1d7efb569",
+  "minifiedSha256": "b46b32758d9b40a6e145e8d4992e3dc9bf18d012d3393d1c3519244d71b1feaf",
+  "contractSha256": "025bf8de01a83a981f8e766ce024894ec049e064a46874f2d3e4c591247134d6",
+  "hashConvention": "fileSha256 hashes the saved UTF-8 file including final LF; requestSha256 hashes the execution string without that LF.",
+  "cases": {
+    "baseline": {
+      "requestSha256": "8233c3ed7cbd749e4692bed859be139c46e361b9a18954bd596c2425137946be",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "items": 0,
+        "dirty": false,
+        "methods": {
+          "toSorted": "undefined",
+          "toReversed": "undefined",
+          "toSpliced": "undefined",
+          "with": "undefined",
+          "findLast": "undefined",
+          "findLastIndex": "undefined"
+        },
+        "probes": {
+          "hole": false,
+          "length": 2,
+          "stringIndex": "a",
+          "arraySortType": "function",
+          "withSyntaxError": "SyntaxError: Illegal use of reserved word"
+        }
+      },
+      "sourceFile": "baseline.jsx",
+      "fileSha256": "816e49c914215f5ed04f449b2c6a2245ec697a30f154ee11d40af6c4b8848f8c"
+    },
+    "raw": {
+      "requestSha256": "5a61ca1cf0ae9ec10e897a0b64576d691ed43be2425b8d64171cd140079eca1c",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "first": {
+          "total": 49,
+          "passed": 49,
+          "failures": []
+        },
+        "stable": true,
+        "items": 0,
+        "dirty": false
+      },
+      "sourceFile": "raw.jsx",
+      "fileSha256": "18d53c160c6f844f74faf27b2e15d77f9ffddb6710a39cfcaede5fd5ee428e01"
+    },
+    "minified": {
+      "requestSha256": "8392332733984d530f9923c6b076081387575153d8e41839855c2ecd3927600d",
+      "result": {
+        "version": "26.5x89",
+        "engine": "4.5.6",
+        "results": {
+          "array-copy-search": {
+            "total": 49,
+            "passed": 49,
+            "failures": []
+          },
+          "array-at-has-own": {
+            "total": 36,
+            "passed": 36,
+            "failures": []
+          },
+          "entries-flattening-string-at": {
+            "total": 46,
+            "passed": 46,
+            "failures": []
+          },
+          "includes-padding-trimming": {
+            "total": 102,
+            "passed": 102,
+            "failures": []
+          },
+          "polyfill": {
+            "total": 107,
+            "passed": 107,
+            "failures": []
+          },
+          "runtime": {
+            "total": 71,
+            "passed": 71,
+            "failures": []
+          }
+        },
+        "items": 0,
+        "dirty": false
+      },
+      "sourceFile": "minified.jsx",
+      "fileSha256": "384f45d2d2a122ff775512bba6f5a330dce46d647ad6e02f45d049bfbd8b4c09"
+    },
+    "replacement": {
+      "requestSha256": "ccb8100160f79635962c3329adda1a5f7aafd86bc1d781befa45e3c29bd1928e",
+      "result": {
+        "retained": true,
+        "replaced": {
+          "total": 49,
+          "passed": 49,
+          "failures": []
+        },
+        "reverseStable": true,
+        "reverse": {
+          "total": 49,
+          "passed": 49,
+          "failures": []
+        },
+        "items": 0,
+        "dirty": false
+      },
+      "sourceFile": "replacement.jsx",
+      "fileSha256": "7a0ffb18d5b449d9e2aed62c832e79b58f9a7482f8a497c2e42c01471ee0c89b"
+    }
+  }
+}
