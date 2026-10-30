@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "a148595eaef356b9272274aa08d61cf1b1582415",
+  "sourceNote": "最新mainに0.3.1の版更新を適用して梱包。変更案内とこの記録は配布対象外。",
+  "tools": {
+    "node": "24.22.1",
+    "pnpm": "12.15.0",
+    "consumerPnpm": "12.16.1",
+    "npm": "11.19.1"
+  },
+  "package": {
+    "version": "0.3.1",
+    "files": 21,
+    "sha256": "cdce96f4f3369fa4857c06a43f71b59f6643130a2985b81b54ab1943521328a6",
+    "integrity": "sha512-bNMb0yMmdOgoyY5usWPCFsifKFM+SPFTjYcNFEcKTRdGpGqxMMCnnFDKKy+xSpKa0hc6AJ0cQt34hkPxKvM10A==",
+    "installedFilesMatch": true,
+    "sourceFilesMatchExceptPackageJson": true,
+    "entries": [".", "./rollup", "./runtime", "./number", "./unit-value"],
+    "rollupVariants": ["normal", "minified"],
+    "sourceMaps": true,
+    "bom": true,
+    "jsonContract": true,
+    "consumerTypecheck": true
+  },
+  "checks": {
+    "frozenInstall": true,
+    "repositoryCheck": {
+      "command": "pnpm check",
+      "testFiles": 19,
+      "tests": 236
+    },
+    "npmPublishDryRun": true
+  },
+  "host": {
+    "app": "After Effects 26.5x89 / ExtendScript 4.5.6 on Windows",
+    "rerun": false,
+    "runtimeSha256": "a33a8ee94c05846a0fc708c2541d8c5decd45e935ee5c3e2784505462872ca53",
+    "matchesRecordedArtifact": true,
+    "evidence": [
+      "2026-10-30/ae-26.5/compatibility-edge-cases/results.json",
+      "2026-10-30/ae-26.5/json-stringify/results.json"
+    ],
+    "limitations": "AEでSymbol・属性APIは未実装。その条件はNodeで確認。旧AE、他のAdobe製品、新規エンジンへの全機能の初回導入は未確認。"
+  }
+}
