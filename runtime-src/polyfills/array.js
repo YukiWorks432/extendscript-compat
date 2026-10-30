@@ -119,3 +119,141 @@ function __compatArrayAtWorks(method) {
     return false;
   }
 }
+
+/* oxlint-disable no-new-array -- ES3の配列長上限を検査し、指定長で配列を生成する */
+// 配列を変更しないコピー操作と末尾検索。ECMAScriptとes-shimsを参考にする。
+function __compatToReversed() {
+  if (this === null || typeof this === "undefined")
+    throw new TypeError("toReversed requires an object");
+  var source = Object(this),
+    length = __compatLength(source.length),
+    result = new Array(length);
+  for (var i = 0; i < length; i++) result[i] = source[length - i - 1];
+  return result;
+}
+function __compatToSorted(compare) {
+  if (typeof compare !== "undefined" && typeof compare !== "function")
+    throw new TypeError("compare must be a function");
+  if (this === null || typeof this === "undefined")
+    throw new TypeError("toSorted requires an object");
+  var source = Object(this),
+    length = __compatLength(source.length),
+    result = new Array(length);
+  for (var i = 0; i < length; i++) result[i] = source[i];
+  // ホストのsortの安定性に依存せず、同順位の順序を保つ。
+  var temporary = new Array(length);
+  for (var width = 1; width < length; width *= 2) {
+    for (var start = 0; start < length; start += width * 2) {
+      var middle = Math.min(start + width, length),
+        end = Math.min(start + width * 2, length);
+      var left = start,
+        right = middle;
+      for (var k = start; k < end; k++) {
+        if (
+          right >= end ||
+          (left < middle && __compatSortCompare(result[left], result[right], compare) <= 0)
+        )
+          temporary[k] = result[left++];
+        else temporary[k] = result[right++];
+      }
+    }
+    var swap = result;
+    result = temporary;
+    temporary = swap;
+  }
+  return result;
+}
+function __compatSortCompare(a, b, compare) {
+  if (typeof a === "undefined") return typeof b === "undefined" ? 0 : 1;
+  if (typeof b === "undefined") return -1;
+  if (typeof compare === "function") {
+    var compared = compare(a, b);
+    if (typeof compared === "bigint") throw new TypeError("Cannot convert BigInt comparison");
+    var number = toNumber(compared);
+    return number !== number ? 0 : number;
+  }
+  if (typeof a === "symbol" || typeof b === "symbol")
+    throw new TypeError("Cannot sort Symbol values");
+  var x = String(a),
+    y = String(b);
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+function __compatToSpliced(start, deleteCount) {
+  if (this === null || typeof this === "undefined")
+    throw new TypeError("toSpliced requires an object");
+  var source = Object(this),
+    length = __compatLength(source.length),
+    relative = __compatInteger(start);
+  var actual = relative < 0 ? Math.max(length + relative, 0) : Math.min(relative, length);
+  var inserted = Math.max(arguments.length - 2, 0);
+  var removed =
+    arguments.length === 0
+      ? 0
+      : arguments.length === 1
+        ? length - actual
+        : Math.min(Math.max(__compatInteger(deleteCount), 0), length - actual);
+  var newLength = length + inserted - removed;
+  if (newLength > 9007199254740991) throw new TypeError("Array exceeds maximum length");
+  var result = new Array(newLength),
+    index = 0,
+    i;
+  for (i = 0; i < actual; i++) result[index++] = source[i];
+  for (i = 0; i < inserted; i++) result[index++] = arguments[i + 2];
+  for (i = actual + removed; i < length; i++) result[index++] = source[i];
+  return result;
+}
+function __compatFindFromEnd(source, predicate, thisArg, indexOnly) {
+  if (source === null || typeof source === "undefined")
+    throw new TypeError("findLast requires an object");
+  var object = Object(source),
+    length = __compatLength(object.length);
+  if (typeof predicate !== "function") throw new TypeError("predicate must be a function");
+  for (var i = length - 1; i >= 0; i--) {
+    var value = object[i];
+    if (predicate.call(thisArg, value, i, object)) return indexOnly ? i : value;
+  }
+  return indexOnly ? -1 : undefined;
+}
+function __compatFindLast(predicate, thisArg) {
+  return __compatFindFromEnd(this, predicate, thisArg, false);
+}
+function __compatFindLastIndex(predicate, thisArg) {
+  return __compatFindFromEnd(this, predicate, thisArg, true);
+}
+function __compatCopyMethodWorks(method, name) {
+  if (typeof method !== "function") return false;
+  try {
+    var a = [3, 1, 2],
+      result;
+    if (name === "toSorted") {
+      result = method.call(a);
+      var stable = method.call(
+        [
+          { n: 1, id: 1 },
+          { n: 1, id: 2 },
+        ],
+        function (x, y) {
+          return x.n - y.n;
+        },
+      );
+      return result.join(",") === "1,2,3" && a[0] === 3 && stable[0].id === 1;
+    }
+    if (name === "toReversed") {
+      result = method.call(a);
+      return result.join(",") === "2,1,3" && a[0] === 3;
+    }
+    if (name === "toSpliced") {
+      result = method.call(a, "0b1", 1, 9);
+      return result.join(",") === "3,9,2" && a[1] === 1;
+    }
+    var visited = [];
+    result = method.call({ 0: 1, length: 2 }, function (value, index) {
+      visited.push(index);
+      return value === 1;
+    });
+    return result === (name === "findLast" ? 1 : 0) && visited.join(",") === "1,0";
+    // oxlint-disable-next-line no-unused-vars -- ES3 requires a catch binding
+  } catch (_error) {
+    return false;
+  }
+}

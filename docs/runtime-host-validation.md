@@ -69,6 +69,14 @@ On October 29, 2026, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 (bui
 
 With the earlier runtime already installed, the two methods and the stage marker were removed before testing both raw and minified builds. Both passed 36 stage 3, 46 stage 2, and 102 stage 1 cases and preserved function identity on re-evaluation. The minified build also passed 107 existing polyfill and 71 correction cases. Preservation of working methods, replacement of broken methods, and loading the previous runtime after the new runtime were checked. The test project contained no items but became dirty during revalidation, so it was saved temporarily. The cause was not established. Initial installation of the final build in a fresh engine and other Adobe products were not tested. The [results and executed code](evidence/2026-10-29/ae-26.5/esnext-stage3/esnext-stage3-ae-26.5.json) include the corresponding hashes.
 
+## Array copying and reverse search host validation
+
+This section records host validation of commit d6a1752, which included with. The current implementation provides the remaining five methods. Saved code and hashes are historical; the build after removing with has not been rerun in AE.
+
+On October 29, 2026, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 process was tested. None of the six methods existed; dot access to with failed because it is a reserved word. Raw and minified builds each passed 49 cases, including function identity on re-evaluation. The minified build also passed the existing 36, 46, 102, 107, and 71-case contracts. Preservation of working methods, replacement of broken methods, and loading the older runtime after the new one were checked. The six methods were absent before initial raw installation; the minified build was checked after removing the methods and their marker.
+
+The test project contained no items and was clean in all recorded results. Other Adobe products and older AE versions were not tested. See [executed code, results, and hashes](evidence/2026-10-29/ae-26.5/array-copy-search/results.json).
+
 ## Full replacement and well-formed UTF-16 host validation
 
 On 2026-10-29, a dedicated After Effects 26.5x89 / ExtendScript 4.5.6 (build 80.1060872) process was investigated. All three target methods were absent. String-search replace skipped callbacks, a global empty match omitted its terminal replacement, and flags was absent while global was usable. UTF-16 surrogates were retained as individual code units.

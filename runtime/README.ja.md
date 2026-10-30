@@ -42,6 +42,24 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 
 非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
 
+## 配列のコピー操作と末尾検索
+
+toSortedはECMAScriptとes-shimsのArray.prototype.toSortedを参考にし、AEのsortに依存しない安定したマージソートとして実装しています。他の4メソッドはECMAScriptの手順に沿って実装しています。
+
+toSorted・toReversed・toSplicedは元の配列を変更せず、通常の新しい配列を返します。toSortedは文字列としての標準順序または比較関数で安定して並べ替え、同順位の要素の順序を保持します。これらのコピー操作では配列の穴もundefinedの要素として読み取ります。Symbol.speciesによる派生配列の生成は行いません。コピーの要素数はホストの配列長・メモリ上限に制約されます。
+
+findLast・findLastIndexは末尾から先頭へ検索し、穴にもundefinedを渡します。コールバックには値・位置・対象オブジェクトを渡し、thisArgを指定できます。BigIntの補完は対象外です。
+
+```js
+var original = [3, 1, 2];
+var sorted = original.toSorted(); // [1, 2, 3]
+var reversed = original.toReversed(); // [2, 1, 3]
+var spliced = original.toSpliced(1, 1, 9); // [3, 9, 2]
+var last = original.findLast(function (value) {
+  return value > 1;
+}); // 2
+```
+
 ## 全置換とUTF-16の整形式
 
 `String.prototype.replaceAll`、`isWellFormed`、`toWellFormed`も同じ`/runtime`の読み込みで補完します。不足または代表的な検査に通らない実装を置き換え、正常な既存実装は維持します。

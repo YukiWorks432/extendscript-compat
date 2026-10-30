@@ -75,6 +75,9 @@ const manifest = {
   correctionFixtureSha256: sha256(
     readFileSync(resolve(root, "test/contracts/runtime-contract.js")),
   ),
+  arrayCopySearchFixtureSha256: sha256(
+    readFileSync(resolve(root, "test/contracts/array-copy-search-contract.js")),
+  ),
   arrayAtHasOwnFixtureSha256: sha256(
     readFileSync(resolve(root, "test/contracts/array-at-has-own-contract.js")),
   ),
