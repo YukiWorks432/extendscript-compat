@@ -4,6 +4,8 @@
 
 `extendscript-compat/runtime` is a side-effect-only entry point that adds JSON, selected ES5, ES6, and later polyfills, and corrects `parseInt`, `String.prototype.charAt`, `split`, and `replace`. The four functions are replaced even when they already exist.
 
+See the [runtime API compatibility matrix](API-COMPATIBILITY.md) for per-API polyfills, conditional behavior, exclusions, and host validation scope.
+
 ## Installation and load order
 
 Load it before initializing the application or its dependencies. It applies JSON, ES5, and ES6 polyfills in that order, followed by the four corrections and selected later methods. When using other compatibility code, load this entry after it:
