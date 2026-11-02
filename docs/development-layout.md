@@ -26,3 +26,11 @@ Archived execution code uses .jsx within the evidence directories. These records
 ## Checks
 
 Regenerate with node scripts/build-runtime.mjs, then run pnpm check for generated-file consistency, formatting, lint, types, and contracts. Host builders under scripts/build-host-*.mjs produce temporary output under tmp/. Moving files does not make historical host results validation evidence for newly generated output.
+
+## Dependency updates and security audits
+
+Dependabot opens npm and GitHub Actions update PRs every Monday at 10:20 JST. npm updates wait seven days after publication. Minor and patch updates are grouped separately for production and development dependencies; major updates remain separate PRs.
+
+CI runs `pnpm audit --audit-level=high` before installing dependencies. It audits the entire lockfile, including development dependencies. High or critical findings and registry connection failures fail the check. The workflow does not automatically fix or suppress findings.
+
+`dependency-audit.yml` runs the same audit daily at 09:37 JST and on manual dispatch. It uses a GitHub-hosted Ubuntu runner without installing project dependencies or building the package. Results are available in the Actions run history. When changing the pinned pnpm version, update this workflow's version as well.
