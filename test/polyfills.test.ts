@@ -2,9 +2,8 @@ import { readFileSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { parse } from "acorn";
 import ts from "typescript";
-import { protectCompatibility } from "../src/index.js";
+import { assertES3Syntax, protectCompatibility } from "../src/index.js";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { extendscriptCompat } from "../src/rollup.js";
@@ -39,7 +38,7 @@ const missing = `
 `;
 
 it("生成した直接読込用コードはES3として解析できる", () => {
-  expect(() => parse(runtime, { ecmaVersion: 3 })).not.toThrow();
+  expect(() => assertES3Syntax(runtime)).not.toThrow();
   expect(Array.from(runtime).every((character) => character.charCodeAt(0) <= 127)).toBe(true);
 });
 

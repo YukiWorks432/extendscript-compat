@@ -18,6 +18,23 @@ assertPrecedenceProtected(result.code);
 
 `findPrecedenceIssues` returns the kind, character positions, line and column for unprotected expressions. Lines are one-based; columns and character positions are zero-based. The public diagnostic data does not expose Babel AST types.
 
+## ES3 syntax validation
+
+Pass generated JavaScript to `assertES3Syntax(source)` to validate ES3 script syntax. It returns `undefined` on success and throws a `SyntaxError` with a source position on failure. It does not transform or execute the input.
+
+```js
+import { assertES3Syntax, assertPrecedenceProtected } from "extendscript-compat";
+
+assertES3Syntax(generatedCode);
+assertPrecedenceProtected(generatedCode);
+```
+
+Internally, the validator configures Acorn with `ecmaVersion: 3`, `sourceType: "script"`, and `allowReserved: "never"`. The last option overrides Acorn's ES3 default, which permits reserved words: `value.default` and `{ default: 1 }` are rejected, while `value["default"]` and `{ "default": 1 }` are accepted. Consumers do not need to install Acorn directly.
+
+Validate JavaScript after transpilation, bundling, minification, and compatibility correction. A leading BOM and comments are accepted. TypeScript, ES module syntax, E4X, unexpanded preprocessor directives, and top-level `return` are outside this API's input contract. Runtime API availability, behavior in Adobe applications, and precedence protection require separate checks.
+
+Call this API explicitly. Existing correction APIs and the Rollup plugin do not automatically validate ES3 syntax.
+
 ## Rollup integration
 
 Add the plugin to a Rollup 4 host build after minification, include expansion, and the addition of compatibility code, but before conversion to JSXBin. A later generator or minifier that removes parentheses can undo the protection.

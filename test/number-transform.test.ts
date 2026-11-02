@@ -1,6 +1,6 @@
 import { runInNewContext } from "node:vm";
 import { fileURLToPath } from "node:url";
-import { parse } from "acorn";
+import { assertES3Syntax } from "../src/index.js";
 import { rollup } from "rollup";
 import type { OutputChunk, OutputOptions, Plugin, RollupLog } from "rollup";
 import terser from "@rollup/plugin-terser";
@@ -160,7 +160,7 @@ it.each([false, true])(
       });
       const chunk = result.output.find((item) => item.type === "chunk");
       expect(chunk).toBeDefined();
-      parse(chunk!.code, { ecmaVersion: 3 });
+      assertES3Syntax(chunk!.code);
       const actual = runInNewContext(chunk!.code);
       expect(actual.failures).toEqual([]);
       expect(actual.passed).toBe(actual.total);
@@ -395,7 +395,7 @@ it.each([false, true])(
       });
       const chunk = result.output.find((item) => item.type === "chunk");
       expect(chunk).toBeDefined();
-      parse(chunk!.code, { ecmaVersion: 3 });
+      assertES3Syntax(chunk!.code);
       const actual = runInNewContext(chunk!.code, { Number: aeNumber });
       expect(actual.failures).toEqual([]);
       expect(actual.passed).toBe(actual.total);
@@ -446,7 +446,7 @@ it.each(
   ].join(newline);
   const output = await build(source, false, { sourcemap });
   const chunk = output.output[0] as OutputChunk;
-  parse(chunk.code, { ecmaVersion: 3 });
+  assertES3Syntax(chunk.code);
   expect(
     Array.from(
       runInNewContext(chunk.code + ";compiled.run('0b101')", {

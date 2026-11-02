@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { parse } from "acorn";
+import { assertES3Syntax } from "../../src/index.js";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import ts from "typescript";
@@ -21,7 +21,7 @@ const previous = readFileSync(
 const missing = "delete Array.prototype.at; delete Object.hasOwn;";
 
 it("実機用の契約検証はES3で解析できる", () => {
-  expect(() => parse(contract, { ecmaVersion: 3 })).not.toThrow();
+  expect(() => assertES3Syntax(contract)).not.toThrow();
 });
 
 it("既存ランタイム適用後にも補完し、再評価で関数を保持する", () => {

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { parse } from "acorn";
+import { assertES3Syntax } from "../../src/index.js";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import ts from "typescript";
@@ -20,7 +20,7 @@ const missing = names
   .join("");
 
 it("実機用契約はES3として解析できる", () => {
-  expect(() => parse(contract, { ecmaVersion: 3 })).not.toThrow();
+  expect(() => assertES3Syntax(contract)).not.toThrow();
 });
 it("既存版から補完し、再評価で関数を保持する", () => {
   const context = createContext({});

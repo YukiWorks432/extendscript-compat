@@ -1,4 +1,15 @@
 import { parse, traverse } from "@babel/core";
+import { parse as parseES3 } from "acorn";
+
+/** @param {string} source */
+export function assertES3Syntax(source) {
+  parseES3(source, {
+    ecmaVersion: 3,
+    sourceType: "script",
+    // AcornはES3指定だけでは予約語を許可するため、プロパティ名も含めて拒否する。
+    allowReserved: "never",
+  });
+}
 
 /** @param {string} source @returns {import("./index.d.ts").PrecedenceDiagnostic[]} */
 export function findPrecedenceIssues(source) {

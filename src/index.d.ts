@@ -31,6 +31,15 @@ export function findPrecedenceIssues(source: string): PrecedenceDiagnostic[];
 export function assertPrecedenceProtected(source: string): void;
 
 /**
+ * Validate generated script syntax as ES3, including reserved words; throw SyntaxError on failure.
+ * This does not check runtime APIs or expression precedence.
+ *
+ * 生成済みスクリプトを予約語も含めてES3構文として検査し、不適合ならSyntaxErrorを送出する。
+ * 実行時APIと式の優先順位は検査しない。
+ */
+export function assertES3Syntax(source: string): void;
+
+/**
  * An issue detected in the original input; kind identifies the correction.
  *
  * 元の入力上で検出した不具合。補正内容をkindで区別する。

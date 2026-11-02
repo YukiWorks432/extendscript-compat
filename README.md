@@ -5,6 +5,7 @@
 A library providing build-time bug corrections and runtime compatibility for Adobe ExtendScript.
 
 - Corrects expression precedence, `continue` across `switch` statements, and regular-expression hyphens at build time.
+- Provides `assertES3Syntax` to validate generated JavaScript as ES3, including reserved-word restrictions.
 - Provides JSON, selected ES5, ES6, and later polyfills, and corrections for `parseInt` and three string methods when explicitly imported.
 - Provides explicit helpers for `UnitValue` subtraction and `null` comparison.
 

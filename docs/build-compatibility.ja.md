@@ -18,6 +18,23 @@ assertPrecedenceProtected(result.code);
 
 `findPrecedenceIssues`は、保護されていない箇所の種類、文字位置、行、列を返します。行は1始まり、列と文字位置は0始まりです。公開する診断情報にはBabelのAST型を含めません。
 
+## ES3構文の検査
+
+生成済みJavaScriptを`assertES3Syntax(source)`へ渡すと、ES3のスクリプト構文として検査します。成功時は`undefined`を返し、不適合なら位置を含む`SyntaxError`を送出します。入力の変換や実行は行いません。
+
+```js
+import { assertES3Syntax, assertPrecedenceProtected } from "extendscript-compat";
+
+assertES3Syntax(generatedCode);
+assertPrecedenceProtected(generatedCode);
+```
+
+内部ではAcornに`ecmaVersion: 3`、`sourceType: "script"`、`allowReserved: "never"`を指定します。ES3指定だけでは予約語を許可するAcornの既定動作も制限し、`value.default`や`{ default: 1 }`を拒否します。`value["default"]`と`{ "default": 1 }`は使用できます。利用側でAcornを直接導入する必要はありません。
+
+検査対象は変換・結合・圧縮・互換補正を終えたJavaScriptです。先頭のBOMとコメントは受け入れます。TypeScript、ESモジュール構文、E4X、未展開のプリプロセッサー指示、関数外の`return`は対象外です。実行時APIの有無、Adobe製品での動作、優先順位の保護は別に確認してください。
+
+このAPIは明示的に呼び出します。既存の補正APIとRollupプラグインは、ES3構文検査を自動では行いません。
+
 ## Rollupへの組み込み
 
 Rollup 4のホスト用ビルドに追加します。圧縮、include展開、互換コードの追加が完了した後、JSXBinへ変換する前に配置してください。後続の生成器や圧縮器が括弧を除去すると、保護は失われます。

@@ -64,13 +64,13 @@
     "@eslint-community/regexpp": "4.12.2",
     "@jridgewell/gen-mapping": "^0.3.13",
     "@jridgewell/trace-mapping": "^0.3.31",
+    "acorn": "^8.19.0",
     "magic-string": "1.4.5"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^1.0.0",
     "@types/babel__core": "7.20.5",
     "@types/node": "^24.19.2",
-    "acorn": "^8.19.0",
     "oxfmt": "^0.75.0",
     "oxlint": "^1.90.0",
     "rollup": "^4.67.4",

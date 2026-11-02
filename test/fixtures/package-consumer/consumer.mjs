@@ -9,7 +9,7 @@ import terser from "@rollup/plugin-terser";
 const originalNumber = Number;
 const originalRound = Math.round;
 const originalUnitValue = globalThis.UnitValue;
-const { protectCompatibility } = await import("extendscript-compat");
+const { assertES3Syntax, protectCompatibility } = await import("extendscript-compat");
 const { extendscriptCompat } = await import("extendscript-compat/rollup");
 const { toNumber } = await import("extendscript-compat/number");
 const { subtractUnitValues, isNull } = await import("extendscript-compat/unit-value");
@@ -20,6 +20,8 @@ assert.equal(toNumber("0b101"), 5);
 assert.equal(subtractUnitValues(8, 3), 5);
 assert.equal(isNull(null), true);
 assert.equal(protectCompatibility("var result = a || b && c;").code, "var result = a || (b && c);");
+
+assert.throws(() => assertES3Syntax("value.default;"), SyntaxError);
 
 const source = 'export var result = a || b && c; export var number = Number("0b101");';
 for (const minified of [false, true]) {
@@ -44,6 +46,7 @@ for (const minified of [false, true]) {
     });
     const chunk = output[0];
     assert.equal(chunk.type, "chunk");
+    assertES3Syntax(chunk.code);
     const result = runInNewContext(chunk.code + ";compiled", { a: false, b: true, c: 7 });
     assert.equal(result.result, 7);
     assert.equal(result.number, 5);

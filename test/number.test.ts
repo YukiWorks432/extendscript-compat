@@ -1,5 +1,5 @@
 import { runInNewContext } from "node:vm";
-import { parse } from "acorn";
+import { assertES3Syntax } from "../src/index.js";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { expect, it } from "vitest";
@@ -147,7 +147,7 @@ it.each([false, true])("通常版・圧縮版 %s がES3構文で同じ変換契�
     });
     const chunk = result.output.find((item) => item.type === "chunk");
     expect(chunk).toBeDefined();
-    parse(chunk!.code, { ecmaVersion: 3 });
+    assertES3Syntax(chunk!.code);
     const actual = runInNewContext(chunk!.code);
     expect(actual.failures).toEqual([]);
     expect(actual.passed).toBe(actual.total);
