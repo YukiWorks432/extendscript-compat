@@ -5,6 +5,7 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
@@ -30,3 +31,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm pack --pack-destination artifacts
+      - name: 梱包した配布物を空の利用側で検証
+        run: npm run check:package

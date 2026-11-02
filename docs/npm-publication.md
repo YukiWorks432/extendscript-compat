@@ -59,11 +59,50 @@ A 404 name lookup does not guarantee that the name can be obtained at publicatio
 
 ## Ongoing publication
 
-After initial registration, GitHub Actions and npm Trusted Publisher are recommended. Add a dedicated publication workflow in the future, and register its exact filename, GitHub owner, and repository with npm. Explicitly allow `npm publish` in the Trusted Publisher configuration if publishing directly with that command. OIDC removes the need to store a long-lived publishing token in the repository.
+Manually run `Publish to npm` in [`publish.yml`](../.github/workflows/publish.yml). Merging into main does not publish a package. The workflow does not update versions, create Git tags, or create GitHub Releases. It publishes stable versions to npm's `latest` tag and rejects prereleases.
 
-Use a GitHub-hosted runner, Node.js 24, and a compatible npm CLI with `contents: read` and `id-token: write`. Run validation and packaging for the specified commit before `npm publish`. The current CI workflow does not publish or request `id-token` permission.
+### Initial npm configuration
 
-Trusted Publisher requires npm CLI 11.5.1 or later and Node.js 22.14.0 or later. Its first publication must succeed within two days of configuration, so configure it only after publication is ready. For a public package published from a public repository using GitHub Actions Trusted Publisher, provenance is generated automatically. It is not generated for a private repository.
+When a release is ready, add a Trusted Publisher in the npm settings for `extendscript-compat`.
+
+| Setting              | Value                                                  |
+| -------------------- | ------------------------------------------------------ |
+| Provider             | GitHub Actions                                         |
+| Organization or user | `YukiWorks432`                                         |
+| Repository           | `extendscript-compat`                                  |
+| Workflow filename    | `publish.yml` (without a directory)                    |
+| Environment name     | Leave empty; this workflow does not use an environment |
+| Allowed actions      | Allow direct publication with `npm publish`            |
+
+OIDC authentication does not require `NPM_TOKEN`, `NODE_AUTH_TOKEN`, or `npm login`. Only the publication job receives `id-token: write`; validation uses only `contents: read`. Publication runs on GitHub-hosted Ubuntu with Node.js 24 and npm 11.19.1.
+
+Trusted Publisher requires npm CLI 11.5.1 or later and Node.js 22.14.0 or later. The first publication must succeed within two days of configuration; delete and recreate an expired configuration. Saving the configuration or running `npm publish --dry-run` does not validate OIDC authentication; the first real publication does. Provenance is generated automatically for this public package and repository. See [npm's configuration and limitations](https://docs.npmjs.com/trusted-publishers/).
+
+### Each publication
+
+1. Review and merge a PR updating `package.json` to the appropriate version. Published versions cannot be overwritten.
+2. In GitHub Actions, open `Publish to npm` and select `Run workflow`. Select `main` and enter the intended `version`. For example, `0.3.2` requires main's `package.json` to also contain `0.3.2`.
+3. Check the commit SHA captured when the run starts. Validation, packaging, and publication use that SHA even if main advances during the run.
+4. After success, check the version, commit SHA, and SHA-512 integrity in the run summary, and inspect the provenance on npm.
+
+Preflight requires the input to match the package version, the version to be unpublished, and a stable version newer than the current `latest`. The workflow then reuses CI on Ubuntu and Windows with Node.js 22 and 24. Each of the four environments audits dependencies, runs `pnpm check`, packs the package, and installs it into an empty consumer. Consumer checks cover all five public entries, normal and minified Rollup output and source maps, types, documentation, and licenses.
+
+After all environments pass, the publication job packs the same SHA and checks its tarball in an empty consumer, then passes that exact `.tgz` to `npm publish`. It rechecks registry state before publication and compares npm's `latest`, `dist.integrity`, and the downloaded tarball's SHA-512 afterward. Concurrent runs are serialized without cancelling an active publication.
+
+### Validation without publication and recovery
+
+To validate the packed artifact locally, run the following at the repository root. `check:package` uses npm to install into a temporary empty directory and removes that directory afterward.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm pack --pack-destination artifacts
+npm run check:package
+```
+
+If CI or packaging fails, merge the fix into main and start a new manual run. If the publication command or a later step fails, registration may already have succeeded. First inspect `npm view extendscript-compat@<version> version dist.integrity` and `npm view extendscript-compat dist-tags`. Compare the downloaded tarball with the SHA-512 in the run log and do not republish an existing version. Retry after fixing the cause only if the version is absent; if a published artifact is incorrect, prepare a corrected new version.
+
+A failed registry lookup stops publication and is never treated as an absent version. Rerunning with an existing version also stops before publication. This workflow does not run After Effects or other Adobe hosts; satisfy the release criteria separately as appropriate for the change.
 
 ## Release criteria
 
@@ -84,4 +123,4 @@ Limit the first release to the uses actually tested. Treat corrections as patch 
 
 After fixing the commit to publish, run `pnpm check`, compare hashes of the generated host-validation files, pack the package, and install it into an empty consumer. Include the public entries and type declarations, English and Japanese usage documentation, and third-party licenses. Compare the package listing with `package.json`.
 
-After publication, load all four public entries from the downloaded package: the root, Rollup, runtime, and unit-value entries. The runtime does not replace shared functions until explicitly imported; importing the unit-value entry alone does not modify host classes or functions.
+After publication, load all five public entries from the downloaded package: the root, Rollup, runtime, number, and unit-value entries. The runtime does not replace shared functions until explicitly imported; importing the number or unit-value entry alone does not modify host classes or functions.

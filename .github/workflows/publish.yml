@@ -1,0 +1,83 @@
+name: Publish to npm
+run-name: npm ${{ inputs.version }} の手動公開
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "公開する版番号（mainのpackage.jsonと同じ値、例: 0.3.2）"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 公開元を確認
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REF: ${{ github.ref }}
+        run: |
+          test "$REPOSITORY" = YukiWorks432/extendscript-compat
+          test "$REF" = refs/heads/main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: 版番号とnpmの登録状態を確認
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: node scripts/npm-release.mjs check "$EXPECTED_VERSION"
+
+  validate:
+    needs: preflight
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: [preflight, validate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      EXPECTED_VERSION: ${{ inputs.version }}
+      TARBALL: ./artifacts/extendscript-compat-${{ inputs.version }}.tgz
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 12.16.1
+          run_install: false
+      - name: Trusted Publishing対応のnpmを準備
+        run: npm install --global npm@11.19.1 --ignore-scripts
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm pack --pack-destination artifacts
+      - name: 公開する配布物を空の利用側で検証
+        run: npm run check:package -- "$TARBALL"
+      - name: 登録状態を再確認して同じ配布物を公開
+        run: |
+          node scripts/npm-release.mjs check "$EXPECTED_VERSION"
+          sha512sum "$TARBALL"
+          npm publish "$TARBALL" --access public --tag latest --registry=https://registry.npmjs.org/ --ignore-scripts
+      - name: 登録された版と配布物を照合
+        run: node scripts/npm-release.mjs verify "$TARBALL"
