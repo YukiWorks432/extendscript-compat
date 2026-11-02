@@ -431,3 +431,43 @@ it("変換後のNumberオブジェクトのinstanceof判定には不要な警告
   );
   expect(warnings.filter((x) => x.pluginCode === "NUMBER_UNSUPPORTED")).toEqual([]);
 });
+
+it.each(
+  ["\n", "\r\n"].flatMap((newline) =>
+    ([true, "inline", "hidden"] as const).map((sourcemap) => ({ newline, sourcemap })),
+  ),
+)("複数行と非BMP文字を含む数値変換の値と元位置を保つ %j", async ({ newline, sourcemap }) => {
+  const source = [
+    "export function run(input){",
+    "  var convert=Number;",
+    "  var box=new Number(new Number(input));",
+    '  return ["😀", flag || convert(box) && marker];',
+    "}",
+  ].join(newline);
+  const output = await build(source, false, { sourcemap });
+  const chunk = output.output[0] as OutputChunk;
+  parse(chunk.code, { ecmaVersion: 3 });
+  expect(
+    Array.from(
+      runInNewContext(chunk.code + ";compiled.run('0b101')", {
+        Number: aeNumber,
+        flag: false,
+        marker: 7,
+      }),
+    ),
+  ).toEqual(["😀", 7]);
+  const map = new TraceMap(chunk.map!.toString());
+  for (const token of ["input", "flag", "marker"]) {
+    const offset = chunk.code.lastIndexOf(token);
+    expect(offset).toBeGreaterThan(0);
+    const generated = chunk.code.slice(0, offset).split("\n");
+    const original = source.slice(0, source.lastIndexOf(token)).split(newline);
+    const position = originalPositionFor(map, {
+      line: generated.length,
+      column: generated.at(-1)!.length,
+    });
+    expect(position.source).toMatch(/fixture\.js$/);
+    expect(position.line).toBe(original.length);
+    expect(position.column).toBe(original.at(-1)!.length);
+  }
+});
