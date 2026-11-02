@@ -89,6 +89,8 @@ Preflight requires the input to match the package version, the version to be unp
 
 After all environments pass, the publication job packs the same SHA and checks its tarball in an empty consumer, then passes that exact `.tgz` to `npm publish`. It rechecks registry state before publication and compares npm's `latest`, `dist.integrity`, and the downloaded tarball's SHA-512 afterward. Concurrent runs are serialized without cancelling an active publication.
 
+After npm accepts publication, registry lookups may take a few minutes to reflect it. Post-publication verification uses a five-minute waiting deadline and repeats lookups every ten seconds only while the version or `latest` is missing. A mismatched registered hash or downloaded tarball, HTTP errors, and other failures stop verification immediately.
+
 ### Validation without publication and recovery
 
 To validate the packed artifact locally, run the following at the repository root. `check:package` uses npm to install into a temporary empty directory and removes that directory afterward.
@@ -101,6 +103,8 @@ npm run check:package
 ```
 
 If CI or packaging fails, merge the fix into main and start a new manual run. If the publication command or a later step fails, registration may already have succeeded. First inspect `npm view extendscript-compat@<version> version dist.integrity` and `npm view extendscript-compat dist-tags`. Compare the downloaded tarball with the SHA-512 in the run log and do not republish an existing version. Retry after fixing the cause only if the version is absent; if a published artifact is incorrect, prepare a corrected new version.
+
+If the log says npm accepted publication, wait for propagation even when the version is not yet found; do not publish it again. Once available, run `node scripts/npm-release.mjs verify <tarball>` with a tarball whose SHA-512 matches the run log to repeat verification without publishing.
 
 A failed registry lookup stops publication and is never treated as an absent version. Rerunning with an existing version also stops before publication. This workflow does not run After Effects or other Adobe hosts; satisfy the release criteria separately as appropriate for the change.
 
