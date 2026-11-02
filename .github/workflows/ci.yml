@@ -23,7 +23,7 @@ jobs:
           node-version: ${{ matrix.node }}
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
-          version: 12.15.0
+          version: 12.16.1
           run_install: false
       - name: 依存関係の脆弱性を監査
         run: pnpm audit --audit-level=high
