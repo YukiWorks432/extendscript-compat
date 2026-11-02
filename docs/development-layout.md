@@ -33,4 +33,4 @@ Dependabot opens npm and GitHub Actions update PRs every Monday at 10:20 JST. np
 
 CI runs `pnpm audit --audit-level=high` before installing dependencies. It audits the entire lockfile, including development dependencies. High or critical findings and registry connection failures fail the check. The workflow does not automatically fix or suppress findings.
 
-`dependency-audit.yml` runs the same audit daily at 09:37 JST and on manual dispatch. It uses a GitHub-hosted Ubuntu runner without installing project dependencies or building the package. Results are available in the Actions run history. When changing the pinned pnpm version, update this workflow's version as well.
+`dependency-audit.yml` runs the same audit daily at 09:48 JST and on manual dispatch. It uses a GitHub-hosted Ubuntu runner without installing project dependencies or building the package. Results are available in the Actions run history. When changing the pinned pnpm version, update this workflow's version as well.
