@@ -59,11 +59,50 @@ pnpm view extendscript-compat@0.1.0 version dist.integrity
 
 ## 継続的な公開方法
 
-初回登録後は、GitHub ActionsとnpmのTrusted Publisherを使う方法を推奨する。公開用の専用ワークフローを将来追加し、そのファイル名とGitHubの所有者・リポジトリをnpm側へ正確に登録する。直接npm publishする場合は、Trusted Publisherの設定でその操作を明示的に許可する。OIDCを利用するため、公開用の長期トークンをリポジトリへ保存する必要がない。
+[`publish.yml`](../.github/workflows/publish.yml)の`Publish to npm`を手動実行する。mainへの統合だけでは公開せず、版番号の更新、GitタグやGitHub Releaseの作成も自動では行わない。正式版をnpmの`latest`へ登録する用途に限定し、プレリリースは受け付けない。
 
-公開用ワークフローはGitHub管理の実行環境、Node.js 24、対応するnpm CLIを使い、contents: readとid-token: writeを設定する。指定コミットの検証と梱包を通してからnpm publishを実行する。現在のCIには公開処理とid-token権限を含めない。
+### npm側の初回設定
 
-Trusted Publisherにはnpm CLI 11.5.1以降とNode.js 22.14.0以降が必要。設定後の初回公開は2日以内に成功する必要があるため、公開準備が整ってから設定する。公開リポジトリから公開パッケージを登録する場合、出所証明は自動生成される。非公開リポジトリでは出所証明が生成されない。
+公開準備が整ってから、npmの`extendscript-compat`の設定でTrusted Publisherを追加する。
+
+| 設定項目             | 値                                           |
+| -------------------- | -------------------------------------------- |
+| 公開元               | GitHub Actions                               |
+| Organization or user | `YukiWorks432`                               |
+| Repository           | `extendscript-compat`                        |
+| Workflow filename    | `publish.yml`（ディレクトリ名を含めない）    |
+| Environment name     | 空欄（このワークフローでは環境を使用しない） |
+| Allowed actions      | 直接公開する`npm publish`を許可              |
+
+OIDCで認証するため、`NPM_TOKEN`や`NODE_AUTH_TOKEN`の登録、`npm login`は不要。公開ジョブだけに`id-token: write`を与え、検証用のCIは`contents: read`だけで動作する。公開にはGitHub管理のUbuntu、Node.js 24、npm 11.19.1を使用する。
+
+Trusted Publisherにはnpm CLI 11.5.1以降とNode.js 22.14.0以降が必要。設定後の初回公開は2日以内に成功する必要があり、期限切れの場合は設定を削除して作り直す。設定の保存や`npm publish --dry-run`ではOIDCの認証成功を確認できず、初回の実公開で確認する。公開リポジトリから公開パッケージを登録するため、出所証明は自動生成される。[npmの設定と制約](https://docs.npmjs.com/trusted-publishers/)を参照する。
+
+### 毎回の公開
+
+1. 変更内容に応じて`package.json`の版を更新するPRを確認し、mainへ統合する。既存の版は上書きできない。
+2. GitHubのActionsから`Publish to npm`の`Run workflow`を開き、ブランチに`main`、`version`に公開する版番号を指定する。たとえば`0.3.2`ならmainの`package.json`も`0.3.2`でなければならない。
+3. 実行開始時のコミットSHAを確認する。そのSHAを検証・梱包・公開まで使い、実行中にmainが進んでも切り替えない。
+4. 成功後、実行結果の要約にある版番号、コミットSHA、SHA-512の整合性値と、npmページの出所証明を確認する。
+
+最初に入力と版番号の一致、未公開であること、現在の`latest`より新しい正式版であることを検査する。続いて既存のCIを再利用し、Ubuntu・WindowsとNode.js 22・24の4環境で依存関係の監査、`pnpm check`、梱包、空の利用側への導入を行う。導入確認では5つの公開入口、通常・圧縮時のRollup出力とソースマップ、型定義、同梱文書・ライセンスを検査する。
+
+全環境が成功すると、公開ジョブが同じSHAから梱包して導入確認を行い、その`.tgz`を`npm publish`へ渡す。公開前に登録状態を再確認し、公開後はnpmの`latest`と`dist.integrity`、ダウンロードした配布物のSHA-512を照合する。同時実行は直列化し、実行中の公開を後続の実行で取り消さない。
+
+### 公開しない検証と失敗時の確認
+
+ローカルで配布物まで確認する場合は、リポジトリ直下で次を実行する。`check:package`はnpmで空の一時ディレクトリへ導入し、検証後にそのディレクトリを削除する。
+
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm pack --pack-destination artifacts
+npm run check:package
+```
+
+CIや梱包で失敗した場合は、修正をmainへ統合してから新しく手動実行する。公開コマンド以降で失敗した場合は、登録だけが成功している可能性があるため、先に`npm view extendscript-compat@<version> version dist.integrity`と`npm view extendscript-compat dist-tags`を確認する。実行ログのSHA-512と取得した配布物を照合し、同じ版を再公開しない。未登録なら原因を解消して再実行し、既存版の内容に誤りがあれば修正用の新しい版を準備する。
+
+レジストリへの照会失敗は未登録とは扱わず、公開を停止する。既存版を指定した再実行も公開前に停止する。After Effectsなどの実機確認はこのActionsに含まれないため、変更範囲に応じた出荷条件を別途満たす。
 
 ## 出荷条件
 
@@ -85,4 +124,4 @@ Trusted Publisherにはnpm CLI 11.5.1以降とNode.js 22.14.0以降が必要。�
 
 公開するコミットを固定した後、`pnpm check`、実機検証用の生成物のハッシュ照合、`pnpm pack`、空の利用側への導入を確認する。配布物には公開入口と型宣言、日英の利用文書、第三者ライセンスを含め、梱包時の一覧と`package.json`を照合する。
 
-公開後は、通常入口・Rollup入口・runtime入口・unit-value入口のすべてを取得したパッケージから読み込む。runtimeは明示的に読み込むまで共有関数を置換せず、unit-valueの入口は読み込みだけではホストのクラスや関数を変更しない。
+公開後は、通常入口・Rollup入口・runtime入口・number入口・unit-value入口のすべてを取得したパッケージから読み込む。runtimeは明示的に読み込むまで共有関数を置換せず、numberとunit-valueの入口は読み込みだけではホストのクラスや関数を変更しない。

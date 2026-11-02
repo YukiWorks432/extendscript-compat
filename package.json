@@ -52,6 +52,7 @@
   },
   "scripts": {
     "check": "node scripts/build-runtime.mjs --check && pnpm fmt:check && pnpm lint && pnpm typecheck && pnpm test",
+    "check:package": "node scripts/check-package.mjs",
     "test": "vitest run --exclude \"tmp/**\"",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --max-warnings 0 .",
