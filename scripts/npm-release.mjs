@@ -29,6 +29,45 @@ export function assertReleaseVersion(version, expectedVersion, registry) {
   );
 }
 
+/**
+ * @param {string} name
+ * @param {string} version
+ * @param {Uint8Array} tarball
+ */
+export async function verifyPublishedPackage(name, version, tarball) {
+  const integrity = "sha512-" + createHash("sha512").update(tarball).digest("base64");
+  const deadline = Date.now() + 5 * 60_000;
+  while (true) {
+    const registry = await (await fetchRegistry(`https://registry.npmjs.org/${name}`)).json();
+    const published = registry.versions[version];
+    if (published) {
+      assert.equal(
+        published.dist.integrity,
+        integrity,
+        "npmのdist.integrityと検証済み配布物が一致しません",
+      );
+      if (registry["dist-tags"].latest === version) {
+        const downloaded = await (await fetchRegistry(published.dist.tarball)).arrayBuffer();
+        const downloadedIntegrity =
+          "sha512-" + createHash("sha512").update(Buffer.from(downloaded)).digest("base64");
+        assert.equal(
+          downloadedIntegrity,
+          integrity,
+          "npmから取得した配布物が検証済み配布物と一致しません",
+        );
+        return integrity;
+      }
+    }
+    // npmが公開を受理しても、版とlatestが照会結果に反映されるまで数分かかる。
+    assert(
+      Date.now() < deadline,
+      "npmへの反映を5分待ちました。同じ版を再公開せず、登録状態を確認してください",
+    );
+    console.log(`npmへの反映を待っています: ${name}@${version}`);
+    await new Promise((resolve) => setTimeout(resolve, 10_000));
+  }
+}
+
 /** @param {string} url */
 async function fetchRegistry(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(30_000), cache: "no-store" });
@@ -45,34 +84,17 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   );
   assert(argument, "版番号または配布物のパスを指定してください");
   const manifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
-  const registry = await (
-    await fetchRegistry(`https://registry.npmjs.org/${manifest.name}`)
-  ).json();
   if (command === "check") {
+    const registry = await (
+      await fetchRegistry(`https://registry.npmjs.org/${manifest.name}`)
+    ).json();
     assertReleaseVersion(manifest.version, argument, registry);
     console.log(`未公開の正式版を確認: ${manifest.name}@${manifest.version}`);
   } else {
-    const integrity =
-      "sha512-" + createHash("sha512").update(readFileSync(argument)).digest("base64");
-    const published = registry.versions[manifest.version];
-    assert(published, "公開した版がレジストリに見つかりません");
-    assert.equal(
-      registry["dist-tags"].latest,
+    const integrity = await verifyPublishedPackage(
+      manifest.name,
       manifest.version,
-      "npmのlatestが公開した版と一致しません",
-    );
-    assert.equal(
-      published.dist.integrity,
-      integrity,
-      "npmのdist.integrityと検証済み配布物が一致しません",
-    );
-    const downloaded = await (await fetchRegistry(published.dist.tarball)).arrayBuffer();
-    const downloadedIntegrity =
-      "sha512-" + createHash("sha512").update(Buffer.from(downloaded)).digest("base64");
-    assert.equal(
-      downloadedIntegrity,
-      integrity,
-      "npmから取得した配布物が検証済み配布物と一致しません",
+      readFileSync(argument),
     );
     const report = `${manifest.name}@${manifest.version}\nコミット: ${process.env.GITHUB_SHA ?? "ローカル"}\n${integrity}\n`;
     console.log(report);
