@@ -25,6 +25,8 @@ jobs:
         with:
           version: 12.15.0
           run_install: false
+      - name: 依存関係の脆弱性を監査
+        run: pnpm audit --audit-level=high
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm pack --pack-destination artifacts
