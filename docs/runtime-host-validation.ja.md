@@ -149,7 +149,7 @@ Illustrator MCPからBridgeTalkを経由してPremiere内のExtendScriptで検�
 
 追加した共通契約は、空文字列、文字列オブジェクト、添字外・負数・先頭ゼロ・小数のキー、追加プロパティ、サロゲートペアを含みます。Nodeの回帰試験では添字が欠落・一部のみ・全部列挙される3条件も確認しています。期待値は列挙順とUTF-16の契約に基づき、内部実装の構造を固定していません。
 
-回帰確認としてIllustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.11.0 / ExtendScript 4.5.12の通常版・圧縮版、After Effects 26.5x89 / ExtendScript 4.5.6の圧縮版でも、それぞれ全714項目が成功しました。
+回帰確認としてIllustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.9.0 / ExtendScript 4.5.12の通常版・圧縮版、After Effects 26.5x89 / ExtendScript 4.5.6の圧縮版でも、それぞれ全714項目が成功しました。
 
 検査後は変更した標準API、導入済み印、ES5・ES6シムのキャッシュを復元し、確認した文書状態も前後で一致しました。独立した再起動ごとに最終候補を初回導入する出荷前試験とは分けて扱います。Premiere全体を公開契約の保証対象へ追加する変更ではありません。
 
