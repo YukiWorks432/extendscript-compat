@@ -8,7 +8,11 @@ import { parse } from "acorn";
 import { extendscriptCompat } from "../src/rollup.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const directory = resolve(root, "tmp/json-host");
+const host = process.argv[2] || "aeft";
+if (process.argv.length > 3 || !["aeft", "ilst", "phxs"].includes(host)) {
+  throw new Error("対象はaeft、ilst、phxsのいずれかを指定してください");
+}
+const directory = resolve(root, "tmp/json-host", host === "aeft" ? "" : host);
 mkdirSync(directory, { recursive: true });
 const rawPath = resolve(root, "runtime/index.js");
 const minifiedPath = resolve(directory, "minified.jsx");
@@ -43,8 +47,14 @@ const probe = `(function () {
   }
   for (i = 0; i < targets.length; i++) capture(targets[i], names[i]);
   for (i = 0; i < markers.length; i++) capture(root, markers[i]);
-  var before = { items: app.project.numItems, dirty: app.project.dirty };
-  var result = { appVersion: app.version, engineVersion: $.version, cases: [] };
+  var host = ${JSON.stringify(host)};
+  var before, documents = [];
+  if (host === "aeft") before = { items: app.project.numItems, dirty: app.project.dirty, active: app.project.activeItem };
+  else {
+    for (i = 0; i < app.documents.length; i++) documents.push({ document: app.documents[i], saved: app.documents[i].saved });
+    before = { active: app.documents.length ? app.activeDocument : null };
+  }
+  var result = { host: host, appVersion: app.version, engineVersion: $.version, engineName: $.engineName, cases: [] };
   var files = ${JSON.stringify([rawPath, minifiedPath])};
   try {
     for (i = 0; i < files.length; i++) {
@@ -76,7 +86,15 @@ const probe = `(function () {
       else delete saved[i].object[saved[i].key];
     }
   }
-  result.projectUnchanged = before.items === app.project.numItems && before.dirty === app.project.dirty;
+  if (host === "aeft") {
+    result.projectUnchanged = before.items === app.project.numItems && before.dirty === app.project.dirty && before.active === app.project.activeItem;
+    result.documentsUnchanged = result.projectUnchanged;
+  } else {
+    result.documentsUnchanged = documents.length === app.documents.length && before.active === (app.documents.length ? app.activeDocument : null);
+    for (i = 0; i < documents.length && result.documentsUnchanged; i++) {
+      if (documents[i].document !== app.documents[i] || documents[i].saved !== app.documents[i].saved) result.documentsUnchanged = false;
+    }
+  }
   result.restored = true;
   for (i = 0; i < saved.length; i++) {
     if (saved[i].object[saved[i].key] !== saved[i].value || Object.prototype.hasOwnProperty.call(saved[i].object, saved[i].key) !== saved[i].owned) result.restored = false;

@@ -173,6 +173,6 @@ node scripts/build-host-runtime-probe.mjs
 
 The second command generates minified, precedence-protected output, comparison code for AE, and SHA-256 hashes in `tmp/runtime-host-probe/`. The AE probe compares the original functions, the installed correction, and reapplication; a `finally` block restores the four functions and the internal marker. Normal product integration retains the corrections and does not include that restoration.
 
-Record results with the target product, engine version, and code SHA-256. The AE results and evidence are in the [runtime host validation record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md). Other Adobe products have not been tested on a host.
+Record results with the target product, engine version, and code SHA-256. The AE results and JSON-specific checks in Illustrator and Photoshop are in the [runtime host validation record](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md). Non-JSON features remain unverified in Illustrator and Photoshop.
 
 See the repository's [development file layout](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/development-layout.md) for source organization.

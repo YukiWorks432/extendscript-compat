@@ -1,4 +1,4 @@
-# 組み込み関数補正のAE実機確認
+# 組み込み関数補正の実機確認
 
 [English](runtime-host-validation.md) | 日本語（正本）
 
@@ -114,3 +114,29 @@ JSON以外の補完は導入済み印で省略した。検証後はJSON、導入
 末尾カンマ、不正な数値・エスケープ・制御文字・空白の拒否、Unicodeの保持、負のゼロ、重複キー、`__proto__`の所有プロパティとしての保持、`reviver`の順序・置換・削除を確認しました。再読み込みと旧json2の後読み込み後も関数の同一性を保持しました。
 
 JSON以外の導入段階は省略し、JSON、導入済み印、`toJSON`を復元しました。プロジェクトの項目数と変更状態は維持しています。これはJSONの検証であり、新規エンジンへの最終ランタイム全体の初回導入や他のAdobe製品の確認ではありません。[結果と生成物のハッシュ](evidence/2026-11-04/ae-26.5/json-parse/results.json)を記録しています。`node scripts/build-host-json-probe.mjs`で現在の検証コードを生成できます。
+
+## AE・Illustrator・PhotoshopでのJSON追加確認
+
+2026年11月4日、Windowsで同じPRの通常版・圧縮版をMCP経由で検証しました。各製品でJSON未導入と旧json2導入済みの状態を作り、4条件それぞれで解析231項目とstringify 15項目、合計246項目が成功しました。
+
+| 製品          | 製品版  | ExtendScript | 実行経路                                 |
+| ------------- | ------- | ------------ | ---------------------------------------- |
+| After Effects | 26.5x89 | 4.5.6        | After Effects MCP                        |
+| Illustrator   | 30.8.2  | 4.5.6        | Illustrator MCPのCEP経路                 |
+| Photoshop     | 27.11.0 | 4.5.12       | Illustrator MCP → BridgeTalk → Photoshop |
+
+Photoshop用MCPの実行基盤はUXPだったため、[Adobe提供のBridgeTalkの方式](https://github.com/Adobe-CEP/CEP-Resources/blob/master/ExtendScript-Toolkit/Samples/javascript/SendObjectToPhotoshop.jsx)でPhotoshop内のExtendScriptへ検査を送りました。受信した製品版とエンジン版も確認しています。UXPのJavaScriptで成功した結果をExtendScriptの結果として扱っていません。
+
+3製品とも再読み込みと旧json2の後読み込みで関数の同一性を保持し、検査後にJSON、導入済み印、`toJSON`を復元しました。AEではプロジェクトの項目数・変更状態・アクティブ項目、Illustrator・Photoshopではドキュメントの数・同一性・保存状態・アクティブドキュメントが前後で一致しました。ドキュメントの作成・編集・保存は行っていません。
+
+検証用コードは、リポジトリのルートで次のコマンドを実行して生成します。
+
+```sh
+node scripts/build-host-json-probe.mjs aeft
+node scripts/build-host-json-probe.mjs ilst
+node scripts/build-host-json-probe.mjs phxs
+```
+
+出力先はAEが`tmp/json-host/probe.jsx`、Illustratorが`tmp/json-host/ilst/probe.jsx`、Photoshopが`tmp/json-host/phxs/probe.jsx`です。各製品のExtendScriptから`$.evalFile`で読み込みます。引数を省略するとAE用を生成します。
+
+[製品別の結果・通信経路・生成物のハッシュ](evidence/2026-11-04/multi-host/json-parse/results.json)を保存しています。JSON以外の導入段階は省略したため、全機能の新規エンジンへの初回導入や、Illustrator・PhotoshopのJSON以外の機能を確認したものではありません。

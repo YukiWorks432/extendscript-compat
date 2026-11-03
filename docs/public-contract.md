@@ -48,7 +48,7 @@ The [runtime API matrix](../runtime/API-COMPATIBILITY.md) defines individual pol
 
 ## Environments and release validation
 
-Build tools target Node.js 22 or later and Rollup 4. CI checks Ubuntu and Windows with Node.js 22 and 24. The host-validation baseline is After Effects 26.5x89 / ExtendScript 4.5.6 on Windows. Individual older-AE checks do not imply support for all features. Unverified environments, including Illustrator, Photoshop, and macOS, must not be described as host-verified.
+Build tools target Node.js 22 or later and Rollup 4. CI checks Ubuntu and Windows with Node.js 22 and 24. The host-validation baseline is After Effects 26.5x89 / ExtendScript 4.5.6 on Windows. Individual older-AE checks do not imply support for all features. Illustrator 30.8.2 / ExtendScript 4.5.6 and Photoshop 27.11.0 / ExtendScript 4.5.12 have only passed the JSON-specific checks. Unverified features and environments such as macOS must not be described as host-verified.
 
 Before releasing 1.0.0, install the final normal and minified candidates separately into previously unmodified engines and check the complete contract, repeated loading, and coexistence with the selected older releases. Individual checks or Node simulations alone do not satisfy this gate. Also check output, representative operations, and build time in the public template and real consumers, recording source and artifact hashes. These release checks remain separate from acceptance of this contract.
 

@@ -76,6 +76,6 @@
 
 保存済みの実機検証はAfter Effects 26.5x89 / ExtendScript 4.5.6（build 80.1060872）です。JSON、`Array.prototype.map`・`filter`・`reduce`、`Array.isArray`、`Object.keys`、`Function.prototype.bind`、`trim`、`Array.from`・`of`、`find`・`findIndex`、`startsWith`・`endsWith`、`Number.isFinite`、`Object.assign`、`Math.trunc`などの代表例を確認しています。後年のメソッドやJSONの境界条件も個別の契約で確認しています。
 
-各試験の導入状態と対象生成物は異なります。保存済みの[実行時の実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)を確認してください。最終版の全機能を新規エンジンへ初回導入した状態、古いAE、Illustrator、Photoshopなどは未確認です。Nodeでの検証はAdobe実機の検証とは区別します。
+各試験の導入状態と対象生成物は異なります。保存済みの[実行時の実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)を確認してください。JSONの解析・出力はIllustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.11.0 / ExtendScript 4.5.12でも個別検証しました。最終版の全機能を新規エンジンへ初回導入した状態、古いAE、Illustrator・PhotoshopのJSON以外の機能は未確認です。Nodeでの検証はAdobe実機の検証とは区別します。
 
 実装の確認先は[`runtime-src/vendor/es5-shim.js`](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/vendor/es5-shim.js)、[`es6-shim.js`](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/vendor/es6-shim.js)、[後年のメソッドの導入処理](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/install-polyfills.js)です。

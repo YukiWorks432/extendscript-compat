@@ -173,6 +173,6 @@ node scripts/build-host-runtime-probe.mjs
 
 後者は`tmp/runtime-host-probe/`へ圧縮・優先順位保護した実出力、AE用の比較コード、SHA-256を生成します。AE用コードは適用前・適用後・再適用後を比較し、finallyで元の4関数と内部の印を復元します。通常の製品への導入は補正を保持するため、この復元処理を含めません。
 
-実行結果は対象の製品版・エンジン版・コードのSHA-256とともに保存してください。今回確認したAEの結果と証跡は、リポジトリの[実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)に記録しています。他のAdobe製品では実機確認していません。
+実行結果は対象の製品版・エンジン版・コードのSHA-256とともに保存してください。AEの結果と、Illustrator・Photoshopで行ったJSONの個別検証は、リポジトリの[実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)に記録しています。Illustrator・PhotoshopのJSON以外の機能は未確認です。
 
 [開発用ファイルの配置](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/development-layout.ja.md)はリポジトリの開発文書を参照してください。
