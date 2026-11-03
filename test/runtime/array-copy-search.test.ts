@@ -72,7 +72,7 @@ it("正常な既存関数を保持し、不完全な関数を置換する", () =
 it.each([false, true])("配布出力の圧縮=%sで全契約を満たす", async (minified) => {
   const bundle = await rollup({
     input: runtimePath,
-    plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+    plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
   });
   try {
     const { output } = await bundle.generate({ format: "iife" });

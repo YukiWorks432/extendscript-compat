@@ -124,7 +124,7 @@ it.each([false, true])("配布入口の圧縮=%sの出力で第1・第2段階の
           if (id === "entry") return 'import "extendscript-compat/runtime";';
         },
       },
-      ...(minified ? [terser()] : []),
+      ...(minified ? [terser({ ie8: true })] : []),
       extendscriptCompat(),
     ],
   });

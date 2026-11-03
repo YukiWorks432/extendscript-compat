@@ -47,6 +47,71 @@ async function build(
   }
 }
 
+describe("最終出力のES3構文検査", () => {
+  it.each([false, true])(
+    "引用符付きの予約語プロパティと日本語を保持する 圧縮=%s",
+    async (minified) => {
+      const result = await build('export var result = { "default": "日本語" };', [
+        ...(minified ? [terser({ ie8: true })] : []),
+        extendscriptCompat(),
+      ]);
+      const chunk = result.output[0] as OutputChunk;
+      expect(runInNewContext(chunk.code + ";compiled.result").default).toBe("日本語");
+    },
+  );
+
+  it.each([
+    "const included = 1;",
+    "let included = 1;",
+    "var included = () => 1;",
+    "var included = { get value() { return 1; } };",
+    "var included = { value };",
+    "var included = value?.name;",
+    "var included = `first\n//# sourceMappingURL=keep\nlast`;",
+    "var included = { default: 1 };",
+    "var included = value.default;",
+    "var included = /value/u;",
+    "return 1;",
+  ])("先行プラグインが追加した非ES3構文でもビルドを停止する: %s", async (included) => {
+    await expect(
+      build("export var value = 1;", [
+        {
+          name: "include-non-es3",
+          generateBundle(_options, bundle) {
+            for (const chunk of Object.values(bundle)) {
+              if (chunk.type === "chunk") chunk.code += "\n" + included;
+            }
+          },
+        },
+        extendscriptCompat(),
+      ]),
+    ).rejects.toMatchObject({
+      code: "PLUGIN_ERROR",
+      plugin: "extendscript-compat",
+      hook: "generateBundle",
+    });
+  });
+
+  it("圧縮で予約語プロパティが再導入された場合に停止する", async () => {
+    await expect(
+      build('export var result = { "default": "value" };', [terser(), extendscriptCompat()]),
+    ).rejects.toMatchObject({ code: "PLUGIN_ERROR", plugin: "extendscript-compat" });
+  });
+
+  it.each(["warn", "error", "off"] as const)(
+    "diagnostics=%sでも構文検査を行う",
+    async (diagnostics) => {
+      await expect(
+        build("export const value = 1;", [extendscriptCompat({ diagnostics })]),
+      ).rejects.toMatchObject({
+        code: "PLUGIN_ERROR",
+        plugin: "extendscript-compat",
+        hook: "generateBundle",
+      });
+    },
+  );
+});
+
 describe("Rollupで生成した最終コードの保護", () => {
   it("実際のソースマップコメントが削除されていても文字列を保持してURLを追加する", async () => {
     const result = await build(
@@ -174,10 +239,6 @@ describe("Rollupで生成した最終コードの保護", () => {
   it.each([
     ['var included = "//# sourceMappingURL=keep";', "//# sourceMappingURL=keep"],
     ["var included = '//@ sourceMappingURL=keep';", "//@ sourceMappingURL=keep"],
-    [
-      "var included = `first\n//# sourceMappingURL=keep\nlast`;",
-      "first\n//# sourceMappingURL=keep\nlast",
-    ],
     ['var included = "keep"; /*\n//# sourceMappingURL=block\n*/', "keep"],
   ])(
     "末尾に追加された文字列やブロックコメントをソースマップURLとして置換しない: %s",

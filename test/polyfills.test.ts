@@ -200,7 +200,7 @@ it.each([false, true])(
             if (id === "entry") return 'import "extendscript-compat/runtime";';
           },
         },
-        ...(minified ? [terser()] : []),
+        ...(minified ? [terser({ ie8: true })] : []),
         extendscriptCompat(),
       ],
     });

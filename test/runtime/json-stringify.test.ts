@@ -23,7 +23,7 @@ it("JSONの契約はES3で解析でき、標準実装が期待値を満たす", 
 it.each([false, true])("圧縮=%sの配布ランタイムでJSONの契約を満たす", async (minified) => {
   const bundle = await rollup({
     input: fileURLToPath(runtimePath),
-    plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+    plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
   });
   try {
     const { output } = await bundle.generate({ format: "iife" });

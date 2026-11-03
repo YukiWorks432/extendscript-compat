@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { parse } from "@babel/core";
+import { parse as parseES3 } from "acorn";
 import { addSegment, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 import { eachMapping, TraceMap } from "@jridgewell/trace-mapping";
 import { protectCompatibility, assertPrecedenceProtected, findRegExpRisks } from "./index.js";
@@ -214,6 +215,12 @@ export function extendscriptCompat(options = {}) {
           });
         }
         chunk.code = addBom ? "\uFEFF" + result.code : result.code;
+        parseES3(chunk.code, {
+          ecmaVersion: 3,
+          sourceType: "script",
+          // AcornはES3指定だけでは予約語を許可するため、プロパティ名も含めて拒否する。
+          allowReserved: "never",
+        });
         if (!options.sourcemap || (result.edits.length === 0 && !addBom)) continue;
         if (!chunk.map)
           this.error("ExtendScript compatibility pass requires the preceding source map");

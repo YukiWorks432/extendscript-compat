@@ -97,7 +97,7 @@ it.each([false, true])(
   async (minified) => {
     const bundle = await rollup({
       input: runtimePath,
-      plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+      plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
     });
     try {
       const { output } = await bundle.generate({ format: "iife" });

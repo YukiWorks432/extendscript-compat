@@ -154,7 +154,7 @@ it("AEで取得できない文字列と配列の所有属性を補う", () => {
 it.each([false, true])("配布入口を圧縮=%sで利用した場合に契約を満たす", async (minified) => {
   const bundle = await rollup({
     input: runtimePath,
-    plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+    plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
   });
   try {
     const result = await bundle.generate({ format: "iife" });

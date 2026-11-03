@@ -19,8 +19,8 @@ export interface CompatibilityOptions {
 }
 
 /**
- * Rewrite unbound Number calls and constructors and safe local alias calls, then correct compatibility in the final output.
+ * Rewrite unbound Number calls and constructors and safe local alias calls, then correct compatibility and validate ES3 syntax in the final output.
  *
- * 未束縛Numberの呼び出し・コンストラクタと安全な別名の呼び出しを変換し、最終出力の互換性を補正する。
+ * 未束縛Numberの呼び出し・コンストラクタと安全な別名の呼び出しを変換し、最終出力の互換性を補正してES3構文を検査する。
  */
 export function extendscriptCompat(options?: CompatibilityOptions): Plugin;

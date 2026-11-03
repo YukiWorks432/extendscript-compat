@@ -54,6 +54,26 @@ for (const minified of [false, true]) {
   }
 }
 
+const invalidBundle = await rollup({
+  input: "invalid.js",
+  plugins: [
+    {
+      name: "invalid-consumer-input",
+      resolveId: (id) => (id === "invalid.js" ? id : null),
+      load: (id) => (id === "invalid.js" ? "globalThis.value = object.default;" : null),
+    },
+    extendscriptCompat({ diagnostics: "off" }),
+  ],
+});
+try {
+  await assert.rejects(invalidBundle.generate({ format: "iife" }), {
+    code: "PLUGIN_ERROR",
+    plugin: "extendscript-compat",
+  });
+} finally {
+  await invalidBundle.close();
+}
+
 await import("extendscript-compat/runtime");
 const require = createRequire(import.meta.url);
 const root = dirname(require.resolve("extendscript-compat/package.json"));
