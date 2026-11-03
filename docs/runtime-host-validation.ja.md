@@ -140,3 +140,17 @@ node scripts/build-host-json-probe.mjs phxs
 出力先はAEが`tmp/json-host/probe.jsx`、Illustratorが`tmp/json-host/ilst/probe.jsx`、Photoshopが`tmp/json-host/phxs/probe.jsx`です。各製品のExtendScriptから`$.evalFile`で読み込みます。引数を省略するとAE用を生成します。
 
 [製品別の結果・通信経路・生成物のハッシュ](evidence/2026-11-04/multi-host/json-parse/results.json)を保存しています。JSON以外の導入段階は省略したため、全機能の新規エンジンへの初回導入や、Illustrator・PhotoshopのJSON以外の機能を確認したものではありません。
+
+## Premiereの文字列列挙の修正
+
+2026年11月4日、WindowsのPremiere Pro 26.5.2 / ExtendScript 4.5.6で、Object.keys(Object("ab"))が空配列を返し、従来のObject.entriesとObject.valuesも文字を取得できないことを確認しました。属性情報を取得できない経路では文字列の添字とUTF-16の文字単位を直接補い、文字列オブジェクトの追加プロパティも保持するように修正しました。
+
+Illustrator MCPからBridgeTalkを経由してPremiere内のExtendScriptで検査しました。通常版・圧縮版、未導入状態へ復元した場合と公開済み0.4.0の導入後、計4条件すべてで全714項目と再読み込み後の714項目が成功しました。0.4.0を後から読み込んでも修正済み関数の同一性を保持しました。旧第2段階の導入済み印から再検査するため、印の版を2へ更新しています。
+
+追加した共通契約は、空文字列、文字列オブジェクト、添字外・負数・先頭ゼロ・小数のキー、追加プロパティ、サロゲートペアを含みます。Nodeの回帰試験では添字が欠落・一部のみ・全部列挙される3条件も確認しています。期待値は列挙順とUTF-16の契約に基づき、内部実装の構造を固定していません。
+
+回帰確認としてIllustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.9.0 / ExtendScript 4.5.12の通常版・圧縮版、After Effects 26.5x89 / ExtendScript 4.5.6の圧縮版でも、それぞれ全714項目が成功しました。
+
+検査後は変更した標準API、導入済み印、ES5・ES6シムのキャッシュを復元し、確認した文書状態も前後で一致しました。独立した再起動ごとに最終候補を初回導入する出荷前試験とは分けて扱います。Premiere全体を公開契約の保証対象へ追加する変更ではありません。
+
+[製品別の結果・通信の要求ID・生成物のハッシュ](evidence/2026-11-04/premiere-string-enumeration/results.json)を保存しています。実機用の共通契約はtest/contracts/entries-flattening-string-at-contract.jsです。

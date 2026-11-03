@@ -1,0 +1,802 @@
+{
+  "date": "2026-11-04",
+  "cases": [
+    {
+      "host": "prpro",
+      "variant": "raw",
+      "upgrade": false,
+      "requestId": "req-18e4a035728747a0-46788-39",
+      "appVersion": "26.5.2",
+      "engineVersion": "4.5.6",
+      "engineName": "NewWorld",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "ERROR: ReferenceError: Object.entries is not a function",
+        "entriesString": "ERROR: ReferenceError: Object.entries is not a function",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "ERROR: ReferenceError: Object.values is not a function"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "prpro",
+      "variant": "raw",
+      "upgrade": true,
+      "requestId": "req-18e4a03683c17648-46788-3a",
+      "appVersion": "26.5.2",
+      "engineVersion": "4.5.6",
+      "engineName": "NewWorld",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "ERROR: ReferenceError: Object.entries is not a function",
+        "entriesString": "ERROR: ReferenceError: Object.entries is not a function",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "ERROR: ReferenceError: Object.values is not a function"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "prpro",
+      "variant": "minified",
+      "upgrade": false,
+      "requestId": "req-18e4a03774fd29a8-46788-3b",
+      "appVersion": "26.5.2",
+      "engineVersion": "4.5.6",
+      "engineName": "NewWorld",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "ERROR: ReferenceError: Object.entries is not a function",
+        "entriesString": "ERROR: ReferenceError: Object.entries is not a function",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "ERROR: ReferenceError: Object.values is not a function"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "prpro",
+      "variant": "minified",
+      "upgrade": true,
+      "requestId": "req-18e4a0389003ade8-46788-3c",
+      "appVersion": "26.5.2",
+      "engineVersion": "4.5.6",
+      "engineName": "NewWorld",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "ERROR: ReferenceError: Object.entries is not a function",
+        "entriesString": "ERROR: ReferenceError: Object.entries is not a function",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "ERROR: ReferenceError: Object.values is not a function"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor is not a function",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames is not a function",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "ilst",
+      "variant": "raw",
+      "upgrade": false,
+      "requestId": "req-18e4a03967170294-46788-3d",
+      "appVersion": "30.8.2",
+      "engineVersion": "4.5.6",
+      "engineName": "",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "entriesString": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "keys": "ERROR: ReferenceError: Object.keys が関数でありません",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "ERROR: ReferenceError: Object.values が関数でありません"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[\"0\", \"1\"]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "ilst",
+      "variant": "minified",
+      "upgrade": false,
+      "requestId": "req-18e4a03a135ac9f0-46788-3e",
+      "appVersion": "30.8.2",
+      "engineVersion": "4.5.6",
+      "engineName": "",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "entriesString": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "keys": "ERROR: ReferenceError: Object.keys が関数でありません",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "ERROR: ReferenceError: Object.values が関数でありません"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[\"0\", \"1\"]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "phxs",
+      "variant": "raw",
+      "upgrade": false,
+      "requestId": "req-18e4a03b27decdf8-46788-3f",
+      "appVersion": "27.9.0",
+      "engineVersion": "4.5.12",
+      "engineName": "",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "entriesString": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "keys": "ERROR: ReferenceError: Object.keys が関数でありません",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "ERROR: ReferenceError: Object.values が関数でありません"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[\"0\", \"1\"]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "phxs",
+      "variant": "minified",
+      "upgrade": false,
+      "requestId": "req-18e4a04032f0c55c-46788-40",
+      "appVersion": "27.9.0",
+      "engineVersion": "4.5.12",
+      "engineName": "",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "failures": [],
+          "name": "runtime-contract",
+          "passed": 73,
+          "total": 73
+        },
+        {
+          "failures": [],
+          "name": "polyfill-contract",
+          "passed": 107,
+          "total": 107
+        },
+        {
+          "failures": [],
+          "name": "includes-padding-trimming-contract",
+          "passed": 102,
+          "total": 102
+        },
+        {
+          "failures": [],
+          "name": "entries-flattening-string-at-contract",
+          "passed": 53,
+          "total": 53
+        },
+        {
+          "failures": [],
+          "name": "array-at-has-own-contract",
+          "passed": 38,
+          "total": 38
+        },
+        {
+          "failures": [],
+          "name": "array-copy-search-contract",
+          "passed": 39,
+          "total": 39
+        },
+        {
+          "failures": [],
+          "name": "string-modern-contract",
+          "passed": 56,
+          "total": 56
+        },
+        {
+          "failures": [],
+          "name": "json-stringify-contract",
+          "total": 15
+        },
+        {
+          "failures": [],
+          "name": "json-parse-contract",
+          "total": 231
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "entriesString": "ERROR: ReferenceError: Object.entries が関数でありません",
+        "keys": "ERROR: ReferenceError: Object.keys が関数でありません",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "ERROR: ReferenceError: Object.values が関数でありません"
+      },
+      "afterObject": {
+        "descriptor": "ERROR: ReferenceError: Object.getOwnPropertyDescriptor が関数でありません",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "keys": "[\"0\", \"1\"]",
+        "names": "ERROR: ReferenceError: Object.getOwnPropertyNames が関数でありません",
+        "valuesString": "[\"a\", \"b\"]"
+      }
+    },
+    {
+      "host": "aeft",
+      "variant": "minified",
+      "upgrade": false,
+      "appVersion": "26.5x89",
+      "engineVersion": "4.5.6",
+      "engineName": "main",
+      "total": 714,
+      "failures": 0,
+      "suites": [
+        {
+          "total": 73,
+          "passed": 73,
+          "failures": [],
+          "name": "runtime-contract"
+        },
+        {
+          "total": 107,
+          "passed": 107,
+          "failures": [],
+          "name": "polyfill-contract"
+        },
+        {
+          "total": 102,
+          "passed": 102,
+          "failures": [],
+          "name": "includes-padding-trimming-contract"
+        },
+        {
+          "total": 53,
+          "passed": 53,
+          "failures": [],
+          "name": "entries-flattening-string-at-contract"
+        },
+        {
+          "total": 38,
+          "passed": 38,
+          "failures": [],
+          "name": "array-at-has-own-contract"
+        },
+        {
+          "total": 39,
+          "passed": 39,
+          "failures": [],
+          "name": "array-copy-search-contract"
+        },
+        {
+          "total": 56,
+          "passed": 56,
+          "failures": [],
+          "name": "string-modern-contract"
+        },
+        {
+          "total": 15,
+          "failures": [],
+          "name": "json-stringify-contract"
+        },
+        {
+          "total": 231,
+          "failures": [],
+          "name": "json-parse-contract"
+        }
+      ],
+      "repeat": {
+        "total": 714,
+        "failures": []
+      },
+      "identity": true,
+      "valuesRestored": true,
+      "documentsUnchanged": true,
+      "beforeObject": {
+        "keys": "ERROR: ReferenceError: Function Object.keys is undefined",
+        "names": "ERROR: ReferenceError: Function Object.getOwnPropertyNames is undefined",
+        "descriptor": "ERROR: ReferenceError: Function Object.getOwnPropertyDescriptor is undefined",
+        "entriesString": "ERROR: ReferenceError: Function Object.entries is undefined",
+        "valuesString": "ERROR: ReferenceError: Function Object.values is undefined",
+        "entriesObject": "ERROR: ReferenceError: Function Object.entries is undefined"
+      },
+      "afterObject": {
+        "keys": "[\"0\", \"1\"]",
+        "names": "ERROR: ReferenceError: Function Object.getOwnPropertyNames is undefined",
+        "descriptor": "ERROR: ReferenceError: Function Object.getOwnPropertyDescriptor is undefined",
+        "entriesString": "[[\"0\", \"a\"], [\"1\", \"b\"]]",
+        "valuesString": "[\"a\", \"b\"]",
+        "entriesObject": "[[\"0\", \"zero\"], [\"2\", \"two\"], [\"10\", \"ten\"], [\"01\", \"leading\"], [\"4294967295\", \"large\"], [\"z\", \"zee\"], [\"a\", \"aye\"]]"
+      }
+    }
+  ],
+  "note": "通常版・圧縮版と未導入状態への復元・0.4.0先読み/後読み。独立した再起動ごとの初回導入試験ではない。MCPで評価し、ES5/ES6キャッシュと変更したAPIを復元。",
+  "artifacts": {
+    "rawRuntimeSha256": "4d7515dc41efa2a259d6861e924cd36c1e5bc5dda70739250703745dc1d59163",
+    "minifiedRuntimeSha256": "c471417fac316d87beb69770d06f8c3c7786696ac066fa8748fedc3ab5fde499",
+    "contractSha256": "73b8c58e0a50f46ea0d3957186e5e465487fea43d2f8c37e05dc82c4349c5f9d"
+  }
+}

@@ -79,3 +79,5 @@
 各試験の導入状態と対象生成物は異なります。保存済みの[実行時の実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)を確認してください。JSONの解析・出力はIllustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.11.0 / ExtendScript 4.5.12でも個別検証しました。最終版の全機能を新規エンジンへ初回導入した状態、古いAE、Illustrator・PhotoshopのJSON以外の機能は未確認です。Nodeでの検証はAdobe実機の検証とは区別します。
 
 実装の確認先は[`runtime-src/vendor/es5-shim.js`](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/vendor/es5-shim.js)、[`es6-shim.js`](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/vendor/es6-shim.js)、[後年のメソッドの導入処理](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/install-polyfills.js)です。
+
+Object.entriesとObject.valuesは、属性情報を取得できない環境でも文字列のUTF-16添字を直接補います。Object.keysが文字列の添字を省略するPremiereでも文字を取得し、文字列オブジェクトに追加された列挙可能なプロパティも保持します。

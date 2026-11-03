@@ -5052,26 +5052,34 @@
         var keys = descriptors ? Object.getOwnPropertyNames(object) : Object.keys(object);
         var indexes = [], others = [], result = [];
         var i, key, number;
+        var isString = Object.prototype.toString.call(object) === "[object String]";
+        var text = isString && !descriptors ? String.prototype.valueOf.call(object) : null;
+        if (text !== null) for (i = 0; i < text.length; i++) indexes.push(String(i));
         for (i = 0; i < keys.length; i++) {
             key = keys[i];
             number = +key;
-            if (number >= 0 && number < 4294967295 && Math.floor(number) === number && String(number) === key) indexes.push(key); else others.push(key);
+            if (number >= 0 && number < 4294967295 && Math.floor(number) === number && String(number) === key) {
+                if (text === null || number >= text.length) indexes.push(key);
+            } else others.push(key);
         }
         indexes.sort(function(a, b) {
             return +a - +b;
         });
         keys = indexes.concat(others);
-        var isString = Object.prototype.toString.call(object) === "[object String]";
         for (i = 0; i < keys.length; i++) {
             key = keys[i];
+            var stringIndex = isString && +key >= 0 && +key < object.length && String(+key) === key && Math.floor(+key) === +key;
             var enumerable;
             if (descriptors) {
                 var descriptor = Object.getOwnPropertyDescriptor(object, key);
                 enumerable = descriptor && descriptor.enumerable;
             } else {
-                enumerable = (isString && +key >= 0 && +key < object.length && String(+key) === key && Math.floor(+key) === +key) || (Object.prototype.hasOwnProperty.call(object, key) && Object.prototype.propertyIsEnumerable.call(object, key));
+                enumerable = stringIndex || (Object.prototype.hasOwnProperty.call(object, key) && Object.prototype.propertyIsEnumerable.call(object, key));
             }
-            if (enumerable) result.push(entries ? [ key, object[key] ] : object[key]);
+            if (enumerable) {
+                var item = text !== null && stringIndex ? text.charAt(+key) : object[key];
+                result.push(entries ? [ key, item ] : item);
+            }
         }
         return result;
     }
@@ -5173,13 +5181,13 @@
         if (String.prototype.trimRight !== String.prototype.trimEnd) __compatInstall(String.prototype, "trimRight", String.prototype.trimEnd);
         root.__extendscriptCompatESNext1__ = 1;
     }
-    if (root.__extendscriptCompatESNext2__ !== 1) {
+    if (root.__extendscriptCompatESNext2__ !== 2) {
         if (!__compatObjectWorks(Object.entries, true)) __compatInstall(Object, "entries", __compatEntries);
         if (!__compatObjectWorks(Object.values, false)) __compatInstall(Object, "values", __compatValues);
         if (!__compatFlatWorks(Array.prototype.flat, false)) __compatInstall(Array.prototype, "flat", __compatFlat);
         if (!__compatFlatWorks(Array.prototype.flatMap, true)) __compatInstall(Array.prototype, "flatMap", __compatFlatMap);
         if (!__compatStringAtWorks(String.prototype.at)) __compatInstall(String.prototype, "at", __compatStringAt);
-        root.__extendscriptCompatESNext2__ = 1;
+        root.__extendscriptCompatESNext2__ = 2;
     }
     if (root.__extendscriptCompatESNext3__ !== 2) {
         __compatOwn = Object.prototype.hasOwnProperty;
