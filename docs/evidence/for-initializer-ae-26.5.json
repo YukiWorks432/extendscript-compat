@@ -2,7 +2,9 @@
   "validatedOn": "2026-11-04",
   "appVersion": "26.5x89",
   "engineVersion": "4.5.6",
-  "fixtureSha256": "5b9ff69ad1ed5a1a76ef07ed15134d9c2712691cfc78bca9476d38e622c51d40",
+  "fixture": "test/fixtures/for-initializer-cases.json",
+  "fixtureSha256": "6c5729aafe309f4f4e79f7726d89dcb30e54b29cea5d84819c7d65d724b6b772",
+  "transformSourceSha256": "0a30c15aa728233821c60eee731ac4c96b8505c95ac85ddb5c52b6d05343d2b0",
   "cases": [
     {
       "name": "直接のin式",
@@ -94,6 +96,20 @@
       "beforeParse": "SyntaxError: Expected: )",
       "actual": "0,1",
       "passed": true
+    },
+    {
+      "name": "匿名関数の式初期化",
+      "expected": "true",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "true",
+      "passed": true
+    },
+    {
+      "name": "オブジェクトの式初期化",
+      "expected": "false,2",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "false,2",
+      "passed": true
     }
   ],
   "product": {
@@ -101,7 +117,5 @@
     "correctedSha256": "0797eb583cf6a42b503a51ce0561ddb775327c8c9ae3544ce76f26634cd13d8e",
     "beforeParse": "SyntaxError: Expected: )",
     "afterParse": "ok"
-  },
-  "fixture": "test/fixtures/for-initializer-cases.json",
-  "transformSourceSha256": "038ad3c2fd9be77b7439950f49fc8d5192ed4596e34ab43a042ac3c26f7f3916"
+  }
 }

@@ -63,5 +63,15 @@
     "name": "初期化末尾の行コメント",
     "code": "var out=[];for(var i=(\"x\" in {})?9:0 // keep\n;i<2;i++){out.push(i);}out.join(\",\");",
     "expected": "0,1"
+  },
+  {
+    "name": "匿名関数の式初期化",
+    "code": "var out=[];for(function(){out.push(\"x\" in {x:1});}();false;);out.join(\",\");",
+    "expected": "true"
+  },
+  {
+    "name": "オブジェクトの式初期化",
+    "code": "var out=[];for({a:(out.push(\"x\" in {})),b:out.push(2)};false;);out.join(\",\");",
+    "expected": "false,2"
   }
 ]

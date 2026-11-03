@@ -304,6 +304,13 @@ function analyzeCompatibility(source) {
     if (init.type === "VariableDeclaration" && init.kind !== "var") {
       throw new SyntaxError("for initializer correction requires ES3 var declarations");
     }
+    if (init.type !== "VariableDeclaration") {
+      // 関数式やオブジェクト式が、文の先頭で別の構文へ解釈されることを防ぐ。
+      initializerEdits.push(
+        { start: position.start, end: position.start, text: "(" },
+        { start: position.end, end: position.end, text: ")" },
+      );
+    }
     diagnostics.push({
       code: "EC-20",
       kind: "for-initializer-in",
