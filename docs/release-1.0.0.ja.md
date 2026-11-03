@@ -45,6 +45,8 @@ Windows、Ryzen 7 9800X3D（8コア16スレッド）、Node.js 24.22.1、pnpm 12
 
 ## 証跡と今回の確認範囲
 
-[出荷判断用の集計記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-11-04/v1-release/results.json)には、実施時点のコミット、生成物ハッシュ、契約件数、12回のビルド時間と88本の生成物ハッシュを保存しています。非公開の利用側ソース・スクリプト名・ローカル絶対パスは公開していません。Premiere修正時の[製品別結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-11-04/premiere-string-enumeration/results.json)と、[直接実行の集計出力](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-11-04/v1-release/premiere-direct-execution.txt)も参照できます。
+[当時の集計原記録](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-11-04/v1-release/results.json)には、実施時点のコミット、生成物ハッシュ、契約件数、12回のビルド時間と88本の生成物ハッシュを保存しています。非公開の利用側ソース・スクリプト名・ローカル絶対パスは公開していません。Premiere修正時の[製品別結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-11-04/premiere-string-enumeration/results.json)と、[直接実行の集計出力](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-11-04/v1-release/premiere-direct-execution.txt)も参照できます。
+
+原記録へのリンクは保存時点のコミットに固定しています。現行ツリーでは[検証記録の案内](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/README.ja.md)と、この文書の要約を維持します。
 
 #45の通常版SHA-256は4d7515dc41efa2a259d6861e924cd36c1e5bc5dda70739250703745dc1d59163、圧縮版はc471417fac316d87beb69770d06f8c3c7786696ac066fa8748fedc3ab5fde499です。#45と準備PRのsrc・runtime-src・runtime内の実装と型宣言が同一であることを照合し、今回の版と文書については整形・自動検査・梱包後の新規導入を確認します。既存の実機検証結果を今回再実行した結果へ置き換えません。

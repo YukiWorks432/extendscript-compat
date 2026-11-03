@@ -1,1 +1,0 @@
-(function(){if($.getenv('EC_REGEX_PROBE_ID')!=='ec18-19-matrix-20261029')throw Error('wrong instance');var started=(new Date()).getTime();var value=/(a|bB?)+$/.test('bx');return JSON.stringify({value:value,elapsedMs:(new Date()).getTime()-started});})()

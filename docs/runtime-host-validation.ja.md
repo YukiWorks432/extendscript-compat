@@ -15,7 +15,7 @@
 - MCP要求ID: `req-18e1fa77c7c8f698-10184-7`
 - 圧縮後の実行時補正SHA-256: `9235c8d4bfaa334ea381f822756a0c89ae58a40fa1e7cb46cd41345c2da77af3`
 - 検証コードSHA-256: `14168611b037421252c9fce4ce9b5da4f1b03f067fda87651e0c59a20524b21e`
-- [実行結果](evidence/runtime-ae-26.5.json)
+- [実行結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/runtime-ae-26.5.json)
 
 次のコマンドは、0.2.0時点の4関数補正だけを対象に、実出力と検証コードを生成する。JSON・ES5・ES6の補完は含まない。
 
@@ -35,7 +35,7 @@ node scripts/build-host-runtime-probe.mjs
 
 修正済み版の通常版と圧縮版は、まず初回のポリフィル導入後の同じ共有エンジンで検証した。統合用マーカーは解除したが、ES5・ES6のキャッシュと既存の関数は残っていた。その後After Effectsを再起動し、4つのマーカーとキャッシュが存在しない状態から通常版を初めて適用して、22項目と71項目、再読み込みを再確認した。圧縮版は未導入エンジンでの初回適用を確認していない。各検証でプロジェクトの項目数と変更状態は変化していない。
 
-[検証結果と生成物のハッシュ](evidence/polyfills-ae-26.5.json)を記録している。`node scripts/build-host-polyfill-probe.mjs`で圧縮版とテンプレートテストを再生成できる。
+[検証結果と生成物のハッシュ](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/polyfills-ae-26.5.json)を記録している。`node scripts/build-host-polyfill-probe.mjs`で圧縮版とテンプレートテストを再生成できる。
 
 ## trim・Unicode・Number.parseIntの追加確認
 
@@ -45,7 +45,7 @@ node scripts/build-host-runtime-probe.mjs
 
 上記2項目を除いた共通資料を使った再確認では、通常版と圧縮版のそれぞれで107 / 107項目、既存の補正71 / 71項目が成功し、再読み込み後の107項目と関数の同一性も確認した。移行元のテストは48 / 48項目が成功した。圧縮版と共通資料の最終版は、通常版を導入した共有エンジンで確認している。通常版の実行ファイルは初回実行時と同一のハッシュである。
 
-ASCII化した別の検証ファイルを`$.evalFile`で読み込み、文字列中のU+200C・U+200D・U+FEFFと、U+200Cを含む正規表現の一致・不一致を確認した。検証中のプロジェクトは項目数6、変更ありの状態で、前後に変化はなかった。対象版、ハッシュ、初回の2件の不一致を含む結果は[実機検証結果](evidence/trim-unicode-ae-26.5.json)に記録している。他のAdobe製品や旧版は未確認である。
+ASCII化した別の検証ファイルを`$.evalFile`で読み込み、文字列中のU+200C・U+200D・U+FEFFと、U+200Cを含む正規表現の一致・不一致を確認した。検証中のプロジェクトは項目数6、変更ありの状態で、前後に変化はなかった。対象版、ハッシュ、初回の2件の不一致を含む結果は[実機検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/trim-unicode-ae-26.5.json)に記録している。他のAdobe製品や旧版は未確認である。
 
 ## ES Nextの一部メソッドの実機確認
 
@@ -53,7 +53,7 @@ ASCII化した別の検証ファイルを`$.evalFile`で読み込み、文字列
 
 0.3.0のランタイム適用後に通常版を読み込み、追加メソッド102項目、再読込、関数の同一性を確認した。新版の後に旧版を読み込む順序も確認した。正常な既存メソッドの維持と、不完全なメソッドの置換後の102項目も確認した。圧縮版は、対象メソッドと追加用の印を検証プロセス内で取り除いてから実行し、追加メソッド102項目、既存のポリフィル107項目と4関数補正71項目、再読込を確認した。AEの新規エンジンでの初回適用は今回確認していない。
 
-検証用プロジェクトは項目0件だったが、圧縮版検証後に未保存状態になったため一時保存した。原因は特定していない。他のAdobe製品では確認していない。[調査・検証結果と実行コード](evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)には対象のハッシュを記録している。
+検証用プロジェクトは項目0件だったが、圧縮版検証後に未保存状態になったため一時保存した。原因は特定していない。他のAdobe製品では確認していない。[調査・検証結果と実行コード](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)には対象のハッシュを記録している。
 
 ## ES Next第2段階の実機確認
 
@@ -61,13 +61,13 @@ ASCII化した別の検証ファイルを`$.evalFile`で読み込み、文字列
 
 第1段階を適用済みのエンジンで第2段階の5メソッドと追加用の印を取り除いてから通常版・圧縮版を確認した。どちらも第2段階46項目、第1段階102項目、再評価と関数の同一性を確認し、圧縮版では既存のポリフィル107項目と4関数補正71項目も成功した。正常な既存関数の維持、不完全な関数の置換、前版を後から読み込む場合も確認した。新規AEエンジンでの初回適用と、ほかのAdobe製品は未確認である。
 
-検証用プロジェクトは6項目あり、調査前と検証後の状態を別々に一時保存した。圧縮版の検証後に未保存状態になった原因は特定していない。[調査・検証結果と実行コード](evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)にハッシュを記録している。
+検証用プロジェクトは6項目あり、調査前と検証後の状態を別々に一時保存した。圧縮版の検証後に未保存状態になった原因は特定していない。[調査・検証結果と実行コード](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)にハッシュを記録している。
 
 ## ES Next第3段階の実機確認
 
 2026年10月29日、After Effects 26.5x89 / ExtendScript 4.5.6（build 80.1060872）の検証専用プロセスで確認した。両メソッドは未実装だった。文字列の添字と配列・文字列・関数の一部の組み込みプロパティは、既存の所有属性判定で正しく認識されない場合があった。
 
-既存ランタイムが適用されたエンジンで対象メソッドと追加用の印を取り除き、通常版と圧縮版を確認した。それぞれ第3段階36項目、第2段階46項目、第1段階102項目と再読み込み時の関数の同一性を確認し、圧縮版では既存のポリフィル107項目と4関数補正71項目も成功した。正常な関数の維持、不完全な関数の置換、新版の後に旧版を読み込む場合も確認した。検証用プロジェクトは項目0件だったが、再確認の途中で未保存状態になったため一時保存した。原因は特定していない。新規エンジンで最終版の初回適用は確認していない。ほかのAdobe製品は未確認である。[検証結果と実行コード](evidence/2026-10-29/ae-26.5/esnext-stage3/esnext-stage3-ae-26.5.json)に対象のハッシュを記録している。
+既存ランタイムが適用されたエンジンで対象メソッドと追加用の印を取り除き、通常版と圧縮版を確認した。それぞれ第3段階36項目、第2段階46項目、第1段階102項目と再読み込み時の関数の同一性を確認し、圧縮版では既存のポリフィル107項目と4関数補正71項目も成功した。正常な関数の維持、不完全な関数の置換、新版の後に旧版を読み込む場合も確認した。検証用プロジェクトは項目0件だったが、再確認の途中で未保存状態になったため一時保存した。原因は特定していない。新規エンジンで最終版の初回適用は確認していない。ほかのAdobe製品は未確認である。[検証結果と実行コード](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage3/esnext-stage3-ae-26.5.json)に対象のハッシュを記録している。
 
 ## 配列のコピー操作と末尾検索の実機確認
 
@@ -75,7 +75,7 @@ ASCII化した別の検証ファイルを`$.evalFile`で読み込み、文字列
 
 2026年10月29日、検証専用のAfter Effects 26.5x89 / ExtendScript 4.5.6で確認した。6メソッドは未実装で、withをドット記法で呼ぶ構文は予約語のためエラーになった。通常版と圧縮版でそれぞれ49項目に成功し、再評価時の関数保持を確認した。圧縮版では既存の契約36・46・102・107・71項目も成功した。正常な既存実装の保持、不完全な実装の置換、新版の後に旧版を読み込む順序も確認した。通常版を初めて読み込む前は6メソッドが存在せず、圧縮版は対象メソッドと適用済みの印を取り除いて確認した。
 
-検証用プロジェクトは項目0件で、記録した実行結果はいずれも未変更だった。他のAdobe製品とAE旧版は未確認である。[実行コード・結果・ハッシュ](evidence/2026-10-29/ae-26.5/array-copy-search/results.json)を参照。
+検証用プロジェクトは項目0件で、記録した実行結果はいずれも未変更だった。他のAdobe製品とAE旧版は未確認である。[実行コード・結果・ハッシュ](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/array-copy-search/results.json)を参照。
 
 ## 全置換とUTF-16の整形式の実機確認
 
@@ -83,7 +83,7 @@ ASCII化した別の検証ファイルを`$.evalFile`で読み込み、文字列
 
 最初の実装を追加調査したところ、AEのreplaceはlastIndexを初期化せず、コールバックにも以前の値が見えた。置換値の型変換後に0へ戻す補正と回帰検証を追加した。最終版は既存のランタイムを導入済みのエンジンで、対象の3メソッドと追加用の印を取り除いてから通常版と圧縮版を読み込んだ。両方とも新規56項目が成功し、通常版の再評価では関数の同一性も維持した。圧縮版では既存の第1〜3段階184項目、従来の補完107項目、4関数補正71項目も成功した。正常な既存関数の維持、不完全な関数の置換、mainの前版を前後に読み込む場合も成功した。
 
-検証用プロジェクトは項目0件だった。検証中に未保存状態になったため、終了前に一時保存した。この環境ではプロジェクトを開いていた時間を記録する拡張機能があり、操作しなくても未保存状態になる。新規エンジンへの最終版の初回適用、旧AE、ほかのAdobe製品は未確認である。Symbolを使う委譲はNodeで確認し、SymbolのないAEでは専用の経路を確認した。[調査・検証結果と実行コード](evidence/2026-10-29/ae-26.5/string-modern/results.json)には生成物、共通契約、実行要求、保存ファイルのハッシュを分けて記録している。
+検証用プロジェクトは項目0件だった。検証中に未保存状態になったため、終了前に一時保存した。この環境ではプロジェクトを開いていた時間を記録する拡張機能があり、操作しなくても未保存状態になる。新規エンジンへの最終版の初回適用、旧AE、ほかのAdobe製品は未確認である。Symbolを使う委譲はNodeで確認し、SymbolのないAEでは専用の経路を確認した。[調査・検証結果と実行コード](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/string-modern/results.json)には生成物、共通契約、実行要求、保存ファイルのハッシュを分けて記録している。
 
 ## splitの末尾境界の確認
 
@@ -99,13 +99,13 @@ ASCII化した別の検証ファイルを`$.evalFile`で読み込み、文字列
 
 2026年10月30日、After Effects 26.5x89 / ExtendScript 4.5.6で、通常版と圧縮・優先順位保護した配布ランタイムを確認した。JSONが未導入の状態と、旧json2および旧ランタイムの導入済み印がある状態で、それぞれ共通契約15項目がすべて成功した。入れ子呼び出し後の置換関数と字下げ、数値とラッパーのキー変換、指定順、重複除去、キー一覧の事前確定を確認した。再評価と旧json2の後読み込みでも関数の同一性を保持し、既存のparseも維持した。
 
-JSON以外の補完は導入済み印で省略した。検証後はJSON、導入済み印、toJSONを元の値へ復元し、プロジェクトの項目数と変更状態も維持した。新規エンジンへの全機能の初回導入、AE旧版、ほかのAdobe製品は未確認である。[結果と生成物のハッシュ](evidence/2026-10-30/ae-26.5/json-stringify/results.json)を参照。`node scripts/build-host-json-probe.mjs`で検証用コードとハッシュを再生成できる。
+JSON以外の補完は導入済み印で省略した。検証後はJSON、導入済み印、toJSONを元の値へ復元し、プロジェクトの項目数と変更状態も維持した。新規エンジンへの全機能の初回導入、AE旧版、ほかのAdobe製品は未確認である。[結果と生成物のハッシュ](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-30/ae-26.5/json-stringify/results.json)を参照。`node scripts/build-host-json-probe.mjs`で検証用コードとハッシュを再生成できる。
 
 ## 所有判定と配列コピーの境界条件
 
 2026年10月30日、After Effects 26.5x89 / ExtendScript 4.5.6で、通常版・圧縮版それぞれを未導入と前版導入済みの状態で確認した。4条件すべてで所有判定38項目と配列コピー39項目が成功し、再評価・前版の後読み込み後も関数の同一性を保持した。対象外の導入段階は印で省略し、前提となるArray.isArrayだけを検証中に補った。変更した関数と導入済み印は復元し、プロジェクトの項目数と変更状態も維持した。
 
-このAEにはSymbolとObject.definePropertyがないため、Symbolキーや継承された属性の回帰試験はNodeで実行した。Node 24.22.1の純正toSortedにも、1要素のコピーで継承された数値プロパティに妨げられる挙動があり、動作判定で置き換えることを確認した。新規エンジンへの全機能の初回導入、AE旧版、ほかのAdobe製品は未確認である。[結果と生成物のハッシュ](evidence/2026-10-30/ae-26.5/compatibility-edge-cases/results.json)を参照。`node scripts/build-host-edge-case-probe.mjs`で検証用コードとハッシュを再生成できる。
+このAEにはSymbolとObject.definePropertyがないため、Symbolキーや継承された属性の回帰試験はNodeで実行した。Node 24.22.1の純正toSortedにも、1要素のコピーで継承された数値プロパティに妨げられる挙動があり、動作判定で置き換えることを確認した。新規エンジンへの全機能の初回導入、AE旧版、ほかのAdobe製品は未確認である。[結果と生成物のハッシュ](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-30/ae-26.5/compatibility-edge-cases/results.json)を参照。`node scripts/build-host-edge-case-probe.mjs`で検証用コードとハッシュを再生成できる。
 
 ## JSON.parseの厳密な文法検査
 
@@ -113,7 +113,7 @@ JSON以外の補完は導入済み印で省略した。検証後はJSON、導入
 
 末尾カンマ、不正な数値・エスケープ・制御文字・空白の拒否、Unicodeの保持、負のゼロ、重複キー、`__proto__`の所有プロパティとしての保持、`reviver`の順序・置換・削除を確認しました。再読み込みと旧json2の後読み込み後も関数の同一性を保持しました。
 
-JSON以外の導入段階は省略し、JSON、導入済み印、`toJSON`を復元しました。プロジェクトの項目数と変更状態は維持しています。これはJSONの検証であり、新規エンジンへの最終ランタイム全体の初回導入や他のAdobe製品の確認ではありません。[結果と生成物のハッシュ](evidence/2026-11-04/ae-26.5/json-parse/results.json)を記録しています。`node scripts/build-host-json-probe.mjs`で現在の検証コードを生成できます。
+JSON以外の導入段階は省略し、JSON、導入済み印、`toJSON`を復元しました。プロジェクトの項目数と変更状態は維持しています。これはJSONの検証であり、新規エンジンへの最終ランタイム全体の初回導入や他のAdobe製品の確認ではありません。[結果と生成物のハッシュ](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-11-04/ae-26.5/json-parse/results.json)を記録しています。`node scripts/build-host-json-probe.mjs`で現在の検証コードを生成できます。
 
 ## AE・Illustrator・PhotoshopでのJSON追加確認
 
@@ -139,7 +139,7 @@ node scripts/build-host-json-probe.mjs phxs
 
 出力先はAEが`tmp/json-host/probe.jsx`、Illustratorが`tmp/json-host/ilst/probe.jsx`、Photoshopが`tmp/json-host/phxs/probe.jsx`です。各製品のExtendScriptから`$.evalFile`で読み込みます。引数を省略するとAE用を生成します。
 
-[製品別の結果・通信経路・生成物のハッシュ](evidence/2026-11-04/multi-host/json-parse/results.json)を保存しています。JSON以外の導入段階は省略したため、全機能の新規エンジンへの初回導入や、Illustrator・PhotoshopのJSON以外の機能を確認したものではありません。
+[製品別の結果・通信経路・生成物のハッシュ](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-11-04/multi-host/json-parse/results.json)を保存しています。JSON以外の導入段階は省略したため、全機能の新規エンジンへの初回導入や、Illustrator・PhotoshopのJSON以外の機能を確認したものではありません。
 
 ## Premiereの文字列列挙の修正
 
@@ -153,7 +153,7 @@ Illustrator MCPからBridgeTalkを経由してPremiere内のExtendScriptで検�
 
 検査後は変更した標準API、導入済み印、ES5・ES6シムのキャッシュを復元し、確認した文書状態も前後で一致しました。この確認は同じエンジンの状態を復元して行ったもので、別々の再起動による初回導入とは区別します。Premiere全体を公開契約の保証対象へ追加する変更ではありません。
 
-[製品別の結果・通信の要求ID・生成物のハッシュ](evidence/2026-11-04/premiere-string-enumeration/results.json)を保存しています。実機用の共通契約はtest/contracts/entries-flattening-string-at-contract.jsです。
+[製品別の結果・通信の要求ID・生成物のハッシュ](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-11-04/premiere-string-enumeration/results.json)を保存しています。実機用の共通契約はtest/contracts/entries-flattening-string-at-contract.jsです。
 
 ## 1.0.0の出荷判断
 

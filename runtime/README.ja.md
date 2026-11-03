@@ -46,7 +46,7 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 
 `/runtime`をTypeScriptから読み込むと、上記メソッドの型も追加されます。`lib: ["ES5"]`でも利用でき、未対応の`Promise`の型は追加しません。構文の変換は引き続き利用側で必要です。
 
-非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
+非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
 
 ## 配列のコピー操作と末尾検索
 

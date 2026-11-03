@@ -20,7 +20,6 @@ export default defineConfig({
     },
   ],
   ignorePatterns: [
-    "docs/evidence/**/*.jsx",
     "plans/evidence/**",
     "plans/extendscript-known-bugs-2026-10-26.md",
     "runtime-src/vendor/es5-shim.js",

@@ -89,7 +89,7 @@ extendscriptCompat({ bom: false });
 
 無効にした出力にBOMがなく非ASCII文字が残る場合は、`MISSING_BOM`として警告します。ASCIIだけの出力や、先頭にすでにBOMがある出力には警告しません。この警告は`diagnostics`の設定にかかわらず通知します。
 
-BOMはUTF-8のファイル先頭に付く目印です。後続の処理がBOMを除去したり別の位置へ移動したりしないよう、最終出力を確認してください。`protectCompatibility`と`protectUnicode`は先頭のBOMを保持しますが、単独ではBOMを追加しません。文字列や正規表現内のU+FEFFは引き続きエスケープします。 [After Effects 2025・2026での検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/bom-ae-2025-2026.json)では、2025のBOMなし出力のみ`$.evalFile`で読み込みエラーになりました。
+BOMはUTF-8のファイル先頭に付く目印です。後続の処理がBOMを除去したり別の位置へ移動したりしないよう、最終出力を確認してください。`protectCompatibility`と`protectUnicode`は先頭のBOMを保持しますが、単独ではBOMを追加しません。文字列や正規表現内のU+FEFFは引き続きエスケープします。 [After Effects 2025・2026での検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/bom-ae-2025-2026.json)では、2025のBOMなし出力のみ`$.evalFile`で読み込みエラーになりました。
 
 ## Unicode文字の補正
 
@@ -103,7 +103,7 @@ extendscriptCompat();
 
 上記の文字が識別子、コメント、ライセンス表示、文字列と正規表現以外の場所にある場合は、安全な変換を保証できないためエラーにします。識別子の`\u200c`・`\u200d`も対象です。エラーの行は1始まり、列はUTF-16のコード単位で0始まりです。未展開のディレクティブやE4Xを含む入力には対応しません。
 
-Rollupを使わない場合は`protectUnicode(source)`を使うか、`protectCompatibility(source)`で他の補正と同時に適用できます。どちらも変換後の`code`と元の入力に対する`edits`を返します。After Effects 26.5x89での検証条件と結果は[実機検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/unicode-output-ae-26.5.json)を参照してください。
+Rollupを使わない場合は`protectUnicode(source)`を使うか、`protectCompatibility(source)`で他の補正と同時に適用できます。どちらも変換後の`code`と元の入力に対する`edits`を返します。After Effects 26.5x89での検証条件と結果は[実機検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/unicode-output-ae-26.5.json)を参照してください。
 
 ## EC-03・EC-06のビルド時補正と診断
 
@@ -135,7 +135,7 @@ const issues = findCompatibilityIssues(source);
 
 ## 正規表現の潜在的な問題の検出
 
-After EffectsのExtendScriptでは、選択肢と省略可能な要素を含む繰り返しが停止する場合（EC-18）や、繰り返し内の入れ子の選択肢が誤った一致結果を返す場合（EC-19）があります。実機での再現条件と比較結果は[調査記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/regexp-risks-ae-26.5.json)を参照してください。
+After EffectsのExtendScriptでは、選択肢と省略可能な要素を含む繰り返しが停止する場合（EC-18）や、繰り返し内の入れ子の選択肢が誤った一致結果を返す場合（EC-19）があります。実機での再現条件と比較結果は[調査記録](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/regexp-risks-ae-26.5.json)を参照してください。
 
 この検出は既定では無効です。Rollupで有効にすると、最終出力の正規表現リテラルを検査します。
 
