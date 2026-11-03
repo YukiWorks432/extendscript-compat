@@ -6,7 +6,7 @@
 
 ## 調査と採用した方法
 
-[調査コード](evidence/compatibility-investigation.jsx)と[結果](evidence/compatibility-investigation-ae-26.5.json)に、入力と実行本文のSHA-256を記録している。
+[調査コード](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-investigation.jsx)と[結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-investigation-ae-26.5.json)に、入力と実行本文のSHA-256を記録している。
 
 | 対象  | 実機で観測した差                                                                                                                                                              | 採用した方法                                                                                                                        |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -28,11 +28,11 @@
 
 追加の確認には、ラベル付きcontinueのfinally、文字クラスの否定・範囲端点・エスケープ、減算方向、型、単位、px・%の換算基準、符号付きゼロ、入力不変、不正入力、nullとUnitValueの区別を含む。Nodeではホスト固有の演算子を模擬して保証したことにはせず、AEで別に実行する。
 
-4関数の新規適用と再適用時の同一性、終了時の復元、UnitValueコンストラクタとプロジェクト状態の保持も確認する。結果と生成物のハッシュは[実機証跡](evidence/compatibility-auto-label-ae-26.5.json)に保存する。プロジェクトの追加・変更・保存は行わない。
+4関数の新規適用と再適用時の同一性、終了時の復元、UnitValueコンストラクタとプロジェクト状態の保持も確認する。結果と生成物のハッシュは[実機証跡](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-auto-label-ae-26.5.json)に保存する。プロジェクトの追加・変更・保存は行わない。
 
 自動ラベル挿入には、for・while・do-while・for-in、同一ループの複数continue、入れ子、既存ラベルの再利用、外側や後続のラベルとの衝突回避、コメントとASI、ブロックなしのループ、finally、this・arguments・直接evalの束縛を含む17シナリオを追加した。Nodeの標準動作と固定した期待値を比較し、同じ入力を実際の非圧縮・圧縮出力へ含めてAEでも確認した。
 
-自動ラベル追加前のhead 41b38aab03ef1d93d2cf7ccf31aaecda0c1576aeにおける追加36/36・既存71/71の記録は、[前回の実機証跡](evidence/compatibility-ae-26.5.json)として保持している。
+自動ラベル追加前のhead 41b38aab03ef1d93d2cf7ccf31aaecda0c1576aeにおける追加36/36・既存71/71の記録は、[前回の実機証跡](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-ae-26.5.json)として保持している。
 
 ## 再実行
 

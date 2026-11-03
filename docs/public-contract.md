@@ -48,9 +48,9 @@ The [runtime API matrix](../runtime/API-COMPATIBILITY.md) defines individual pol
 
 ## Environments and release validation
 
-Build tools target Node.js 22 or later and Rollup 4. CI checks Ubuntu and Windows with Node.js 22 and 24. The host-validation baseline is After Effects 26.5x89 / ExtendScript 4.5.6 on Windows. Individual older-AE checks do not imply support for all features. Illustrator 30.8.2 / ExtendScript 4.5.6 and Photoshop 27.11.0 / ExtendScript 4.5.12 have only passed the JSON-specific checks. Unverified features and environments such as macOS must not be described as host-verified.
+Build tools target Node.js 22 or later and Rollup 4. CI checks Ubuntu and Windows with Node.js 22 and 24. The host-validation baseline is After Effects 26.5x89 / ExtendScript 4.5.6 on Windows. Illustrator, Photoshop and Premiere checks are limited to the versions, features and installation states in the [1.0.0 evidence](release-1.0.0.md). Unverified features, older releases and macOS must not be described as host-verified.
 
-Before releasing 1.0.0, install the final normal and minified candidates separately into previously unmodified engines and check the complete contract, repeated loading, and coexistence with the selected older releases. Individual checks or Node simulations alone do not satisfy this gate. Also check output, representative operations, and build time in the public template and real consumers, recording source and artifact hashes. These release checks remain separate from acceptance of this contract.
+The 1.0.0 release decision combines separate normal/minified first installations into unmodified engines, repeated loading, older-version coexistence, consumer output/operations/build timings, and subsequent checks of corrected areas. Record tested commits and artifact hashes and retain evidence for unchanged areas. Version/documentation-only updates do not trigger blanket host or performance reruns. Behavior changes or newly discovered defects require additional checks of affected areas. Individual tests or Node simulations alone do not complete host validation; contract acceptance remains distinct from actual release evidence.
 
 ## Changes after v1
 

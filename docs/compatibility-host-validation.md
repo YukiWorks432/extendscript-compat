@@ -6,7 +6,7 @@ On 2026-10-26, correction methods for EC-03, EC-06, EC-10, and EC-11 were invest
 
 ## Investigation and selected approaches
 
-The [investigation code](evidence/compatibility-investigation.jsx) and [result](evidence/compatibility-investigation-ae-26.5.json) record the SHA-256 hashes of the input and executed body.
+The [investigation code](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-investigation.jsx) and [result](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-investigation-ae-26.5.json) record the SHA-256 hashes of the input and executed body.
 
 | Issue | Difference observed on the host                                                                                                                                                                                                                         | Selected approach                                                                                                                                                              |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -28,11 +28,11 @@ Rollup generated non-minified and Terser-minified versions from the 0.2.0 implem
 
 Additional checks cover `finally` with labeled `continue`, negated character classes, range endpoints and escapes, subtraction direction, type and unit, px and % conversion bases, signed zero, input immutability, invalid inputs, and distinguishing `null` from `UnitValue`. Host-specific operators are executed separately in AE; Node mocks are not treated as proof of host behavior.
 
-Fresh application and reapplication identity of the four functions, restoration afterward, and preservation of the `UnitValue` constructor and project state were also checked. The results and generated-file hashes are in the [host evidence](evidence/compatibility-auto-label-ae-26.5.json). No project items were added or changed, and the project was not saved.
+Fresh application and reapplication identity of the four functions, restoration afterward, and preservation of the `UnitValue` constructor and project state were also checked. The results and generated-file hashes are in the [host evidence](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-auto-label-ae-26.5.json). No project items were added or changed, and the project was not saved.
 
 Automatic label insertion includes 17 scenarios: `for`, `while`, `do-while` and `for-in`, multiple `continue` statements for one loop, nesting, reuse of existing labels, collision avoidance with outer or later labels, comments and ASI, loops without braces, `finally`, and bindings for `this`, `arguments`, and direct `eval`. Standard Node behavior was compared with fixed expected values; the same inputs were included in actual non-minified and minified output and checked in AE.
 
-The [previous host evidence](evidence/compatibility-ae-26.5.json) retains the additional 36/36 and existing 71/71 results for head `41b38aab03ef1d93d2cf7ccf31aaecda0c1576ae`, before automatic label insertion.
+The [previous host evidence](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/compatibility-ae-26.5.json) retains the additional 36/36 and existing 71/71 results for head `41b38aab03ef1d93d2cf7ccf31aaecda0c1576ae`, before automatic label insertion.
 
 ## Reproduction
 

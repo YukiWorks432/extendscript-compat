@@ -1,6 +1,6 @@
 {
   "name": "extendscript-compat",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "Build-time and runtime compatibility fixes for Adobe ExtendScript",
   "homepage": "https://github.com/YukiWorks432/extendscript-compat#readme",
   "bugs": {
@@ -22,7 +22,9 @@
     "docs/build-compatibility.md",
     "docs/build-compatibility.ja.md",
     "docs/public-contract.md",
-    "docs/public-contract.ja.md"
+    "docs/public-contract.ja.md",
+    "docs/release-1.0.0.md",
+    "docs/release-1.0.0.ja.md"
   ],
   "type": "module",
   "exports": {

@@ -31,6 +31,8 @@ var enabled = isAdmin || (isOwner && isReady);
 
 </details>
 
+[1.0.0の変更点・移行・検証結果](docs/release-1.0.0.ja.md)を確認できます。
+
 ## インストール
 
 Node.js 22以降が必要です。

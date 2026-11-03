@@ -89,7 +89,7 @@ extendscriptCompat({ bom: false });
 
 When disabled, output containing non-ASCII characters without a leading BOM produces a `MISSING_BOM` warning. ASCII-only output and output with an existing leading BOM do not produce the warning. This warning is emitted regardless of the `diagnostics` setting.
 
-A BOM marks the beginning of a UTF-8 file. Check the final output so that later processing does not remove or move it. `protectCompatibility` and `protectUnicode` preserve an existing leading BOM but do not add one when used directly. U+FEFF inside strings and regular expressions is still escaped. In the [After Effects 2025 and 2026 verification](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/bom-ae-2025-2026.json), only BOM-free output on 2025 failed to load through `$.evalFile`.
+A BOM marks the beginning of a UTF-8 file. Check the final output so that later processing does not remove or move it. `protectCompatibility` and `protectUnicode` preserve an existing leading BOM but do not add one when used directly. U+FEFF inside strings and regular expressions is still escaped. In the [After Effects 2025 and 2026 verification](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/bom-ae-2025-2026.json), only BOM-free output on 2025 failed to load through `$.evalFile`.
 
 ## Unicode protection
 
@@ -103,7 +103,7 @@ Run this after minification and include expansion. Later processing can reintrod
 
 The transformation fails when these characters occur in identifiers, comments, license notices, or elsewhere outside strings and regular expressions, where safe conversion cannot be guaranteed. It also rejects `\u200c` and `\u200d` in identifiers. Error lines are 1-based and columns count UTF-16 code units from zero. Unexpanded directives and E4X are unsupported.
 
-Without Rollup, call `protectUnicode(source)` or use `protectCompatibility(source)` to combine it with the other corrections. Both return the transformed `code` and `edits` relative to the original input. The [host evidence](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/unicode-output-ae-26.5.json) records the test conditions and results for After Effects 26.5x89.
+Without Rollup, call `protectUnicode(source)` or use `protectCompatibility(source)` to combine it with the other corrections. Both return the transformed `code` and `edits` relative to the original input. The [host evidence](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/unicode-output-ae-26.5.json) records the test conditions and results for After Effects 26.5x89.
 
 ## EC-03 and EC-06 build-time corrections and diagnostics
 
@@ -135,7 +135,7 @@ const issues = findCompatibilityIssues(source);
 
 ## Detecting potential regular-expression issues
 
-In After Effects ExtendScript, repetition containing alternatives and optional elements can hang (EC-18), and repetition containing nested alternatives can return incorrect matches (EC-19). See the [host investigation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/evidence/regexp-risks-ae-26.5.json) for the observed cases and comparison results.
+In After Effects ExtendScript, repetition containing alternatives and optional elements can hang (EC-18), and repetition containing nested alternatives can return incorrect matches (EC-19). See the [host investigation](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/regexp-risks-ae-26.5.json) for the observed cases and comparison results.
 
 Detection is disabled by default. Enable it in Rollup to inspect regular-expression literals in the final output:
 

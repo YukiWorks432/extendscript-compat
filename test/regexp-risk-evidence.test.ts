@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 
 it("EC-18の実機候補は記録した入力群で標準的な一致とキャプチャに一致する", () => {
   const file = new URL(
-    "../docs/evidence/regexp-risks-ae-26.5/ec18-candidate-results.json",
+    "./fixtures/regexp-host-results/ec18-candidate-results.json",
     import.meta.url,
   );
   const { results } = JSON.parse(readFileSync(file, "utf8")) as {
@@ -19,7 +19,7 @@ it("EC-18の実機候補は記録した入力群で標準的な一致とキャ�
 
 it("EC-19の実機候補は記録した入力群で標準的な真偽値に一致する", () => {
   const file = new URL(
-    "../docs/evidence/regexp-risks-ae-26.5/ec19-candidate-results.json",
+    "./fixtures/regexp-host-results/ec19-candidate-results.json",
     import.meta.url,
   );
   const { results } = JSON.parse(readFileSync(file, "utf8")) as {
