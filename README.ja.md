@@ -4,7 +4,7 @@
 
 Adobe ExtendScript向けに、ビルド時の不具合補正と実行時の互換機能を提供するライブラリです。
 
-- 式の優先順位、`switch`をまたぐ`continue`、正規表現のハイフンをビルド時に補正します。
+- 式の優先順位、`switch`をまたぐ`continue`、正規表現のハイフン、`for`初期化部分の`in`演算子をビルド時に補正します。
 - Rollupの`extendscriptCompat()`は補正後のES3構文を自動検査し、不適合ならビルドを停止します。
 - 明示的な読み込みにより、JSON・ES5・ES6と後年の一部メソッドを補完し、`parseInt`と3つの文字列メソッドを実行時に補正します。
 - `UnitValue`の減算と`null`比較には、明示的な補助APIを提供します。
@@ -31,7 +31,7 @@ var enabled = isAdmin || (isOwner && isReady);
 
 </details>
 
-[1.0.0の変更点・移行・検証結果](docs/release-1.0.0.ja.md)を確認できます。
+[1.1.0の変更点](docs/releases/1.1.0.ja.md)と、[1.0.0の移行・検証結果](docs/release-1.0.0.ja.md)を確認できます。
 
 ## インストール
 
