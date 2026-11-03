@@ -52,6 +52,33 @@
   check("entries string keys", Object.entries("ab")[0][0] + Object.entries("ab")[1][0], "01");
   check("entries string values", Object.entries("ab")[0][1] + Object.entries("ab")[1][1], "ab");
   check("values string", Object.values("ab").join(""), "ab");
+  check("empty string entries", Object.entries("").length, 0);
+  check("boxed string values", Object.values(new String("ab")).join(""), "ab");
+  var boxed = new String("ab");
+  boxed[3] = "outside";
+  boxed["-1"] = "negative";
+  boxed["01"] = "leading";
+  boxed["0.5"] = "fraction";
+  boxed.extra = "extra";
+  var boxedEntries = Object.entries(boxed);
+  check(
+    "boxed string keys",
+    boxedEntries
+      .map(function (pair) {
+        return pair[0];
+      })
+      .join(","),
+    "0,1,3,-1,01,0.5,extra"
+  );
+  check(
+    "boxed string properties",
+    Object.values(boxed).join(","),
+    "a,b,outside,negative,leading,fraction,extra"
+  );
+  var surrogateText = String.fromCharCode(0xd83d, 0xde00);
+  check("string values use code units", Object.values(surrogateText).length, 2);
+  check("string high surrogate", Object.values(surrogateText)[0].charCodeAt(0), 0xd83d);
+  check("string low surrogate", Object.values(surrogateText)[1].charCodeAt(0), 0xde00);
   check("entries number", Object.entries(3).length, 0);
   check("values boolean", Object.values(true).length, 0);
   assertThrows("entries null", function () {

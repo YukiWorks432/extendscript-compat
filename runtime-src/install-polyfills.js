@@ -23,7 +23,7 @@ if (root.__extendscriptCompatESNext1__ !== 1) {
   root.__extendscriptCompatESNext1__ = 1;
 }
 
-if (root.__extendscriptCompatESNext2__ !== 1) {
+if (root.__extendscriptCompatESNext2__ !== 2) {
   if (!__compatObjectWorks(Object.entries, true))
     __compatInstall(Object, "entries", __compatEntries);
   if (!__compatObjectWorks(Object.values, false)) __compatInstall(Object, "values", __compatValues);
@@ -33,7 +33,7 @@ if (root.__extendscriptCompatESNext2__ !== 1) {
     __compatInstall(Array.prototype, "flatMap", __compatFlatMap);
   if (!__compatStringAtWorks(String.prototype.at))
     __compatInstall(String.prototype, "at", __compatStringAt);
-  root.__extendscriptCompatESNext2__ = 1;
+  root.__extendscriptCompatESNext2__ = 2;
 }
 
 if (root.__extendscriptCompatESNext3__ !== 2) {

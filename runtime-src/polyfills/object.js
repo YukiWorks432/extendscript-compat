@@ -11,6 +11,10 @@ function __compatObjectValues(value, entries) {
     others = [],
     result = [];
   var i, key, number;
+  var isString = Object.prototype.toString.call(object) === "[object String]";
+  var text = isString && !descriptors ? String.prototype.valueOf.call(object) : null;
+  // PremiereではObject.keysが文字列の添字を返さないため、文字列から直接補う。
+  if (text !== null) for (i = 0; i < text.length; i++) indexes.push(String(i));
   for (i = 0; i < keys.length; i++) {
     key = keys[i];
     number = +key;
@@ -19,17 +23,22 @@ function __compatObjectValues(value, entries) {
       number < 4294967295 &&
       Math.floor(number) === number &&
       String(number) === key
-    )
-      indexes.push(key);
-    else others.push(key);
+    ) {
+      if (text === null || number >= text.length) indexes.push(key);
+    } else others.push(key);
   }
   indexes.sort(function (a, b) {
     return +a - +b;
   });
   keys = indexes.concat(others);
-  var isString = Object.prototype.toString.call(object) === "[object String]";
   for (i = 0; i < keys.length; i++) {
     key = keys[i];
+    var stringIndex =
+      isString &&
+      +key >= 0 &&
+      +key < object.length &&
+      String(+key) === key &&
+      Math.floor(+key) === +key;
     var enumerable;
     if (descriptors) {
       var descriptor = Object.getOwnPropertyDescriptor(object, key);
@@ -37,15 +46,14 @@ function __compatObjectValues(value, entries) {
     } else {
       // AEでは文字列の位置が所有・列挙属性に現れない場合がある。
       enumerable =
-        (isString &&
-          +key >= 0 &&
-          +key < object.length &&
-          String(+key) === key &&
-          Math.floor(+key) === +key) ||
+        stringIndex ||
         (Object.prototype.hasOwnProperty.call(object, key) &&
           Object.prototype.propertyIsEnumerable.call(object, key));
     }
-    if (enumerable) result.push(entries ? [key, object[key]] : object[key]);
+    if (enumerable) {
+      var item = text !== null && stringIndex ? text.charAt(+key) : object[key];
+      result.push(entries ? [key, item] : item);
+    }
   }
   return result;
 }

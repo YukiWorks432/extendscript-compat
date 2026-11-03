@@ -232,3 +232,35 @@ it("第1段階で追加された列挙可能な配列メソッドをentriesとva
   expect(runInContext("JSON.stringify(Object.entries([4,5]))", context)).toBe('[["0",4],["1",5]]');
   expect(runInContext("JSON.stringify(Object.values([4,5]))", context)).toBe("[4,5]");
 });
+
+it.each(["missing", "partial", "complete"])(
+  "Premiereの文字列添字の列挙=%sでも旧版から補正し、追加プロパティを保持する",
+  (mode) => {
+    const context = createContext({ mode });
+    runInContext(runtime, context);
+    runInContext(
+      "var originalKeys = Object.keys, originalEntries = Object.entries, originalValues = Object.values;" +
+        "Object.keys = function(value) { var keys = originalKeys(value);" +
+        'if (Object.prototype.toString.call(value) !== "[object String]") return keys;' +
+        "return keys.filter(function(key) { var index = +key;" +
+        "var isIndex = index >= 0 && index < value.length && String(index) === key && Math.floor(index) === index;" +
+        'return !isIndex || mode === "complete" || (mode === "partial" && key === "0"); }); };' +
+        "Object.getOwnPropertyNames = undefined; Object.getOwnPropertyDescriptor = undefined;" +
+        'Object.entries = function(value) { return typeof value === "string" ? [] : originalEntries(value); };' +
+        'Object.values = function(value) { return typeof value === "string" ? [] : originalValues(value); };' +
+        "globalThis.__extendscriptCompatESNext2__ = 1;" +
+        "var preserved = [Array.prototype.flat, Array.prototype.flatMap, String.prototype.at];",
+      context,
+    );
+    runInContext(runtime, context);
+    expect(runInContext(contract, context).failures).toEqual([]);
+    runInContext("var corrected = [Object.entries, Object.values]", context);
+    runInContext(runtime, context);
+    expect(
+      runInContext(
+        "corrected[0] === Object.entries && corrected[1] === Object.values && preserved[0] === Array.prototype.flat && preserved[1] === Array.prototype.flatMap && preserved[2] === String.prototype.at",
+        context,
+      ),
+    ).toBe(true);
+  },
+);
