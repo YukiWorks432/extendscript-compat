@@ -52,13 +52,31 @@ The plugin corrects and checks each output chunk and updates an existing valid s
 
 ## Scope
 
-`protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03, EC-06, and Unicode characters as described below.
+`protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03, EC-06, EC-20, and Unicode characters as described below.
 
 The input must be code already generated as ordinary JavaScript. Leave TypeScript and ES3 syntax conversion to an existing build step such as Babel. Raw JSX containing ExtendScript-specific E4X or unexpanded preprocessor directives is not supported. A parse failure throws rather than silently returning unmodified code.
 
 The protection adds parentheses at boundaries between mixed `&&` and `||` operators and around ternary expressions directly nested in the condition, true branch, or false branch of another ternary. It preserves values, short-circuiting, and bindings visible to `this`, `arguments`, and `eval` without introducing functions or temporary variables. Check JSON implementations, character encoding, Adobe product APIs, and similar requirements in the consuming project.
 
 The expression protection was checked in After Effects 26.5x89 / ExtendScript 4.5.6 with 22 language regressions and 96 consuming-product regressions. It has not been tested in other Adobe products such as Illustrator or Photoshop.
+
+## The in operator in for initializers (EC-20)
+
+In After Effects 26.5x89 / ExtendScript 4.5.6, an `in` operator inside a `for` initializer causes a syntax error, even inside parentheses or a nested function body. This can affect valid ES3 code and cannot be caught by standard ES3 syntax validation alone. Terser can introduce the pattern when moving an array-copy helper into the initializer.
+
+`protectCompatibility()` and Rollup's `extendscriptCompat()` turn the initializer into a preceding statement in the same scope and enclose the statements in a block. They support `var` declarations and expression initializers while preserving labeled `break` and `continue`, evaluation order and count, and bindings for `this`, `arguments`, and direct `eval`. They add no function or temporary variable and do not replace the `in` operator. Affected non-ES3 `let` and `const` declarations throw rather than moving their lexical bindings.
+
+```js
+// Before correction
+for (var present = ("key" in object); present; present = false) use(object);
+// After correction
+{
+  var present = "key" in object;
+  for (; present; present = false) use(object);
+}
+```
+
+`findCompatibilityIssues()` reports the original initializer with `code: "EC-20"` and `kind: "for-initializer-in"`. Like EC-06, automatically corrected EC-20 issues are not returned in `protectCompatibility().diagnostics`. Correction always runs regardless of `diagnostics`; the Rollup plugin stops the build if the affected structure remains afterward. Do not minify the corrected output again.
 
 ## Automatic Number call correction
 
@@ -131,7 +149,7 @@ const result = protectCompatibility(source);
 const issues = findCompatibilityIssues(source);
 ```
 
-`findCompatibilityIssues` reports EC-03 and EC-06 in the original input. `protectCompatibility` returns notifications for original EC-03 issues in `diagnostics`; these do not mean the corrected output still contains an unresolved bug. Each diagnostic has `code`, `kind`, `start`, `end`, `line`, `column`, and `message`. Lines are one-based; columns and character positions are zero-based UTF-16 code-unit offsets. Edits and diagnostics refer to the original input. A regular expression's `source` or `toString()` reflects the rewritten syntax, while the matched character set is preserved.
+`findCompatibilityIssues` reports EC-03, EC-06, and EC-20 in the original input. `protectCompatibility` returns notifications for original EC-03 issues in `diagnostics`; these do not mean the corrected output still contains an unresolved bug. Each diagnostic has `code`, `kind`, `start`, `end`, `line`, `column`, and `message`. Lines are one-based; columns and character positions are zero-based UTF-16 code-unit offsets. Edits and diagnostics refer to the original input. A regular expression's `source` or `toString()` reflects the rewritten syntax, while the matched character set is preserved.
 
 ## Detecting potential regular-expression issues
 

@@ -1,0 +1,67 @@
+[
+  {
+    "name": "直接のin式",
+    "code": "var result=0;for(var i=(\"x\" in {x:1})?2:0;i>0;i--){result+=i;}String(result);",
+    "expected": "3"
+  },
+  {
+    "name": "関数内のinと継承プロパティ",
+    "code": "function Parent(){}Parent.prototype.x=1;var object=new Parent(),count=0,result=[];for(var n=function(){count++;return \"x\" in object?2:0;}();n>0;n--){result.push(n);}count+\":\"+result.join(\",\");",
+    "expected": "1:2,1"
+  },
+  {
+    "name": "初期化順序と偽の継続条件",
+    "code": "var out=[];for(var a=(out.push(\"a\"),\"x\" in {}),b=out.push(\"b\");false;out.push(\"update\")){out.push(\"body\");}out.join(\",\");",
+    "expected": "a,b"
+  },
+  {
+    "name": "式の初期化と空の本体",
+    "code": "var i=3,out=[];for(out.push(\"init\"),(\"x\" in {});i--;out.push(i));out.join(\",\");",
+    "expected": "init,2,1,0"
+  },
+  {
+    "name": "単一文のifとelse",
+    "code": "var result=\"\";if(false)for(var x=(\"x\" in {});x;)result=\"wrong\";else result=\"else\";result;",
+    "expected": "else"
+  },
+  {
+    "name": "複数ラベルのcontinueとbreak",
+    "code": "var out=[];outer:inner:for(var i=(\"x\" in {x:1})?0:9;i<4;i++){if(i===1)continue outer;if(i===3)break inner;out.push(i);}out.join(\",\");",
+    "expected": "0,2"
+  },
+  {
+    "name": "親ループのラベルへのcontinue",
+    "code": "var out=[];outer:for(var j=0;j<3;j++){for(var i=(\"x\" in {})?9:0;i<2;i++){out.push(j+\":\"+i);continue outer;}}out.join(\",\");",
+    "expected": "0:0,1:0,2:0"
+  },
+  {
+    "name": "初期化部分に入れ子の対象ループ",
+    "code": "var count=0;for(var i=function(){for(var j=(\"x\" in {x:1})?2:0;j>0;j--)count++;return \"x\" in {x:1}?1:0;}();i>0;i--)count+=10;String(count);",
+    "expected": "12"
+  },
+  {
+    "name": "thisとargumentsと直接eval",
+    "code": "(function(value){var sum=0;for(var i=(eval(\"value\")+arguments[0]+this.n+(\"x\" in {}));i>0;i--)sum++;return String(sum);}).call({n:3},2);",
+    "expected": "7"
+  },
+  {
+    "name": "初期化時の例外",
+    "code": "var out=[];try{for(var i=function(){out.push(\"init\");if(\"x\" in {})return 1;throw new Error(\"stop\");}();i;i--){out.push(\"body\");}}catch(error){out.push(error.message);}out.join(\",\");",
+    "expected": "init,stop"
+  },
+  {
+    "name": "switchのcontinueとの組み合わせ",
+    "code": "var out=[];for(var i=(\"x\" in {})?9:0;i<3;i++){switch(i){case 1:continue;}out.push(i);}out.join(\",\");",
+    "expected": "0,2"
+  },
+  {
+    "name": "ラベルとforの間のコメント",
+    "code": "var out=[];outer /* : ( */ : for /* ( : */ (var i=(\"x\" in {})?9:0;i<3;i++){if(i===1)continue outer;out.push(i);}out.join(\",\");",
+    "expected": "0,2"
+  },
+  {
+    "name": "初期化末尾の行コメント",
+    "code": "var out=[];for(var i=(\"x\" in {})?9:0 // keep\n;i<2;i++){out.push(i);}out.join(\",\");",
+    "expected": "0,1"
+  }
+]

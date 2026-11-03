@@ -5,7 +5,7 @@ import type { Plugin, OutputChunk, OutputOptions, RollupLog } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { originalPositionFor, TraceMap } from "@jridgewell/trace-mapping";
 import { extendscriptCompat } from "../src/rollup.js";
-import { assertPrecedenceProtected } from "../src/index.js";
+import { assertPrecedenceProtected, findCompatibilityIssues } from "../src/index.js";
 
 const source = "export var result = a || b && c; export var selected = a ? 10 : b ? 20 : 30;";
 async function build(
@@ -616,3 +616,82 @@ it("後続の出力変換が追加した正規表現も診断する", async () =
 it("未知の正規表現診断設定を拒否する", () => {
   expect(() => extendscriptCompat({ regexpDiagnostics: "invalid" as never })).toThrow(/regexp/);
 });
+
+it("配列複製の関数を圧縮した最終出力もAE向けに補正する", async () => {
+  // TypeScriptの配列展開ヘルパーを、モジュールとして結合した後の形。
+  const input = `function copy(to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+      if (ar || !(i in from)) {
+        if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+        ar[i] = from[i];
+      }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+  }
+  export function run(comp) {
+    var layers=copy([], comp.selectedLayers, true);
+    for(var i=0, selected=layers;i<selected.length;i++)selected[i].selected=false;
+    return comp.selectedLayers.length;
+  }`;
+  const raw = await build(input, [terser({ ie8: true })]);
+  expect(
+    findCompatibilityIssues((raw.output[0] as OutputChunk).code).some(
+      ({ kind }) => kind === "for-initializer-in",
+    ),
+  ).toBe(true);
+  const result = await build(input, [terser({ ie8: true }), extendscriptCompat()]);
+  const chunk = result.output[0] as OutputChunk;
+  expect(findCompatibilityIssues(chunk.code)).toEqual([]);
+  const comp = { selectedLayers: [{ selected: true }, { selected: true }] };
+  expect(runInNewContext(chunk.code + ";compiled.run(comp)", { comp })).toBe(2);
+  expect(comp.selectedLayers.map(({ selected }) => selected)).toEqual([false, false]);
+});
+
+it.each([true, "inline", "hidden"] as const)(
+  "初期化部分・ラベル・コメントの補正後もソースマップ %s を保つ",
+  async (sourcemap) => {
+    const input = `export function run(object) {
+  var result=[];
+  outer /* : ( */ : for /* ( */ (var i=("x" in object)?2:0;i>0;i--) {
+    if(i===1)continue outer;
+    result.push(i);
+  }
+  return result.join(",");
+}`;
+    const result = await build(input, [extendscriptCompat()], { sourcemap });
+    const chunk = result.output[0] as OutputChunk;
+    expect(runInNewContext(chunk.code + ";compiled.run({x:1})")).toBe("2");
+    for (const token of ['"x" in object', "result.push", "return result"]) {
+      const offset = chunk.code.indexOf(token);
+      const prefix = chunk.code.slice(0, offset).split("\n");
+      const original = input.slice(0, input.indexOf(token)).split("\n");
+      const position = originalPositionFor(new TraceMap(chunk.map!.toString()), {
+        line: prefix.length,
+        column: prefix.at(-1)!.length,
+      });
+      expect(position).toMatchObject({ line: original.length, column: original.at(-1)!.length });
+    }
+    if (sourcemap === "inline") {
+      const encoded = chunk.code.match(/sourceMappingURL=data:[^,]+,([^\r\n]+)/)![1];
+      expect(Buffer.from(encoded, "base64").toString()).toBe(chunk.map!.toString());
+    } else {
+      const asset = result.output.find(
+        (file) => file.type === "asset" && file.fileName.endsWith(".map"),
+      );
+      expect(asset?.type === "asset" && asset.source).toBe(chunk.map!.toString());
+    }
+  },
+);
+
+it.each(["warn", "error", "off"] as const)(
+  "diagnostics=%sでもfor初期化部分を常に補正する",
+  async (diagnostics) => {
+    const result = await build(
+      'export function run(object){for(var x=("x" in object);x;){return x;}return false;}',
+      [extendscriptCompat({ diagnostics })],
+    );
+    const chunk = result.output[0] as OutputChunk;
+    expect(findCompatibilityIssues(chunk.code)).toEqual([]);
+    expect(runInNewContext(chunk.code + ";compiled.run({x:1})")).toBe(true);
+  },
+);

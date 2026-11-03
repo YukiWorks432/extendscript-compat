@@ -52,13 +52,31 @@ export default {
 
 ## 対応範囲
 
-protectPrecedenceは従来どおり括弧だけを挿入します。protectCompatibilityとRollup用のextendscriptCompatは、下記のEC-03・EC-06とUnicode文字も扱います。
+protectPrecedenceは従来どおり括弧だけを挿入します。protectCompatibilityとRollup用のextendscriptCompatは、下記のEC-03・EC-06・EC-20とUnicode文字も扱います。
 
 入力は通常のJavaScriptとして生成されたコードです。TypeScriptの変換やES3構文への変換は、Babelなど既存のビルド処理へ委ねます。ExtendScript固有のE4Xや未展開のプリプロセッサー指示を含む生のJSXファイルは対象にしません。構文解析に失敗した場合は例外を返し、無変換のまま成功扱いにはしません。
 
 混在する&&と||の境界、および三項演算子の条件部・真側・偽側に直接入れ子になった三項演算子を括弧で保護します。値、短絡評価、this、arguments、evalから見える束縛を保ち、関数や一時変数を追加しません。JSON実装、ファイルの文字コード、Adobe製品APIなどの検査は利用側で行ってください。
 
 After Effects 26.5x89 / ExtendScript 4.5.6で言語回帰22件と利用側の製品回帰96件を確認しています。IllustratorやPhotoshopなど、ほかの製品での実機確認は行っていません。
+
+## for初期化部分のin演算子（EC-20）
+
+After Effects 26.5x89 / ExtendScript 4.5.6では、`for`の初期化部分に`in`演算子があると、括弧内や関数本体に書かれた場合も構文エラーになります。これは標準ES3として有効な書き方でも発生するため、ES3構文検査だけでは検出できません。Terserによって配列複製用の関数が初期化部分へ移された生成物でも発生します。
+
+`protectCompatibility()`とRollupの`extendscriptCompat()`は、該当する初期化部分を同じスコープの直前の文へ変え、ブロックで囲みます。`var`宣言と式の初期化を扱い、ラベル付きの`break`・`continue`、評価順序、実行回数、`this`・`arguments`・直接の`eval`の束縛を保ちます。関数や一時変数は追加せず、`in`演算子の意味も変えません。変換前のES3外の`let`・`const`宣言をこの方法で移すことはできないため、該当入力は例外にします。
+
+```js
+// 補正前
+for (var present = ("key" in object); present; present = false) use(object);
+// 補正後
+{
+  var present = "key" in object;
+  for (; present; present = false) use(object);
+}
+```
+
+`findCompatibilityIssues()`は元の初期化部分を`code: "EC-20"`、`kind: "for-initializer-in"`として返します。自動補正したEC-20は、既存のEC-06と同様に`protectCompatibility().diagnostics`へ通知しません。補正は`diagnostics`設定にかかわらず実行し、Rollupでは補正後に対象の構造が残っていればビルドを停止します。補正後のコードを再圧縮しないでください。
 
 ## Number呼び出しの自動補正
 
@@ -131,7 +149,7 @@ const result = protectCompatibility(source);
 const issues = findCompatibilityIssues(source);
 ```
 
-`findCompatibilityIssues`は、補正前のEC-03・EC-06を返します。`protectCompatibility`の`diagnostics`は元のコードにあったEC-03の通知であり、補正後に未解決の不具合が残っていることを示すものではありません。各診断は`code`、`kind`、`start`、`end`、`line`、`column`、`message`を持ちます。行は1始まり、列と文字位置はUTF-16のコード単位で0始まりです。統合APIの`edits`と診断の位置はいずれも元の入力を指します。正規表現の`source`や`toString()`には補正後の表記が現れますが、照合する文字集合は維持します。
+`findCompatibilityIssues`は、補正前のEC-03・EC-06・EC-20を返します。`protectCompatibility`の`diagnostics`は元のコードにあったEC-03の通知であり、補正後に未解決の不具合が残っていることを示すものではありません。各診断は`code`、`kind`、`start`、`end`、`line`、`column`、`message`を持ちます。行は1始まり、列と文字位置はUTF-16のコード単位で0始まりです。統合APIの`edits`と診断の位置はいずれも元の入力を指します。正規表現の`source`や`toString()`には補正後の表記が現れますが、照合する文字集合は維持します。
 
 ## 正規表現の潜在的な問題の検出
 

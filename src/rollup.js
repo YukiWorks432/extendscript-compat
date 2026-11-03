@@ -3,7 +3,12 @@ import { parse } from "@babel/core";
 import { parse as parseES3 } from "acorn";
 import { addSegment, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 import { eachMapping, TraceMap } from "@jridgewell/trace-mapping";
-import { protectCompatibility, assertPrecedenceProtected, findRegExpRisks } from "./index.js";
+import {
+  protectCompatibility,
+  assertPrecedenceProtected,
+  findCompatibilityIssues,
+  findRegExpRisks,
+} from "./index.js";
 import { numberPonyfillImport, transformNumberCalls } from "./number-transform.js";
 
 /** @param {string} source */
@@ -204,6 +209,19 @@ export function extendscriptCompat(options = {}) {
           }
         }
         assertPrecedenceProtected(result.code);
+        const unsafeInitializer = findCompatibilityIssues(result.code).find(
+          ({ kind }) => kind === "for-initializer-in",
+        );
+        if (unsafeInitializer)
+          this.error({
+            code: unsafeInitializer.code,
+            message: "ExtendScript for initializer correction left an unsafe initializer",
+            loc: {
+              file: chunk.fileName,
+              line: unsafeInitializer.line,
+              column: unsafeInitializer.column,
+            },
+          });
         const hasBom = result.code.startsWith("\uFEFF");
         const addBom = bom && !hasBom;
         if (!bom && !hasBom && /[^\p{ASCII}]/u.test(result.code)) {
