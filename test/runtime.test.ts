@@ -95,7 +95,7 @@ it("実際に圧縮・補正したバンドルでも4関数の契約と再評価
           if (id === "runtime-entry") return 'import "extendscript-compat/runtime";';
         },
       },
-      terser({ format: { comments: /^!/ } }),
+      terser({ ie8: true, format: { comments: /^!/ } }),
       extendscriptCompat(),
     ],
   });

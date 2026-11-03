@@ -20,20 +20,15 @@ assertPrecedenceProtected(result.code);
 
 ## ES3構文の検査
 
-生成済みJavaScriptを`assertES3Syntax(source)`へ渡すと、ES3のスクリプト構文として検査します。成功時は`undefined`を返し、不適合なら位置を含む`SyntaxError`を送出します。入力の変換や実行は行いません。
+Rollupの`extendscriptCompat()`は、各出力チャンクの互換補正後にES3構文を自動検査します。不適合なら位置を含むエラーでビルドを停止します。`diagnostics: "off"`でも検査は有効です。利用側でAcornを直接導入したり、検査関数を呼び出したりする必要はありません。
 
-```js
-import { assertES3Syntax, assertPrecedenceProtected } from "extendscript-compat";
+内部ではAcornに`ecmaVersion: 3`、`sourceType: "script"`、`allowReserved: "never"`を指定します。ES3指定だけでは予約語を許可するAcornの既定動作も制限し、`value.default`や`{ default: 1 }`を拒否します。`value["default"]`と`{ "default": 1 }`は使用できます。
 
-assertES3Syntax(generatedCode);
-assertPrecedenceProtected(generatedCode);
-```
+ES3構文への変換は、プラグインより前のビルド処理で済ませてください。先頭のBOMとコメントは受け入れますが、ES2015以降の構文、TypeScript、ESモジュール構文、E4X、未展開のプリプロセッサー指示、関数外の`return`は受け入れません。実行時APIの有無やAdobe製品での動作は、構文検査だけでは保証できません。
 
-内部ではAcornに`ecmaVersion: 3`、`sourceType: "script"`、`allowReserved: "never"`を指定します。ES3指定だけでは予約語を許可するAcornの既定動作も制限し、`value.default`や`{ default: 1 }`を拒否します。`value["default"]`と`{ "default": 1 }`は使用できます。利用側でAcornを直接導入する必要はありません。
+`protectCompatibility()`などの補正APIを直接使う場合、その呼び出しにはES3構文検査を含みません。
 
-検査対象は変換・結合・圧縮・互換補正を終えたJavaScriptです。先頭のBOMとコメントは受け入れます。TypeScript、ESモジュール構文、E4X、未展開のプリプロセッサー指示、関数外の`return`は対象外です。実行時APIの有無、Adobe製品での動作、優先順位の保護は別に確認してください。
-
-このAPIは明示的に呼び出します。既存の補正APIとRollupプラグインは、ES3構文検査を自動では行いません。
+Terserを使う場合は、最上位の`ie8: true`を指定してください。既定設定では`object["for"]`などを`object.for`へ圧縮することがあり、ES3構文検査でビルドが停止します。
 
 ## Rollupへの組み込み
 
@@ -53,7 +48,7 @@ export default {
 };
 ```
 
-各出力チャンクへ補正と検査を行い、既存の有効なソースマップを括弧・セミコロンの挿入と正規表現の置換に合わせて更新します。外部ファイル、inline、hiddenの形式に対応します。 inlineのURLは実際の行コメントだけを更新し、先行するinclude展開で追加された文字列やテンプレート、ブロックコメント内の`sourceMappingURL`は保持します。先行プラグインがコードを変更したのにソースマップを更新していない場合、その情報の復元はできません。CEP固有のinclude処理への対応は利用側の組み込み処理で行ってください。
+各出力チャンクへ補正と検査を行い、既存の有効なソースマップを括弧・セミコロンの挿入と正規表現の置換に合わせて更新します。外部ファイル、inline、hiddenの形式に対応します。 inlineのURLは実際の行コメントだけを更新し、先行するinclude展開で追加された文字列やブロックコメント内の`sourceMappingURL`は保持します。先行プラグインがコードを変更したのにソースマップを更新していない場合、その情報の復元はできません。CEP固有のinclude処理への対応は利用側の組み込み処理で行ってください。
 
 ## 対応範囲
 

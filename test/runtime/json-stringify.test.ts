@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { assertES3Syntax } from "../../src/index.js";
+import { parse } from "acorn";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import { extendscriptCompat } from "../../src/rollup.js";
@@ -16,14 +16,14 @@ const contract = readFileSync(
 );
 
 it("JSONの契約はES3で解析でき、標準実装が期待値を満たす", () => {
-  expect(() => assertES3Syntax(contract)).not.toThrow();
+  expect(() => parse(contract, { ecmaVersion: 3 })).not.toThrow();
   expect(runInContext(contract, createContext({})).failures).toEqual([]);
 });
 
 it.each([false, true])("圧縮=%sの配布ランタイムでJSONの契約を満たす", async (minified) => {
   const bundle = await rollup({
     input: fileURLToPath(runtimePath),
-    plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+    plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
   });
   try {
     const { output } = await bundle.generate({ format: "iife" });

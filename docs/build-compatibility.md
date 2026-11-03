@@ -20,20 +20,15 @@ assertPrecedenceProtected(result.code);
 
 ## ES3 syntax validation
 
-Pass generated JavaScript to `assertES3Syntax(source)` to validate ES3 script syntax. It returns `undefined` on success and throws a `SyntaxError` with a source position on failure. It does not transform or execute the input.
+Rollup's `extendscriptCompat()` automatically validates ES3 syntax after correcting each output chunk. Invalid syntax stops the build with an error containing a source position. Validation remains enabled with `diagnostics: "off"`. Consumers do not need to install Acorn directly or call a separate validation function.
 
-```js
-import { assertES3Syntax, assertPrecedenceProtected } from "extendscript-compat";
+Internally, the plugin configures Acorn with `ecmaVersion: 3`, `sourceType: "script"`, and `allowReserved: "never"`. The last option overrides Acorn's ES3 default, which permits reserved words: `value.default` and `{ default: 1 }` are rejected, while `value["default"]` and `{ "default": 1 }` are accepted.
 
-assertES3Syntax(generatedCode);
-assertPrecedenceProtected(generatedCode);
-```
+Complete ES3 syntax conversion before this plugin runs. A leading BOM and comments are accepted, but ES2015+ syntax, TypeScript, ES module syntax, E4X, unexpanded preprocessor directives, and top-level `return` are rejected. Syntax validation alone does not guarantee runtime API availability or behavior in Adobe applications.
 
-Internally, the validator configures Acorn with `ecmaVersion: 3`, `sourceType: "script"`, and `allowReserved: "never"`. The last option overrides Acorn's ES3 default, which permits reserved words: `value.default` and `{ default: 1 }` are rejected, while `value["default"]` and `{ "default": 1 }` are accepted. Consumers do not need to install Acorn directly.
+Calling correction APIs such as `protectCompatibility()` directly does not include ES3 syntax validation.
 
-Validate JavaScript after transpilation, bundling, minification, and compatibility correction. A leading BOM and comments are accepted. TypeScript, ES module syntax, E4X, unexpanded preprocessor directives, and top-level `return` are outside this API's input contract. Runtime API availability, behavior in Adobe applications, and precedence protection require separate checks.
-
-Call this API explicitly. Existing correction APIs and the Rollup plugin do not automatically validate ES3 syntax.
+When using Terser, set `ie8: true` at the top level. Its defaults can compress `object["for"]` into `object.for`, which fails the ES3 syntax check.
 
 ## Rollup integration
 
@@ -53,7 +48,7 @@ export default {
 };
 ```
 
-The plugin corrects and checks each output chunk and updates an existing valid source map for inserted parentheses and semicolons and replaced regular-expression text. External, inline, and hidden source maps are supported. Inline URLs are updated only in actual line comments; mapping-like text inside strings, templates, and block comments added by earlier include expansion is preserved. It cannot recover mapping information lost when an earlier plugin changed code without updating the map. Handle CEP-specific include expansion in the consuming build.
+The plugin corrects and checks each output chunk and updates an existing valid source map for inserted parentheses and semicolons and replaced regular-expression text. External, inline, and hidden source maps are supported. Inline URLs are updated only in actual line comments; mapping-like text inside strings and block comments added by earlier include expansion is preserved. It cannot recover mapping information lost when an earlier plugin changed code without updating the map. Handle CEP-specific include expansion in the consuming build.
 
 ## Scope
 

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { assertES3Syntax } from "../../src/index.js";
+import { parse } from "acorn";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import ts from "typescript";
@@ -20,7 +20,7 @@ const missing = names
 const refs =
   "[" + names.map((name) => "String.prototype[" + JSON.stringify(name) + "]").join(",") + "]";
 it("共通契約はES3で解析できる", () => {
-  expect(() => assertES3Syntax(contract)).not.toThrow();
+  expect(() => parse(contract, { ecmaVersion: 3 })).not.toThrow();
 });
 it("旧版適用後に補完し、再評価で関数を保持する", () => {
   const context = createContext({});
@@ -97,7 +97,7 @@ it.each([false, true])(
   async (minified) => {
     const bundle = await rollup({
       input: runtimePath,
-      plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+      plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
     });
     try {
       const { output } = await bundle.generate({ format: "iife" });

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { assertES3Syntax } from "../../src/index.js";
+import { parse } from "acorn";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 import ts from "typescript";
@@ -21,7 +21,7 @@ const previous = readFileSync(
 const missing = "delete Array.prototype.at; delete Object.hasOwn;";
 
 it("実機用の契約検証はES3で解析できる", () => {
-  expect(() => assertES3Syntax(contract)).not.toThrow();
+  expect(() => parse(contract, { ecmaVersion: 3 })).not.toThrow();
 });
 
 it("既存ランタイム適用後にも補完し、再評価で関数を保持する", () => {
@@ -154,7 +154,7 @@ it("AEで取得できない文字列と配列の所有属性を補う", () => {
 it.each([false, true])("配布入口を圧縮=%sで利用した場合に契約を満たす", async (minified) => {
   const bundle = await rollup({
     input: runtimePath,
-    plugins: [...(minified ? [terser()] : []), extendscriptCompat()],
+    plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
   });
   try {
     const result = await bundle.generate({ format: "iife" });

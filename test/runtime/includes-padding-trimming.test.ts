@@ -120,7 +120,7 @@ it.each([false, true])("配布入口から圧縮=%sの出力でも契約を満�
           if (id === "entry") return 'import "extendscript-compat/runtime";';
         },
       },
-      ...(minified ? [terser()] : []),
+      ...(minified ? [terser({ ie8: true })] : []),
       extendscriptCompat(),
     ],
   });
