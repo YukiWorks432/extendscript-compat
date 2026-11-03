@@ -140,3 +140,7 @@ node scripts/build-host-json-probe.mjs phxs
 The outputs are `tmp/json-host/probe.jsx` for AE, `tmp/json-host/ilst/probe.jsx` for Illustrator, and `tmp/json-host/phxs/probe.jsx` for Photoshop. Load each file with `$.evalFile` in the corresponding ExtendScript host. Omitting the argument generates the AE probe.
 
 [Per-product results, execution routes, and artifact hashes](evidence/2026-11-04/multi-host/json-parse/results.json) are recorded. Non-JSON installation stages were skipped. These checks do not establish fresh-engine installation of the entire runtime or coverage of non-JSON features in Illustrator and Photoshop.
+
+## 1.0.0 release decision
+
+The [1.0.0 record](release-1.0.0.md) combines initial installation, consumer behavior/performance, post-fix Premiere checks and direct execution, preserving tested revisions and hashes.

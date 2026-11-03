@@ -31,6 +31,8 @@ var enabled = isAdmin || (isOwner && isReady);
 
 </details>
 
+See [1.0.0 changes, migration and validation](docs/release-1.0.0.md).
+
 ## Installation
 
 Node.js 22 or later is required.

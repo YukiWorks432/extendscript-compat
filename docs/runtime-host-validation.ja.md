@@ -151,6 +151,10 @@ Illustrator MCPからBridgeTalkを経由してPremiere内のExtendScriptで検�
 
 回帰確認としてIllustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.9.0 / ExtendScript 4.5.12の通常版・圧縮版、After Effects 26.5x89 / ExtendScript 4.5.6の圧縮版でも、それぞれ全714項目が成功しました。
 
-検査後は変更した標準API、導入済み印、ES5・ES6シムのキャッシュを復元し、確認した文書状態も前後で一致しました。独立した再起動ごとに最終候補を初回導入する出荷前試験とは分けて扱います。Premiere全体を公開契約の保証対象へ追加する変更ではありません。
+検査後は変更した標準API、導入済み印、ES5・ES6シムのキャッシュを復元し、確認した文書状態も前後で一致しました。この確認は同じエンジンの状態を復元して行ったもので、別々の再起動による初回導入とは区別します。Premiere全体を公開契約の保証対象へ追加する変更ではありません。
 
 [製品別の結果・通信の要求ID・生成物のハッシュ](evidence/2026-11-04/premiere-string-enumeration/results.json)を保存しています。実機用の共通契約はtest/contracts/entries-flattening-string-at-contract.jsです。
+
+## 1.0.0の出荷判断
+
+初回導入、利用側の動作・性能、Premiere修正後と直接実行の確認結果を、[1.0.0の検証記録](release-1.0.0.ja.md)へまとめました。実施時点の版とハッシュを保ち、変更範囲に応じて既存の証跡を組み合わせています。
