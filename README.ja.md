@@ -79,8 +79,9 @@ parseInt("a?", 16); // 10
 
 入力は通常のJavaScriptとして生成されたコードです。TypeScriptからJavaScriptへの変換や、ES3互換の構文への変換は別途必要です。E4Xや未展開のプリプロセッサー指示を含む生のJSXは対象外です。
 
-実機確認はAfter Effects 26.5x89 / ExtendScript 4.5.6で行っています。IllustratorやPhotoshopなど、他のAdobe製品では確認していません。
+実機確認の基準はAfter Effects 26.5x89 / ExtendScript 4.5.6です。JSONの解析・出力は、Illustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.11.0 / ExtendScript 4.5.12でも確認しています。Illustrator・Photoshopの他の機能は未確認です。
 
+- [v1の公開契約と互換性方針](docs/public-contract.ja.md)
 - [ビルド時の補正・診断とAPI](docs/build-compatibility.ja.md)
 - [実行時補正とUnitValueの補助API](runtime/README.ja.md)
 - [追加互換補正の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.ja.md)・[組み込み関数の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)

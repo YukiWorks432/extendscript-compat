@@ -23,7 +23,10 @@ const ownContract = resolve(root, "test/contracts/array-at-has-own-contract.js")
 const copyContract = resolve(root, "test/contracts/array-copy-search-contract.js");
 const bundle = await rollup({
   input: rawPath,
-  plugins: [terser({ format: { ascii_only: true, comments: /^!/ } }), extendscriptCompat()],
+  plugins: [
+    terser({ ie8: true, format: { ascii_only: true, comments: /^!/ } }),
+    extendscriptCompat(),
+  ],
 });
 try {
   const { output } = await bundle.generate({ format: "iife" });
@@ -61,13 +64,17 @@ const probe = `(function () {
         delete Object.hasOwn;
         for (k = 0; k < names.length; k++) delete Array.prototype[names[k]];
         if (j) $.evalFile(new File(${JSON.stringify(previousPath)}));
+        root.__extendscriptCompatJSON__ = 2;
         $.evalFile(new File(files[i]));
         var own = $.evalFile(new File(${JSON.stringify(ownContract)}));
         var copy = $.evalFile(new File(${JSON.stringify(copyContract)}));
         var refs = [Object.hasOwn];
         for (k = 0; k < names.length; k++) refs.push(Array.prototype[names[k]]);
+        root.__extendscriptCompatJSON__ = 2;
         $.evalFile(new File(files[i]));
+        root.__extendscriptCompatJSON__ = 1;
         $.evalFile(new File(${JSON.stringify(previousPath)}));
+        root.__extendscriptCompatJSON__ = 2;
         $.evalFile(new File(files[i]));
         var retained = refs[0] === Object.hasOwn;
         for (k = 0; k < names.length; k++) if (refs[k + 1] !== Array.prototype[names[k]]) retained = false;

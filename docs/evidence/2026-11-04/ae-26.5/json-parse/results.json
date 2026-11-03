@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-04",
+  "baseCommit": "8209b57918025597f238cb00a38386c343c23451",
+  "sourceNote": "このPRのJSON修正を含む生成物・共用契約・旧json2をSHA-256で識別。公開済み0.4.0の実機結果ではない。",
+  "host": {
+    "os": "Windows",
+    "appVersion": "26.5x89",
+    "engineVersion": "4.5.6",
+    "cases": [
+      {
+        "variant": "raw",
+        "previousJSON": "missing",
+        "total": 246,
+        "failures": [],
+        "parseTotal": 231,
+        "repeatedIdentity": true,
+        "legacyAfterIdentity": true,
+        "parseUpdated": true
+      },
+      {
+        "variant": "raw",
+        "previousJSON": "legacy",
+        "total": 246,
+        "failures": [],
+        "parseTotal": 231,
+        "repeatedIdentity": true,
+        "legacyAfterIdentity": true,
+        "parseUpdated": true
+      },
+      {
+        "variant": "minified",
+        "previousJSON": "missing",
+        "total": 246,
+        "failures": [],
+        "parseTotal": 231,
+        "repeatedIdentity": true,
+        "legacyAfterIdentity": true,
+        "parseUpdated": true
+      },
+      {
+        "variant": "minified",
+        "previousJSON": "legacy",
+        "total": 246,
+        "failures": [],
+        "parseTotal": 231,
+        "repeatedIdentity": true,
+        "legacyAfterIdentity": true,
+        "parseUpdated": true
+      }
+    ],
+    "projectUnchanged": true,
+    "restored": true
+  },
+  "limitations": "JSON以外の導入を省略。最終版の全機能を新規エンジンへ初回導入する検証、他のAdobe製品・OSは対象外。",
+  "artifacts": {
+    "rawSha256": "9fcac2e16ea963f9038af7df23166dc9ef4329486653567d99d986121e1d977b",
+    "minifiedSha256": "cb0d25301a9ee422a3857ba20fb39a6066ff0145fc4bd5f7258e0715c7792175",
+    "contractSha256": "3fdddb0984d2e63f8373d53dce8776a58345d9bee08443e9890f9f768050a813",
+    "parseContractSha256": "b737a0e85e8deef2ea4f699618dee4f62a345c60fabd8c12ceb84e713752f730",
+    "legacySha256": "6a551769fb57a79530122884dd163b3b74ffa529c7a2288c131141cea4c0b8e8",
+    "probeSha256": "0efb6caebc09c937832b2e64c7c0488eaf596f29fa0b90a0f0eab9a1785f315f"
+  }
+}

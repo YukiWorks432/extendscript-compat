@@ -2,7 +2,7 @@
 
 [English](API-COMPATIBILITY.md) | 日本語（正本）
 
-この表は`extendscript-compat/runtime`が扱う組み込みAPIを、2026年11月1日時点の実装（`f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894`）に基づいて整理したものです。使用前に`/runtime`を読み込んでください。標準ライブラリの型が存在するだけでは、実行時にそのAPIが存在することを意味しません。
+この表は`extendscript-compat/runtime`が扱う組み込みAPIを、2026年11月4日時点の同梱実装に基づいて整理したものです。使用前に`/runtime`を読み込んでください。標準ライブラリの型が存在するだけでは、実行時にそのAPIが存在することを意味しません。
 
 「補完」は不足時の追加または不完全な既存実装の置換を試みることを示し、あらゆるホストや入力での標準準拠を保証するものではありません。「条件付き」は元の機能やホストの属性操作などを必要とします。表にないAPIを使用可能と判断しないでください。第三者の補完コードを併用する場合はその提供範囲と読み込み順を別途確認してください。
 
@@ -10,7 +10,7 @@
 
 | API                                           | ランタイムの扱い     | 制約                                                                                  |
 | --------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------- |
-| `JSON.parse`                                  | 補完・既存実装の判定 | 一部の不正なJSONも受け入れます。厳密な入力検証には使えません                          |
+| `JSON.parse`                                  | 補完・既存実装の判定 | JSON文法外の入力を拒否します。データ構造・値域の検証は利用側で行います                |
 | `JSON.stringify`                              | 補完・既存実装の判定 | 置換関数の入れ子呼び出しと配列指定を扱います                                          |
 | `parseInt`                                    | 既存関数も補正       | 基数11〜36と16進数の不正文字を補正します。旧8進数扱いなどは維持します                 |
 | `String.prototype.charAt`、`split`、`replace` | 既存関数も補正       | 特定のNUL・末尾・置換の不具合が対象です。正規表現エンジン全体は補正しません           |
@@ -76,6 +76,6 @@
 
 保存済みの実機検証はAfter Effects 26.5x89 / ExtendScript 4.5.6（build 80.1060872）です。JSON、`Array.prototype.map`・`filter`・`reduce`、`Array.isArray`、`Object.keys`、`Function.prototype.bind`、`trim`、`Array.from`・`of`、`find`・`findIndex`、`startsWith`・`endsWith`、`Number.isFinite`、`Object.assign`、`Math.trunc`などの代表例を確認しています。後年のメソッドやJSONの境界条件も個別の契約で確認しています。
 
-各試験の導入状態と対象生成物は異なります。保存済みの[実行時の実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)を確認してください。最終版の全機能を新規エンジンへ初回導入した状態、古いAE、Illustrator、Photoshopなどは未確認です。Nodeでの検証はAdobe実機の検証とは区別します。
+各試験の導入状態と対象生成物は異なります。保存済みの[実行時の実機検証記録](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)を確認してください。JSONの解析・出力はIllustrator 30.8.2 / ExtendScript 4.5.6とPhotoshop 27.11.0 / ExtendScript 4.5.12でも個別検証しました。最終版の全機能を新規エンジンへ初回導入した状態、古いAE、Illustrator・PhotoshopのJSON以外の機能は未確認です。Nodeでの検証はAdobe実機の検証とは区別します。
 
 実装の確認先は[`runtime-src/vendor/es5-shim.js`](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/vendor/es5-shim.js)、[`es6-shim.js`](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/vendor/es6-shim.js)、[後年のメソッドの導入処理](https://github.com/YukiWorks432/extendscript-compat/blob/f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894/runtime-src/install-polyfills.js)です。

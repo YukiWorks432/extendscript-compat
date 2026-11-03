@@ -20,7 +20,9 @@
     "runtime",
     "THIRD-PARTY-LICENSES.txt",
     "docs/build-compatibility.md",
-    "docs/build-compatibility.ja.md"
+    "docs/build-compatibility.ja.md",
+    "docs/public-contract.md",
+    "docs/public-contract.ja.md"
   ],
   "type": "module",
   "exports": {

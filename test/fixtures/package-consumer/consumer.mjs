@@ -84,6 +84,22 @@ for (const file of [
   "THIRD-PARTY-LICENSES.txt",
   "docs/build-compatibility.md",
   "docs/build-compatibility.ja.md",
+  "docs/public-contract.md",
+  "docs/public-contract.ja.md",
 ]) {
   assert(readFileSync(join(root, file), "utf8").trim().length > 0, `配布文書が空です: ${file}`);
 }
+
+const runtimeSource = readFileSync(require.resolve("extendscript-compat/runtime"), "utf8");
+const jsonResult = runInNewContext(
+  runtimeSource +
+    `
+(function () {
+  var invalidRejected = false;
+  try { JSON.parse("[1,]"); } catch (error) { invalidRejected = error instanceof SyntaxError; }
+  return { invalidRejected: invalidRejected, value: JSON.parse('{"n":2}', function (key, value) { return key === "n" ? value + 1 : value; }).n };
+}());`,
+  { JSON: undefined },
+);
+assert.equal(jsonResult.invalidRejected, true);
+assert.equal(jsonResult.value, 3);

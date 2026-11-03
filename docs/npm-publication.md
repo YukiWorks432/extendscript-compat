@@ -114,6 +114,8 @@ Validate evaluated results, short-circuiting, side-effect order, existing parent
 
 Limit the first release to the uses actually tested. Treat corrections as patch changes, backward-compatible additions as minor changes, and input-condition or public-interface changes as the next minor release. Document changes during 0.x and do not republish an existing version.
 
+For 1.x, follow the accepted [public contract for v1](public-contract.md) for entries, inputs, diagnostics, runtime side effects, and versioning. That document also defines final-candidate first-install and consumer checks before 1.0.0. Accepting the contract does not complete those release checks.
+
 ## References
 
 - [GitHub repository visibility and consequences](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility)

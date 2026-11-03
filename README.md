@@ -79,8 +79,9 @@ This entry adds and replaces built-in functions and also affects other scripts i
 
 Input must be code generated as ordinary JavaScript. Transpiling TypeScript to JavaScript and targeting ES3 syntax require separate build steps. Raw JSX containing E4X or unexpanded preprocessor directives is not supported.
 
-Host checks were performed in After Effects 26.5x89 / ExtendScript 4.5.6. Other Adobe products, including Illustrator and Photoshop, have not been tested on a host.
+The host-validation baseline is After Effects 26.5x89 / ExtendScript 4.5.6. JSON parsing and serialization were also checked in Illustrator 30.8.2 / ExtendScript 4.5.6 and Photoshop 27.11.0 / ExtendScript 4.5.12. Other features remain unverified in Illustrator and Photoshop.
 
+- [Public contract and compatibility policy for v1](docs/public-contract.md)
 - [Build-time corrections, diagnostics, and APIs](docs/build-compatibility.md)
 - [Runtime corrections and UnitValue helpers](runtime/README.md)
 - [additional compatibility host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.md) and [built-in function host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md)

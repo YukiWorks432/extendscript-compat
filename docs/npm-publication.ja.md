@@ -114,6 +114,8 @@ CIや梱包で失敗した場合は、修正をmainへ統合してから新し�
 
 最初の版は検証した用途へ適用範囲を限定する。補正内容の修正はpatch、後方互換のある補正追加はminor、入力条件や公開インターフェースの変更は次のminorとして扱い、0.xでは変更点を明記する。既存の版へ上書き公開しない。
 
+1.x以降の公開入口、入力条件、診断、実行時の副作用と版更新は、確定した[v1の公開契約](public-contract.ja.md)に従う。1.0.0の出荷前に行う最終版の初回導入・利用側確認も同文書に記載する。公開契約の確定だけで出荷確認を完了扱いにしない。
+
 ## 参照
 
 - [GitHubリポジトリの公開範囲と変更の影響](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility)

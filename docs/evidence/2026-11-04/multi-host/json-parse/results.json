@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-04",
+  "runtimeSourceCommit": "4a93fcb288cc75e8dd26457519fb8c654a3262c1",
+  "os": "Windows",
+  "scope": "JSON.parse 231項目とJSON.stringify 15項目、通常版・圧縮版、JSON未導入・旧json2導入済み、再導入と旧版の後読み込み。",
+  "limitations": "JSON以外の導入段階は省略。新規エンジンへのランタイム全体の初回導入、製品固有API、他の版・OSは未検証。Photoshop UXP上の検査結果ではなく、BridgeTalkで実行したExtendScriptの結果。",
+  "hosts": [
+    {
+      "hostId": "aeft",
+      "route": "After Effects MCP / ae_do(eval.run)",
+      "result": {
+        "host": "aeft",
+        "appVersion": "26.5x89",
+        "engineVersion": "4.5.6",
+        "engineName": "main",
+        "cases": [
+          {
+            "variant": "raw",
+            "previousJSON": "missing",
+            "total": 246,
+            "failures": [],
+            "parseTotal": 231,
+            "repeatedIdentity": true,
+            "legacyAfterIdentity": true,
+            "parseUpdated": true
+          },
+          {
+            "variant": "raw",
+            "previousJSON": "legacy",
+            "total": 246,
+            "failures": [],
+            "parseTotal": 231,
+            "repeatedIdentity": true,
+            "legacyAfterIdentity": true,
+            "parseUpdated": true
+          },
+          {
+            "variant": "minified",
+            "previousJSON": "missing",
+            "total": 246,
+            "failures": [],
+            "parseTotal": 231,
+            "repeatedIdentity": true,
+            "legacyAfterIdentity": true,
+            "parseUpdated": true
+          },
+          {
+            "variant": "minified",
+            "previousJSON": "legacy",
+            "total": 246,
+            "failures": [],
+            "parseTotal": 231,
+            "repeatedIdentity": true,
+            "legacyAfterIdentity": true,
+            "parseUpdated": true
+          }
+        ],
+        "projectUnchanged": true,
+        "documentsUnchanged": true,
+        "restored": true
+      },
+      "artifacts": {
+        "rawSha256": "9fcac2e16ea963f9038af7df23166dc9ef4329486653567d99d986121e1d977b",
+        "minifiedSha256": "cb0d25301a9ee422a3857ba20fb39a6066ff0145fc4bd5f7258e0715c7792175",
+        "contractSha256": "3fdddb0984d2e63f8373d53dce8776a58345d9bee08443e9890f9f768050a813",
+        "parseContractSha256": "b737a0e85e8deef2ea4f699618dee4f62a345c60fabd8c12ceb84e713752f730",
+        "legacySha256": "6a551769fb57a79530122884dd163b3b74ffa529c7a2288c131141cea4c0b8e8",
+        "probeSha256": "6336ba5da638c2af6db15464f7139eef61fe3b615d72a76611be57f2b7125f1c"
+      }
+    },
+    {
+      "hostId": "ilst",
+      "route": "Illustrator MCP / CEP ExtendScript",
+      "result": {
+        "appVersion": "30.8.2",
+        "cases": [
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "missing",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "raw"
+          },
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "legacy",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "raw"
+          },
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "missing",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "minified"
+          },
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "legacy",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "minified"
+          }
+        ],
+        "documentsUnchanged": true,
+        "engineName": "",
+        "engineVersion": "4.5.6",
+        "host": "ilst",
+        "restored": true
+      },
+      "requestId": "req-18e49c5dd20def48-46788-3",
+      "requestSourceSha256": "689110be0206beb6016b4006137a87809136f270dd13e553d3b196f0c99fc9b4",
+      "artifacts": {
+        "rawSha256": "9fcac2e16ea963f9038af7df23166dc9ef4329486653567d99d986121e1d977b",
+        "minifiedSha256": "cb0d25301a9ee422a3857ba20fb39a6066ff0145fc4bd5f7258e0715c7792175",
+        "contractSha256": "3fdddb0984d2e63f8373d53dce8776a58345d9bee08443e9890f9f768050a813",
+        "parseContractSha256": "b737a0e85e8deef2ea4f699618dee4f62a345c60fabd8c12ceb84e713752f730",
+        "legacySha256": "6a551769fb57a79530122884dd163b3b74ffa529c7a2288c131141cea4c0b8e8",
+        "probeSha256": "419a8f4f2fda8bfa0636a5704562ac7d37c2b43a55f8b5a0a14faa1e6208c874"
+      }
+    },
+    {
+      "hostId": "phxs",
+      "route": "Illustrator MCP / CEP ExtendScript / BridgeTalk / Photoshop ExtendScript",
+      "result": {
+        "appVersion": "27.11.0",
+        "cases": [
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "missing",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "raw"
+          },
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "legacy",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "raw"
+          },
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "missing",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "minified"
+          },
+          {
+            "failures": [],
+            "legacyAfterIdentity": true,
+            "parseTotal": 231,
+            "parseUpdated": true,
+            "previousJSON": "legacy",
+            "repeatedIdentity": true,
+            "total": 246,
+            "variant": "minified"
+          }
+        ],
+        "documentsUnchanged": true,
+        "engineName": "",
+        "engineVersion": "4.5.12",
+        "host": "phxs",
+        "restored": true
+      },
+      "requestId": "req-18e49c6006440de0-46788-4",
+      "requestSourceSha256": "b95f92a00f3f194ff58a000c52c25b5d5a77a79e4293a9c6d3b61829d9c7f2b5",
+      "bridgeTalkTarget": "photoshop-200.064",
+      "received": true,
+      "artifacts": {
+        "rawSha256": "9fcac2e16ea963f9038af7df23166dc9ef4329486653567d99d986121e1d977b",
+        "minifiedSha256": "cb0d25301a9ee422a3857ba20fb39a6066ff0145fc4bd5f7258e0715c7792175",
+        "contractSha256": "3fdddb0984d2e63f8373d53dce8776a58345d9bee08443e9890f9f768050a813",
+        "parseContractSha256": "b737a0e85e8deef2ea4f699618dee4f62a345c60fabd8c12ceb84e713752f730",
+        "legacySha256": "6a551769fb57a79530122884dd163b3b74ffa529c7a2288c131141cea4c0b8e8",
+        "probeSha256": "06e2faa41d3e8f6d5db944f88d6f566e24a132598ca03e409bc496e42822c572"
+      }
+    }
+  ]
+}

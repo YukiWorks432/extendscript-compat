@@ -1,4 +1,4 @@
-# AE host validation of built-in function corrections
+# Host validation of built-in function corrections
 
 [日本語（正本）](runtime-host-validation.ja.md) | English
 
@@ -106,3 +106,37 @@ Non-JSON installations were skipped using their markers. JSON, markers, and toJS
 On October 30, 2026, the raw and minified builds were checked in After Effects 26.5x89 / ExtendScript 4.5.6, both without the target methods and after the previous runtime. All four conditions passed 38 ownership cases and 39 array-copy cases, preserving function identities after re-evaluation and loading the previous build afterward. Other installation stages were skipped using their markers; the Array.isArray prerequisite was supplied temporarily. Modified functions and markers were restored, and project item count and dirty state were unchanged.
 
 This AE has neither Symbol nor Object.defineProperty, so Symbol-key and inherited-descriptor regressions were checked in Node. The native toSorted in Node 24.22.1 was also observed to honor inherited numeric properties on its one-element path and was replaced by the behavior check. First installation of all features in a fresh engine, older AE versions, and other Adobe products were not checked. See the [results and artifact hashes](evidence/2026-10-30/ae-26.5/compatibility-edge-cases/results.json). Run `node scripts/build-host-edge-case-probe.mjs` to regenerate the probe and hashes.
+
+## Strict JSON.parse grammar validation
+
+On November 4, 2026, normal and minified outputs were checked in After Effects 26.5x89 / ExtendScript 4.5.6 on Windows, both without JSON and with older json2 plus the 0.4.0 JSON installation marker. All four conditions passed 231 parse checks and 15 existing stringify checks.
+
+Checks cover rejection of trailing commas, invalid numbers, escapes, control characters and whitespace; preservation of Unicode and negative zero; duplicate keys; own `__proto__` data properties; and reviver order, replacement and deletion. Repeated loading and loading older json2 afterward preserved function identities.
+
+Other installation stages were skipped. JSON, installation markers and `toJSON` were restored, and project item count and dirty state were unchanged. This is JSON-specific validation, not first installation of the entire final runtime into a new engine or validation of other Adobe products. [Results and artifact hashes](evidence/2026-11-04/ae-26.5/json-parse/results.json) are recorded. Run `node scripts/build-host-json-probe.mjs` to regenerate the current probe.
+
+## Additional JSON checks in AE, Illustrator, and Photoshop
+
+On November 4, 2026, the same PR's normal and minified runtimes were tested through MCP on Windows. Each product was checked with JSON absent and with legacy json2 installed. All four combinations passed 231 parsing checks and 15 stringify checks, totaling 246 per combination.
+
+| Product       | Product version | ExtendScript | Execution route                          |
+| ------------- | --------------- | ------------ | ---------------------------------------- |
+| After Effects | 26.5x89         | 4.5.6        | After Effects MCP                        |
+| Illustrator   | 30.8.2          | 4.5.6        | Illustrator MCP over CEP                 |
+| Photoshop     | 27.11.0         | 4.5.12       | Illustrator MCP → BridgeTalk → Photoshop |
+
+The Photoshop MCP runs UXP, so the checks were sent to Photoshop's ExtendScript engine using [Adobe's BridgeTalk mechanism](https://github.com/Adobe-CEP/CEP-Resources/blob/master/ExtendScript-Toolkit/Samples/javascript/SendObjectToPhotoshop.jsx). The returned product and engine versions were verified. These results came from ExtendScript, not UXP JavaScript.
+
+All three products retained function identity after reloading and after subsequently loading legacy json2. JSON, installation markers, and `toJSON` were restored afterward. AE retained the project item count, dirty state, and active item. Illustrator and Photoshop retained document count, identity, saved state, and active document. No documents were created, edited, or saved.
+
+Generate the probes from the repository root:
+
+```sh
+node scripts/build-host-json-probe.mjs aeft
+node scripts/build-host-json-probe.mjs ilst
+node scripts/build-host-json-probe.mjs phxs
+```
+
+The outputs are `tmp/json-host/probe.jsx` for AE, `tmp/json-host/ilst/probe.jsx` for Illustrator, and `tmp/json-host/phxs/probe.jsx` for Photoshop. Load each file with `$.evalFile` in the corresponding ExtendScript host. Omitting the argument generates the AE probe.
+
+[Per-product results, execution routes, and artifact hashes](evidence/2026-11-04/multi-host/json-parse/results.json) are recorded. Non-JSON installation stages were skipped. These checks do not establish fresh-engine installation of the entire runtime or coverage of non-JSON features in Illustrator and Photoshop.

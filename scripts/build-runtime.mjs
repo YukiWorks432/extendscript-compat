@@ -22,15 +22,34 @@ const factory = (name) => {
   );
 };
 const json = source("vendor/json2.js");
-const jsonCode =
-  '(function (root) { if (root.__extendscriptCompatJSON__ === 1) return; if (typeof root.JSON !== "object" || root.JSON === null) root.JSON = {}; var JSON = root.JSON;\n' +
-  "var parseOK = false, stringifyOK = false;\n" +
-  'try { parseOK = typeof JSON.parse === "function" && JSON.parse("{\\"n\\":2}", function (k, v) { return k === "n" ? 4 : v; }).n === 4; } catch (e) {}\n' +
-  'try { stringifyOK = typeof JSON.stringify === "function" && JSON.stringify({ n: 2 }, function (k, v) { return k === "n" ? 4 : v; }) === "{\\"n\\":4}" && JSON.stringify({ a: 1, hidden: 2 }, function (k, v) { if (k === "a") JSON.stringify(0); return k === "hidden" ? undefined : v; }) === "{\\"a\\":1}" && JSON.stringify({ 1: 1, 2: 2 }, [2, new String("1"), new Number(2)]) === "{\\"2\\":2,\\"1\\":1}"; } catch (e) {}\n' +
-  "if (!parseOK) JSON.parse = undefined; if (!stringifyOK) JSON.stringify = undefined;\n" +
-  json +
-  "\nroot.__extendscriptCompatJSON__ = 1;" +
-  '\n})(typeof $ === "undefined" ? globalThis : $.global);';
+const jsonCode = String.raw`(function (root) {
+  if (root.__extendscriptCompatJSON__ === 2) return;
+  if (typeof root.JSON !== "object" || root.JSON === null) root.JSON = {};
+  var JSON = root.JSON;
+  var parseOK = false, stringifyOK = false;
+  try {
+    parseOK = typeof JSON.parse === "function" &&
+      JSON.parse('{"n":2}', function (k, v) { return k === "n" ? 4 : v; }).n === 4;
+    if (parseOK) {
+      var invalidJSON = ["[1,]", '{"n":1,}', "[1,,2]", "01", "1.", '"\\x41"', '"\t"', "\u00a0null"];
+      for (var jsonIndex = 0; jsonIndex < invalidJSON.length; jsonIndex++) {
+        var rejected = false;
+        try { JSON.parse(invalidJSON[jsonIndex]); } catch (parseError) { rejected = parseError instanceof SyntaxError; }
+        if (!rejected) { parseOK = false; break; }
+      }
+    }
+  } catch (e) { parseOK = false; }
+  try {
+    stringifyOK = typeof JSON.stringify === "function" &&
+      JSON.stringify({ n: 2 }, function (k, v) { return k === "n" ? 4 : v; }) === '{"n":4}' &&
+      JSON.stringify({ a: 1, hidden: 2 }, function (k, v) { if (k === "a") JSON.stringify(0); return k === "hidden" ? undefined : v; }) === '{"a":1}' &&
+      JSON.stringify({ 1: 1, 2: 2 }, [2, new String("1"), new Number(2)]) === '{"2":2,"1":1}';
+  } catch (e) {}
+  if (!parseOK) JSON.parse = undefined;
+  if (!stringifyOK) JSON.stringify = undefined;
+${json}
+  root.__extendscriptCompatJSON__ = 2;
+})(typeof $ === "undefined" ? globalThis : $.global);`;
 const numberModule = readFileSync(new URL("../runtime/number.js", import.meta.url), "utf8");
 if (!numberModule.includes("export function toNumber("))
   throw new Error("Unexpected number helper");
