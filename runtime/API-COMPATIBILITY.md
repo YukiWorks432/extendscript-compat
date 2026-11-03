@@ -2,7 +2,7 @@
 
 [日本語（正本）](API-COMPATIBILITY.ja.md) | English
 
-This matrix describes the built-in APIs handled by `extendscript-compat/runtime`, based on the implementation at `f68f5d6c77b10ef2c2a7a06d9a45db14c89cc894` as of November 1, 2026. Import `/runtime` before using its features. A standard library type alone does not mean that an API exists at runtime.
+This matrix describes the built-in APIs handled by `extendscript-compat/runtime`, based on the bundled implementation as of November 4, 2026. Import `/runtime` before using its features. A standard library type alone does not mean that an API exists at runtime.
 
 “Polyfilled” means the runtime attempts to add a missing API or replace an incomplete implementation; it does not guarantee conformance for every host or input. “Conditional” means an underlying feature, such as host property descriptors, is required. Do not assume APIs absent from this matrix are available. Check the scope and load order of any other polyfills separately.
 
@@ -10,7 +10,7 @@ This matrix describes the built-in APIs handled by `extendscript-compat/runtime`
 
 | API                                           | Runtime behavior                            | Limitations                                                                                                   |
 | --------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `JSON.parse`                                  | Polyfilled; existing implementation checked | Accepts some invalid JSON and is not suitable for strict input validation                                     |
+| `JSON.parse`                                  | Polyfilled; existing implementation checked | Rejects invalid JSON grammar; consumers validate application data shapes and value ranges                     |
 | `JSON.stringify`                              | Polyfilled; existing implementation checked | Supports nested replacer calls and array replacers                                                            |
 | `parseInt`                                    | Existing function also corrected            | Corrects invalid characters in radices 11–36 and hexadecimal; retains behaviors such as legacy octal handling |
 | `String.prototype.charAt`, `split`, `replace` | Existing functions also corrected           | Addresses specific NUL, trailing-boundary and replacement bugs, not the entire regular-expression engine      |

@@ -47,7 +47,7 @@ it("旧json2と既存の導入済み印があっても更新し、再評価で�
   );
   runInContext(runtime, context);
   expect(runInContext(contract, context).failures).toEqual([]);
-  expect(runInContext("oldParse === JSON.parse", context)).toBe(true);
+  expect(runInContext("oldParse === JSON.parse", context)).toBe(false);
   runInContext("var updated = JSON.stringify", context);
   runInContext(runtime, context);
   expect(runInContext("updated === JSON.stringify", context)).toBe(true);

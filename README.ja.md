@@ -81,6 +81,7 @@ parseInt("a?", 16); // 10
 
 実機確認はAfter Effects 26.5x89 / ExtendScript 4.5.6で行っています。IllustratorやPhotoshopなど、他のAdobe製品では確認していません。
 
+- [v1の公開契約と互換性方針](docs/public-contract.ja.md)
 - [ビルド時の補正・診断とAPI](docs/build-compatibility.ja.md)
 - [実行時補正とUnitValueの補助API](runtime/README.ja.md)
 - [追加互換補正の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.ja.md)・[組み込み関数の実機検証](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.ja.md)

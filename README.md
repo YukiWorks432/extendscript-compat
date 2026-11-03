@@ -81,6 +81,7 @@ Input must be code generated as ordinary JavaScript. Transpiling TypeScript to J
 
 Host checks were performed in After Effects 26.5x89 / ExtendScript 4.5.6. Other Adobe products, including Illustrator and Photoshop, have not been tested on a host.
 
+- [Public contract and compatibility policy for v1](docs/public-contract.md)
 - [Build-time corrections, diagnostics, and APIs](docs/build-compatibility.md)
 - [Runtime corrections and UnitValue helpers](runtime/README.md)
 - [additional compatibility host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/compatibility-host-validation.md) and [built-in function host validation](https://github.com/YukiWorks432/extendscript-compat/blob/main/docs/runtime-host-validation.md)

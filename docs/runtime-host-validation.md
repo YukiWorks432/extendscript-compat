@@ -106,3 +106,11 @@ Non-JSON installations were skipped using their markers. JSON, markers, and toJS
 On October 30, 2026, the raw and minified builds were checked in After Effects 26.5x89 / ExtendScript 4.5.6, both without the target methods and after the previous runtime. All four conditions passed 38 ownership cases and 39 array-copy cases, preserving function identities after re-evaluation and loading the previous build afterward. Other installation stages were skipped using their markers; the Array.isArray prerequisite was supplied temporarily. Modified functions and markers were restored, and project item count and dirty state were unchanged.
 
 This AE has neither Symbol nor Object.defineProperty, so Symbol-key and inherited-descriptor regressions were checked in Node. The native toSorted in Node 24.22.1 was also observed to honor inherited numeric properties on its one-element path and was replaced by the behavior check. First installation of all features in a fresh engine, older AE versions, and other Adobe products were not checked. See the [results and artifact hashes](evidence/2026-10-30/ae-26.5/compatibility-edge-cases/results.json). Run `node scripts/build-host-edge-case-probe.mjs` to regenerate the probe and hashes.
+
+## Strict JSON.parse grammar validation
+
+On November 4, 2026, normal and minified outputs were checked in After Effects 26.5x89 / ExtendScript 4.5.6 on Windows, both without JSON and with older json2 plus the 0.4.0 JSON installation marker. All four conditions passed 231 parse checks and 15 existing stringify checks.
+
+Checks cover rejection of trailing commas, invalid numbers, escapes, control characters and whitespace; preservation of Unicode and negative zero; duplicate keys; own `__proto__` data properties; and reviver order, replacement and deletion. Repeated loading and loading older json2 afterward preserved function identities.
+
+Other installation stages were skipped. JSON, installation markers and `toJSON` were restored, and project item count and dirty state were unchanged. This is JSON-specific validation, not first installation of the entire final runtime into a new engine or validation of other Adobe products. [Results and artifact hashes](evidence/2026-11-04/ae-26.5/json-parse/results.json) are recorded. Run `node scripts/build-host-json-probe.mjs` to regenerate the current probe.

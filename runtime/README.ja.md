@@ -22,7 +22,7 @@ Rollupで通常のホスト用JavaScriptへまとめ、圧縮やinclude展開の
 
 同じエンジンを利用する別のスクリプトにも補正が及びます。適用前に別の変数へ保存された関数への参照は変わりません。同じエンジンでの再評価は内部の版付き印で省略し、関数を重ねて包みません。後から別のライブラリが対象関数を書き換えた場合、その書き換えを監視したり自動で取り消したりはしません。
 
-JSONの補完は専用の導入済み印で管理し、旧ランタイムの導入済み印があるエンジンでも更新します。`JSON.stringify`の置換関数や`toJSON`から別の`JSON.stringify`を呼び出しても、外側の置換関数と字下げを保持します。配列形式の置換指定は、数値と文字列、およびそのラッパーをキーへ変換し、指定順を保って重複を除きます。キー一覧は再帰処理の前に一度だけ作成します。これらの代表的な確認を満たす既存関数は保持します。
+JSONの補完は専用の導入済み印で管理し、旧ランタイムの導入済み印があるエンジンでも更新します。`JSON.stringify`の置換関数や`toJSON`から別の`JSON.stringify`を呼び出しても、外側の置換関数と字下げを保持します。配列形式の置換指定は、数値と文字列、およびそのラッパーをキーへ変換し、指定順を保って重複を除きます。キー一覧は再帰処理の前に一度だけ作成します。これらの代表的な確認を満たす既存関数は保持します。`JSON.parse`は`reviver`と不正な入力の拒否を確認し、旧json2などの不完全な実装を更新します。0.4.0のJSON導入済み印がある場合も再判定し、同じ版の再読み込みでは関数を保持します。
 
 ## 後年のメソッド
 
@@ -110,7 +110,7 @@ toNumber(String.fromCharCode(0x200b) + "0"); // NaN
 
 AE固有の挙動として、グローバルな正規表現が空の入力に一致しない問題をsplit内で補っています。replaceでは、文字列検索でコールバックが実行されない問題、連続置換時に途中の結果がコールバックへ渡る問題、末尾の空一致が省略される問題も補っています。
 
-移行元のテンプレートと同様に、JSON、`Array.prototype.map`、`Object.keys`、`Array.from`などを補完します。JSONの既存実装が変換用コールバックを無視する場合も補完版へ置き換えます。補完版の`JSON.parse`は検査後に`eval`を使い、末尾のカンマなど一部の不正なJSONを受け入れるため、厳密な入力検証には使えません。ES5・ES6のすべてを保証するものではなく、`Symbol`や`Promise`は対象外です。正規表現エンジン自体のキャプチャ消失・停止にも対応しません。UnitValueの演算や厳密比較も対象外のため、以下の明示的な補助APIを使ってください。後年の正規表現フラグや名前付きキャプチャも対象にしません。JavaScriptで実装したメソッドの関数オブジェクトや、非strictモードのES3における`call(null)` / `call(undefined)`のthis変換は、純正関数と完全には同じになりません。
+移行元のテンプレートと同様に、JSON、`Array.prototype.map`、`Object.keys`、`Array.from`などを補完します。JSONの既存実装が変換用コールバックを無視する場合も補完版へ置き換えます。補完版の`JSON.parse`はJSON文法を直接解析し、末尾カンマ、不正な数値・エスケープ、文字列内の未エスケープ制御文字、JSONで認められない空白を`SyntaxError`にします。文法の確認とは別に、必要なデータ構造や値域は利用側で検証してください。ES5・ES6のすべてを保証するものではなく、`Symbol`や`Promise`は対象外です。正規表現エンジン自体のキャプチャ消失・停止にも対応しません。UnitValueの演算や厳密比較も対象外のため、以下の明示的な補助APIを使ってください。後年の正規表現フラグや名前付きキャプチャも対象にしません。JavaScriptで実装したメソッドの関数オブジェクトや、非strictモードのES3における`call(null)` / `call(undefined)`のthis変換は、純正関数と完全には同じになりません。
 
 ## UnitValueの明示的な補助API
 
@@ -160,7 +160,7 @@ parseInt・charAt・replaceは、この調査で確認したExtendScript固有�
 
 全置換とUTF-16の整形式は、es-shimsの[String.prototype.replaceAll](https://github.com/es-shims/String.prototype.replaceAll/blob/139da66df7281142d1c49c46ffcecfb4fbaab0a0/implementation.js)、[String.prototype.isWellFormed](https://github.com/es-shims/String.prototype.isWellFormed/blob/b6c2a6bbb961337854301160d4288b30efc48106/implementation.js)、[String.prototype.toWellFormed](https://github.com/es-shims/String.prototype.toWellFormed/blob/591e5971d2a428a9bb400014785cb061b4bc3b3a/implementation.js)と現行のECMAScriptを参考にES3向けに実装しました。依存する抽象操作は直接実装し、AEのflags欠如、置換コールバック、lastIndexを補正しています。固定コミットの著作権表示と許諾文は[第三者ライセンス](../THIRD-PARTY-LICENSES.txt)に収録しています。
 
-JSONの補完は、パブリックドメインの[JSON-jsの固定コミット](https://github.com/douglascrockford/JSON-js/blob/7e83f38a2312429fd4933169c1f6a27fd65e889c/json2.js)を基にしています。`runtime-src/vendor/json2.js`に読めるソースを保持し、`stringify`の呼び出し状態の分離と配列形式のキー指定を独自に修正しています。`parse`の解析方式と既知の制限は維持しています。
+JSONの補完は、パブリックドメインの[JSON-jsの固定コミット](https://github.com/douglascrockford/JSON-js/blob/7e83f38a2312429fd4933169c1f6a27fd65e889c/json2.js)を基にしています。`runtime-src/vendor/json2.js`に読めるソースを保持し、`stringify`の呼び出し状態の分離と配列形式のキー指定を独自に修正しています。`parse`はJSON文法を直接解析する実装へ置き換え、`reviver`の置換・削除と子から親への処理を保っています。文字列化は一度だけ行い、文字列内のUTF-16の値を保持します。AEでは`__proto__`をオブジェクトリテラルで自身のプロパティとして用意し、入力によるプロトタイプの変更を避けます。
 
 ## 検証
 

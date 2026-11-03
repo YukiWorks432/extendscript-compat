@@ -14,6 +14,7 @@ export default defineConfig({
         "test/contracts/array-copy-search-contract.js",
         "test/contracts/string-modern-contract.js",
         "test/contracts/json-stringify-contract.js",
+        "test/contracts/json-parse-contract.js",
       ],
       options: { trailingComma: "none" },
     },

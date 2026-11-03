@@ -13,10 +13,14 @@ mkdirSync(directory, { recursive: true });
 const rawPath = resolve(root, "runtime/index.js");
 const minifiedPath = resolve(directory, "minified.jsx");
 const contractPath = resolve(root, "test/contracts/json-stringify-contract.js");
+const parseContractPath = resolve(root, "test/contracts/json-parse-contract.js");
 const legacyPath = resolve(root, "test/fixtures/json2-legacy.js");
 const bundle = await rollup({
   input: rawPath,
-  plugins: [terser({ format: { ascii_only: true, comments: /^!/ } }), extendscriptCompat()],
+  plugins: [
+    terser({ ie8: true, format: { ascii_only: true, comments: /^!/ } }),
+    extendscriptCompat(),
+  ],
 });
 try {
   const { output } = await bundle.generate({ format: "iife" });
@@ -47,16 +51,23 @@ const probe = `(function () {
       for (j = 0; j < 2; j++) {
         root.JSON = {};
         for (var k = 0; k < markers.length; k++) root[markers[k]] = 1;
+        root.__extendscriptCompatESNext3__ = 2;
+        root.__extendscriptCompatArrayCopy__ = 2;
         delete root.__extendscriptCompatJSON__;
-        if (j) $.evalFile(new File(${JSON.stringify(legacyPath)}));
+        if (j) {
+          $.evalFile(new File(${JSON.stringify(legacyPath)}));
+          root.__extendscriptCompatJSON__ = 1;
+        }
         var oldParse = root.JSON.parse;
         $.evalFile(new File(files[i]));
         var checks = $.evalFile(new File(${JSON.stringify(contractPath)}));
+        var parseChecks = $.evalFile(new File(${JSON.stringify(parseContractPath)}));
+        var parse = root.JSON.parse;
         var stringify = root.JSON.stringify;
         $.evalFile(new File(files[i]));
-        var repeated = stringify === root.JSON.stringify;
+        var repeated = stringify === root.JSON.stringify && parse === root.JSON.parse;
         $.evalFile(new File(${JSON.stringify(legacyPath)}));
-        result.cases.push({ variant: i ? "minified" : "raw", previousJSON: j ? "legacy" : "missing", total: checks.total, failures: checks.failures, repeatedIdentity: repeated, legacyAfterIdentity: stringify === root.JSON.stringify, parsePreserved: !j || oldParse === root.JSON.parse });
+        result.cases.push({ variant: i ? "minified" : "raw", previousJSON: j ? "legacy" : "missing", total: checks.total + parseChecks.total, failures: checks.failures.concat(parseChecks.failures), parseTotal: parseChecks.total, repeatedIdentity: repeated, legacyAfterIdentity: stringify === root.JSON.stringify && parse === root.JSON.parse, parseUpdated: !j || oldParse !== root.JSON.parse });
       }
     }
   } finally {
@@ -79,6 +90,7 @@ for (const [name, file] of Object.entries({
   raw: rawPath,
   minified: minifiedPath,
   contract: contractPath,
+  parseContract: parseContractPath,
   legacy: legacyPath,
 })) {
   manifest[name + "Sha256"] = createHash("sha256").update(readFileSync(file)).digest("hex");

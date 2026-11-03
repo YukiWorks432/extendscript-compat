@@ -1,5 +1,5 @@
 // 取り込み元: https://github.com/douglascrockford/JSON-js/blob/7e83f38a2312429fd4933169c1f6a27fd65e889c/json2.js
-// 独自修正: stringifyの呼び出し状態を分離し、配列形式のキー一覧を正規化する。
+// 独自修正: stringifyの呼び出し状態・キー一覧を補正し、parseをJSON文法の直接解析へ置換する。
 //  json2.js
 //  2023-05-10
 //  Public Domain.
@@ -163,12 +163,7 @@ if (typeof JSON !== "object") {
 (function () {
     "use strict";
 
-    var rx_one = /^[\],:{}\s]*$/;
-    var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-    var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-    var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
     var rx_escapable = /[\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-    var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 
     function f(n) {
         // Format integers to have at least two digits.
@@ -449,91 +444,179 @@ if (typeof JSON !== "object") {
 
     if (typeof JSON.parse !== "function") {
         JSON.parse = function (text, reviver) {
+            text = String(text);
+            var position = 0;
+            var result = readValue();
+            white();
+            if (position !== text.length) fail();
+            return typeof reviver === "function" ? walk({"": result}, "") : result;
 
-// The parse method takes a text and an optional reviver function, and returns
-// a JavaScript value if the text is a valid JSON text.
+            function fail() {
+                throw new SyntaxError("JSON.parse at " + position);
+            }
 
-            var j;
+            function white() {
+                var code = text.charCodeAt(position);
+                while (code === 32 || code === 9 || code === 10 || code === 13) {
+                    position++;
+                    code = text.charCodeAt(position);
+                }
+            }
+
+            function string() {
+                var result = "";
+                var start = ++position;
+                while (position < text.length) {
+                    var code = text.charCodeAt(position++);
+                    if (code === 34) return result + text.slice(start, position - 1);
+                    if (code < 32) fail();
+                    if (code === 92) {
+                        result += text.slice(start, position - 1);
+                        code = text.charCodeAt(position++);
+                        if (code === 117) {
+                            var value = 0;
+                            for (var i = 0; i < 4; i++) {
+                                var digit = text.charCodeAt(position++);
+                                if (digit >= 48 && digit <= 57) digit -= 48;
+                                else if (digit >= 65 && digit <= 70) digit -= 55;
+                                else if (digit >= 97 && digit <= 102) digit -= 87;
+                                else fail();
+                                value = value * 16 + digit;
+                            }
+                            result += String.fromCharCode(value);
+                        } else if (code === 34 || code === 92 || code === 47) {
+                            result += String.fromCharCode(code);
+                        } else if (code === 98) result += "\b";
+                        else if (code === 102) result += "\f";
+                        else if (code === 110) result += "\n";
+                        else if (code === 114) result += "\r";
+                        else if (code === 116) result += "\t";
+                        else fail();
+                        start = position;
+                    }
+                }
+                fail();
+            }
+
+            function readValue() {
+                white();
+                var code = text.charCodeAt(position);
+                if (code === 34) return string();
+                if (code === 91 || code === 123) {
+                    var array = code === 91;
+                    // AEのオブジェクトリテラルは__proto__を自身のデータとして作成する。
+                    // 先に用意して、通常の代入によるプロトタイプ変更を避ける。
+                    var value = array ? [] : {"__proto__": undefined};
+                    var hasProto = false;
+                    var end = array ? 93 : 125;
+                    position++;
+                    white();
+                    if (text.charCodeAt(position) !== end) {
+                        while (true) {
+                            var key;
+                            if (array) key = String(value.length);
+                            else {
+                                if (text.charCodeAt(position) !== 34) fail();
+                                key = string();
+                                if (key === "__proto__") hasProto = true;
+                                white();
+                                if (text.charCodeAt(position++) !== 58) fail();
+                            }
+                            member(value, key, readValue());
+                            white();
+                            if (text.charCodeAt(position) === end) break;
+                            if (text.charCodeAt(position++) !== 44) fail();
+                            white();
+                        }
+                    }
+                    position++;
+                    if (!array && !hasProto) delete value["__proto__"];
+                    return value;
+                }
+                var literals = ["true", "false", "null"];
+                for (var i = 0; i < literals.length; i++) {
+                    var literal = literals[i];
+                    if (text.slice(position, position + literal.length) === literal) {
+                        position += literal.length;
+                        if (i === 0) return true;
+                        if (i === 1) return false;
+                        return null;
+                    }
+                }
+                var start = position;
+                if (code === 45) {
+                    position++;
+                    code = text.charCodeAt(position);
+                }
+                if (code === 48) position++;
+                else {
+                    if (!(code >= 49 && code <= 57)) fail();
+                    do {
+                        position++;
+                        code = text.charCodeAt(position);
+                    } while (code >= 48 && code <= 57);
+                }
+                if (text.charCodeAt(position) === 46) {
+                    position++;
+                    code = text.charCodeAt(position);
+                    if (!(code >= 48 && code <= 57)) fail();
+                    do {
+                        position++;
+                        code = text.charCodeAt(position);
+                    } while (code >= 48 && code <= 57);
+                }
+                code = text.charCodeAt(position);
+                if (code === 101 || code === 69) {
+                    position++;
+                    code = text.charCodeAt(position);
+                    if (code === 43 || code === 45) position++;
+                    code = text.charCodeAt(position);
+                    if (!(code >= 48 && code <= 57)) fail();
+                    do {
+                        position++;
+                        code = text.charCodeAt(position);
+                    } while (code >= 48 && code <= 57);
+                }
+                return +text.slice(start, position);
+            }
+
+            function member(object, key, value) {
+                if (typeof Object.defineProperty === "function") {
+                    Object.defineProperty(object, key, {
+                        value: value, writable: true, enumerable: true, configurable: true
+                    });
+                } else {
+                    object[key] = value;
+                }
+            }
 
             function walk(holder, key) {
-
-// The walk method is used to recursively walk the resulting structure so
-// that modifications can be made.
-
-                var k;
-                var v;
                 var value = holder[key];
                 if (value && typeof value === "object") {
-                    for (k in value) {
-                        if (Object.prototype.hasOwnProperty.call(value, k)) {
-                            v = walk(value, k);
-                            if (v !== undefined) {
-                                value[k] = v;
-                            } else {
-                                delete value[k];
-                            }
+                    var keys = [];
+                    var i;
+                    var k;
+                    if (Object.prototype.toString.call(value) === "[object Array]") {
+                        for (i = 0; i < value.length; i++) keys.push(String(i));
+                    } else {
+                        for (k in value) {
+                            if (Object.prototype.hasOwnProperty.call(value, k)) keys.push(k);
+                        }
+                    }
+                    for (i = 0; i < keys.length; i++) {
+                        k = keys[i];
+                        var replacement = walk(value, k);
+                        try {
+                            if (replacement === undefined) delete value[k];
+                            else member(value, k, replacement);
+                        } catch (error) {
+                            // ES5のWalkは変更不可のプロパティを更新・削除せずに続行する。
+                            if (!(error instanceof TypeError)) throw error;
                         }
                     }
                 }
                 return reviver.call(holder, key, value);
             }
-
-
-// Parsing happens in four stages. In the first stage, we replace certain
-// Unicode characters with escape sequences. JavaScript handles many characters
-// incorrectly, either silently deleting them, or treating them as line endings.
-
-            text = String(text);
-            rx_dangerous.lastIndex = 0;
-            if (rx_dangerous.test(text)) {
-                text = text.replace(rx_dangerous, function (a) {
-                    return (
-                        "\\u"
-                        + ("0000" + a.charCodeAt(0).toString(16)).slice(-4)
-                    );
-                });
-            }
-
-// In the second stage, we run the text against regular expressions that look
-// for non-JSON patterns. We are especially concerned with "()" and "new"
-// because they can cause invocation, and "=" because it can cause mutation.
-// But just to be safe, we want to reject all unexpected forms.
-
-// We split the second stage into 4 regexp operations in order to work around
-// crippling inefficiencies in IE's and Safari's regexp engines. First we
-// replace the JSON backslash pairs with "@" (a non-JSON character). Second, we
-// replace all simple value tokens with "]" characters. Third, we delete all
-// open brackets that follow a colon or comma or that begin the text. Finally,
-// we look to see that the remaining characters are only whitespace or "]" or
-// "," or ":" or "{" or "}". If that is so, then the text is safe for eval.
-
-            if (
-                rx_one.test(
-                    text
-                        .replace(rx_two, "@")
-                        .replace(rx_three, "]")
-                        .replace(rx_four, "")
-                )
-            ) {
-
-// In the third stage we use the eval function to compile the text into a
-// JavaScript structure. The "{" operator is subject to a syntactic ambiguity
-// in JavaScript: it can begin a block or an object literal. We wrap the text
-// in parens to eliminate the ambiguity.
-
-                j = eval("(" + text + ")");
-
-// In the optional fourth stage, we recursively walk the new structure, passing
-// each name/value pair to a reviver function for possible transformation.
-
-                return (typeof reviver === "function")
-                    ? walk({"": j}, "")
-                    : j;
-            }
-
-// If the text is not JSON parseable, then a SyntaxError is thrown.
-
-            throw new SyntaxError("JSON.parse");
         };
     }
 }());
