@@ -71,13 +71,13 @@ export function findCompatibilityIssues(source) {
 
 /** @param {string} source @returns {import("./index.d.ts").CompatibilityProtection} */
 export function protectCompatibility(source) {
-  const { diagnostics, continueEdits, program } = analyzeCompatibility(source);
+  const { diagnostics, continueEdits, initializerEdits, program } = analyzeCompatibility(source);
   /** @type {import("./index.d.ts").SourceEdit[]} */
   const edits = findPrecedenceIssues(source).flatMap(({ start, end }) => [
     { start, end: start, text: "(" },
     { start: end, end, text: ")" },
   ]);
-  edits.push(...continueEdits);
+  edits.push(...continueEdits, ...initializerEdits);
   edits.push(...findUnicodeEdits(source, program));
   for (const diagnostic of diagnostics) {
     if (diagnostic.code === "EC-06") {
@@ -193,8 +193,22 @@ function analyzeCompatibility(source) {
   const loopLabels = new Map();
   /** @type {import("./index.d.ts").SourceEdit[]} */
   const continueEdits = [];
+  /** @type {Set<import("@babel/core").NodePath<import("@babel/core").types.ForStatement>>} */
+  const affectedLoops = new Set();
   let nextLabel = 0;
   traverse(program, {
+    BinaryExpression(path) {
+      if (path.node.operator !== "in") return;
+      const position = sourcePosition(path.node);
+      // ExtendScriptではNoIn制約が関数本体へも漏れるため、関数境界で探索を止めない。
+      /** @type {import("@babel/core").NodePath | null} */
+      let parent = path.parentPath;
+      for (; parent; parent = parent.parentPath) {
+        if (!parent.isForStatement() || !parent.node.init) continue;
+        const init = sourcePosition(parent.node.init);
+        if (position.start >= init.start && position.end <= init.end) affectedLoops.add(parent);
+      }
+    },
     ContinueStatement(path) {
       // ラベル付きcontinueは、圧縮で省略されたセミコロンを最終出力へ戻す。
       if (path.node.label) {
@@ -281,11 +295,76 @@ function analyzeCompatibility(source) {
       }
     },
   });
+  /** @type {import("./index.d.ts").SourceEdit[]} */
+  const initializerEdits = [];
+  for (const loop of affectedLoops) {
+    const init = loop.node.init;
+    if (!init) continue;
+    const position = sourcePosition(init);
+    if (init.type === "VariableDeclaration" && init.kind !== "var") {
+      throw new SyntaxError("for initializer correction requires ES3 var declarations");
+    }
+    if (init.type !== "VariableDeclaration") {
+      // 関数式やオブジェクト式が、文の先頭で別の構文へ解釈されることを防ぐ。
+      initializerEdits.push(
+        { start: position.start, end: position.start, text: "(" },
+        { start: position.end, end: position.end, text: ")" },
+      );
+    }
+    diagnostics.push({
+      code: "EC-20",
+      kind: "for-initializer-in",
+      ...position,
+      message: "in演算子を含むforの初期化部分を、ループ直前の文へ自動補正します。",
+    });
+    let statement = /** @type {import("@babel/core").NodePath} */ (loop);
+    const labels = [];
+    while (true) {
+      const parent = statement.parentPath;
+      if (!parent?.isLabeledStatement()) break;
+      const label = parent.node.label;
+      statement = parent;
+      const target = sourcePosition(label);
+      labels.unshift(label.name + ":");
+      initializerEdits.push({ start: target.start, end: target.end, text: "" });
+      const colon = findTokenAfter(program, target.end, ":");
+      initializerEdits.push({ start: colon.start, end: colon.end, text: "" });
+    }
+    // switchのcontinue補正が新設したラベルも、ブロックではなくループへ付ける。
+    const generatedLabel = continueEdits.findIndex(
+      (edit) => edit.start === loop.node.start && edit.text === loopLabels.get(loop.node) + ": ",
+    );
+    if (generatedLabel >= 0) labels.push(continueEdits.splice(generatedLabel, 1)[0].text);
+    const target = sourcePosition(loop.node);
+    const opening = findTokenAfter(program, target.start + 3, "(");
+    // 初期化式の文字列は動かさず、既存補正と元のソースマップ位置を保持する。
+    initializerEdits.push(
+      {
+        start: sourcePosition(statement.node).start,
+        end: sourcePosition(statement.node).start,
+        text: "{",
+      },
+      { start: target.start, end: target.start + 3, text: "" },
+      { start: opening.start, end: opening.end, text: "" },
+      { start: position.end, end: position.end, text: ";" + labels.join("") + "for(" },
+      { start: target.end, end: target.end, text: "}" },
+    );
+  }
   return {
     diagnostics: diagnostics.toSorted((left, right) => left.start - right.start),
     continueEdits,
+    initializerEdits,
     program,
   };
+}
+
+/** @param {ReturnType<typeof parseScript>} program @param {number} offset @param {string} label */
+function findTokenAfter(program, offset, label) {
+  const token = program.tokens?.find(
+    (token) => token.start >= offset && token.type.label === label,
+  );
+  if (!token) throw new Error("ExtendScript compatibility pass could not find token " + label);
+  return token;
 }
 
 /** @param {string} source */
@@ -297,6 +376,7 @@ function parseScript(source) {
     parserOpts: {
       allowReturnOutsideFunction: true,
       createParenthesizedExpressions: true,
+      tokens: true,
       errorRecovery: false,
     },
   });

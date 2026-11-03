@@ -1,0 +1,121 @@
+{
+  "validatedOn": "2026-11-04",
+  "appVersion": "26.5x89",
+  "engineVersion": "4.5.6",
+  "fixture": "test/fixtures/for-initializer-cases.json",
+  "fixtureSha256": "6c5729aafe309f4f4e79f7726d89dcb30e54b29cea5d84819c7d65d724b6b772",
+  "transformSourceSha256": "0a30c15aa728233821c60eee731ac4c96b8505c95ac85ddb5c52b6d05343d2b0",
+  "cases": [
+    {
+      "name": "直接のin式",
+      "expected": "3",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "3",
+      "passed": true
+    },
+    {
+      "name": "関数内のinと継承プロパティ",
+      "expected": "1:2,1",
+      "beforeParse": "SyntaxError: Expected: ;",
+      "actual": "1:2,1",
+      "passed": true
+    },
+    {
+      "name": "初期化順序と偽の継続条件",
+      "expected": "a,b",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "a,b",
+      "passed": true
+    },
+    {
+      "name": "式の初期化と空の本体",
+      "expected": "init,2,1,0",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "init,2,1,0",
+      "passed": true
+    },
+    {
+      "name": "単一文のifとelse",
+      "expected": "else",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "else",
+      "passed": true
+    },
+    {
+      "name": "複数ラベルのcontinueとbreak",
+      "expected": "0,2",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "0,2",
+      "passed": true
+    },
+    {
+      "name": "親ループのラベルへのcontinue",
+      "expected": "0:0,1:0,2:0",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "0:0,1:0,2:0",
+      "passed": true
+    },
+    {
+      "name": "初期化部分に入れ子の対象ループ",
+      "expected": "12",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "12",
+      "passed": true
+    },
+    {
+      "name": "thisとargumentsと直接eval",
+      "expected": "7",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "7",
+      "passed": true
+    },
+    {
+      "name": "初期化時の例外",
+      "expected": "init,stop",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "init,stop",
+      "passed": true
+    },
+    {
+      "name": "switchのcontinueとの組み合わせ",
+      "expected": "0,2",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "0,2",
+      "passed": true
+    },
+    {
+      "name": "ラベルとforの間のコメント",
+      "expected": "0,2",
+      "beforeParse": "SyntaxError: Expected: ;",
+      "actual": "0,2",
+      "passed": true
+    },
+    {
+      "name": "初期化末尾の行コメント",
+      "expected": "0,1",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "0,1",
+      "passed": true
+    },
+    {
+      "name": "匿名関数の式初期化",
+      "expected": "true",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "true",
+      "passed": true
+    },
+    {
+      "name": "オブジェクトの式初期化",
+      "expected": "false,2",
+      "beforeParse": "SyntaxError: Expected: )",
+      "actual": "false,2",
+      "passed": true
+    }
+  ],
+  "product": {
+    "originalSha256": "a6bfcc58e4918fc500e9e5b7cc230028d2f9f7371adeb22c6fec91cbb3dc516d",
+    "correctedSha256": "0797eb583cf6a42b503a51ce0561ddb775327c8c9ae3544ce76f26634cd13d8e",
+    "beforeParse": "SyntaxError: Expected: )",
+    "afterParse": "ok"
+  }
+}

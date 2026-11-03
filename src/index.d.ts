@@ -36,8 +36,12 @@ export function assertPrecedenceProtected(source: string): void;
  * 元の入力上で検出した不具合。補正内容をkindで区別する。
  */
 export interface CompatibilityDiagnostic {
-  code: "EC-03" | "EC-06";
-  kind: "continue-through-switch" | "labeled-continue-semicolon" | "regexp-escaped-hyphen";
+  code: "EC-03" | "EC-06" | "EC-20";
+  kind:
+    | "continue-through-switch"
+    | "labeled-continue-semicolon"
+    | "regexp-escaped-hyphen"
+    | "for-initializer-in";
   start: number;
   end: number;
   line: number;
@@ -81,9 +85,9 @@ export interface UnicodeProtection {
 export function protectUnicode(source: string): UnicodeProtection;
 
 /**
- * Correct precedence, EC-06, continue labels, semicolons, and affected Unicode; return EC-03 notifications.
+ * Correct precedence, EC-06, EC-20, continue labels, semicolons, and affected Unicode; return EC-03 notifications.
  *
- * 優先順位、EC-06、continueのラベル・セミコロンとUnicodeを補正し、EC-03の通知を返す。
+ * 優先順位、EC-06・EC-20、continueのラベル・セミコロンとUnicodeを補正し、EC-03の通知を返す。
  */
 export function protectCompatibility(source: string): CompatibilityProtection;
 
