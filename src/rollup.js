@@ -10,6 +10,7 @@ import {
   findRegExpRisks,
 } from "./index.js";
 import { numberPonyfillImport, transformNumberCalls } from "./number-transform.js";
+import { ponyfillImport, transformPonyfills } from "./ponyfill-transform.js";
 
 /** @param {string} source */
 const lineStarts = (source) => {
@@ -138,6 +139,9 @@ export function extendscriptCompat(options = {}) {
   const diagnostics = options.diagnostics ?? "warn";
   const bom = options.bom ?? true;
   const regexpDiagnostics = options.regexpDiagnostics ?? "off";
+  if (options.runtime !== undefined && options.runtime !== "ponyfill") {
+    throw new TypeError("Unknown ExtendScript runtime mode: " + options.runtime);
+  }
   if (!["warn", "error", "off"].includes(regexpDiagnostics)) {
     throw new TypeError("Unknown ExtendScript regexp diagnostics mode: " + regexpDiagnostics);
   }
@@ -154,18 +158,35 @@ export function extendscriptCompat(options = {}) {
     /\\/g,
     "/",
   );
+  const purePath = fileURLToPath(new URL("../runtime/ponyfill.js", import.meta.url)).replace(
+    /\\/g,
+    "/",
+  );
   return {
     name: "extendscript-compat",
     resolveId(source) {
       if (source === numberPonyfillImport) return numberPonyfillPath;
+      if (source === ponyfillImport) return purePath;
+      if (options.runtime === "ponyfill" && source === "extendscript-compat/runtime")
+        return "\0extendscript-compat/empty-runtime";
+      return null;
+    },
+    load(id) {
+      if (id === "\0extendscript-compat/empty-runtime") return "";
       return null;
     },
     transform(code, id) {
       const normalizedId = id.replace(/\\/g, "/");
-      if (normalizedId === numberPonyfillPath || normalizedId === runtimePath) return null;
+      if (options.runtime === "ponyfill" && normalizedId === runtimePath)
+        return { code: "", map: { mappings: "" } };
+      if (
+        normalizedId === numberPonyfillPath ||
+        normalizedId === runtimePath ||
+        normalizedId === purePath
+      )
+        return null;
       const result = transformNumberCalls(code, id);
-      if (!result) return null;
-      if (diagnostics !== "off") {
+      if (result && diagnostics !== "off") {
         for (const position of result.diagnostics) {
           const warning = {
             code: "NUMBER_UNSUPPORTED",
@@ -176,7 +197,15 @@ export function extendscriptCompat(options = {}) {
           else this.warn(warning);
         }
       }
-      return result.code === undefined ? null : { code: result.code, map: result.map };
+      if (options.runtime === "ponyfill") {
+        const pure = transformPonyfills(
+          result?.code ?? code,
+          id,
+          result?.map ? JSON.parse(result.map.toString()) : undefined,
+        );
+        if (pure) return pure;
+      }
+      return result?.code === undefined ? null : { code: result.code, map: result.map };
     },
     augmentChunkHash() {
       return bom ? "extendscript-compat-utf8-bom" : undefined;

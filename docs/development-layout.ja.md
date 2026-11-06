@@ -11,6 +11,9 @@
 - runtime-src/install-polyfills.js: 適用順と適用済みの印を管理します。旧版と同じエンジンで使えるよう、既存の印を維持します。
 - runtime-src/builtin-corrections.js・trim.js: ExtendScriptの組み込み関数に対する補正です。
 - runtime/index.js: scripts/build-runtime.mjsで生成するES3・ASCIIの配布入口です。直接編集せず再生成してください。
+- src/ponyfill-transform.js・ponyfill-definitions.js: Rollup用の標準API参照変換と補完範囲です。
+- runtime-src/ponyfill-core.js: バンドル内の補完管理とホストを変更しないメソッド解決です。
+- runtime/ponyfill.js: scripts/build-ponyfill.mjsが既存shimから導入処理を除いて生成する内部モジュールです。直接編集せず、scripts/build-runtime.mjsで両方の生成物を更新してください。
 - runtime/number.js・unit-value.jsと型宣言: 手書きの公開APIです。runtime/全体が生成物ではありません。
 
 利用側の読み込み方は変更しません。

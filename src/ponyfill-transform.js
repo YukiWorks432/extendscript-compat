@@ -1,0 +1,127 @@
+import { parse, traverse, transformFromAstSync, types as t } from "@babel/core";
+import { prototypeMethods, staticMethods } from "./ponyfill-definitions.js";
+
+export const ponyfillImport = "virtual:extendscript-compat/ponyfill";
+const instanceNames = new Set(Object.values(prototypeMethods).flat());
+
+/** @param {import("@babel/core").types.MemberExpression} node */
+function propertyName(node) {
+  return node.computed
+    ? t.isStringLiteral(node.property)
+      ? node.property.value
+      : undefined
+    : t.isIdentifier(node.property)
+      ? node.property.name
+      : undefined;
+}
+
+/** @param {string} code @param {string} id @param {import("@babel/core").TransformOptions["inputSourceMap"]} [inputSourceMap] */
+export function transformPonyfills(code, id, inputSourceMap) {
+  const program = parse(code, { babelrc: false, configFile: false, sourceType: "module" });
+  if (!program) throw new Error("Ponyfill conversion received an empty AST");
+  let changed = false;
+  /** @type {import("@babel/core").types.Identifier | undefined} */
+  let helper;
+  traverse(program, {
+    Program(path) {
+      helper = path.scope.generateUidIdentifier("extendscriptPonyfill");
+    },
+    ReferencedIdentifier(path) {
+      if (path.node.name !== "parseInt" || path.scope.getBinding("parseInt")) return;
+      if (!helper) throw new Error("Ponyfill namespace was not initialized");
+      path.replaceWith(
+        t.callExpression(t.memberExpression(t.cloneNode(helper), t.identifier("getParseInt")), []),
+      );
+      path.skip();
+      changed = true;
+    },
+    MemberExpression: {
+      exit(path) {
+        const key = propertyName(path.node);
+        if (!key || !helper || !path.isReferenced()) return;
+        if (
+          path.parentPath.isUpdateExpression() ||
+          path.parentPath.isUnaryExpression({ operator: "delete" })
+        )
+          return;
+        const object = path.node.object;
+        let group;
+        let kind;
+        if (
+          t.isIdentifier(object) &&
+          Object.hasOwn(staticMethods, object.name) &&
+          !path.scope.getBinding(object.name) &&
+          staticMethods[/** @type {keyof typeof staticMethods} */ (object.name)].includes(key)
+        ) {
+          group = object.name;
+          kind = "getStatic";
+        } else if (
+          t.isMemberExpression(object) &&
+          propertyName(object) === "prototype" &&
+          t.isIdentifier(object.object) &&
+          Object.hasOwn(prototypeMethods, object.object.name) &&
+          !path.scope.getBinding(object.object.name) &&
+          prototypeMethods[
+            /** @type {keyof typeof prototypeMethods} */ (object.object.name)
+          ].includes(key)
+        ) {
+          group = object.object.name;
+          kind = "getPrototypeMethod";
+        }
+        if (!kind && !instanceNames.has(key)) return;
+        if (t.isSuper(object)) return;
+        changed = true;
+        const namespace = t.cloneNode(helper);
+        if (kind && group) {
+          path.replaceWith(
+            t.callExpression(t.memberExpression(namespace, t.identifier(kind)), [
+              t.stringLiteral(group),
+              t.stringLiteral(key),
+            ]),
+          );
+          path.skip();
+          return;
+        }
+        const parent = path.parentPath;
+        if (parent.isCallExpression() && parent.node.callee === path.node) {
+          // 単純な変数でも、メソッドのgetterが束縛を変更しうるため一度退避する。
+          const receiver = path.scope.generateDeclaredUidIdentifier("receiver");
+          const lookup = t.callExpression(
+            t.memberExpression(t.cloneNode(helper), t.identifier("getMethod")),
+            [t.cloneNode(receiver), t.stringLiteral(key)],
+          );
+          parent.replaceWith(
+            t.callExpression(t.memberExpression(namespace, t.identifier("callMethod")), [
+              t.assignmentExpression("=", t.cloneNode(receiver), object),
+              lookup,
+              ...parent.node.arguments,
+            ]),
+          );
+          parent.skip();
+        } else {
+          path.replaceWith(
+            t.callExpression(t.memberExpression(namespace, t.identifier("getMethod")), [
+              object,
+              t.stringLiteral(key),
+            ]),
+          );
+          path.skip();
+        }
+      },
+    },
+  });
+  if (!changed || !helper) return null;
+  program.program.body.unshift(
+    t.importDeclaration([t.importNamespaceSpecifier(helper)], t.stringLiteral(ponyfillImport)),
+  );
+  const result = transformFromAstSync(program, code, {
+    babelrc: false,
+    configFile: false,
+    sourceMaps: true,
+    sourceFileName: id,
+    cloneInputAst: false,
+    inputSourceMap,
+  });
+  if (!result?.code) throw new Error("Ponyfill conversion produced no code");
+  return { code: result.code, map: result.map };
+}

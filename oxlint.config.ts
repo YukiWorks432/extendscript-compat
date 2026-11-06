@@ -7,6 +7,7 @@ export default defineConfig({
     "runtime-src/vendor/es6-shim.js",
     "runtime-src/vendor/json2.js",
     "runtime/index.js",
+    "runtime/ponyfill.js",
     "test/fixtures/template-polyfills.ts",
     "test/fixtures/json2-legacy.js",
   ],

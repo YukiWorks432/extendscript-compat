@@ -8,6 +8,8 @@ See the [runtime API compatibility matrix](API-COMPATIBILITY.md) for per-API pol
 
 ## Installation and load order
 
+To avoid modifying host built-ins, set Rollup's `runtime: "ponyfill"`. In that mode the import below does not install host changes; API references, including ES5 methods, are rewritten to bundle-local implementations. See [coverage and limitations](../docs/build-compatibility.md#ponyfill-mode).
+
 Load it before initializing the application or its dependencies. It applies JSON, ES5, and ES6 polyfills in that order, followed by the four corrections and selected later methods. When using other compatibility code, load this entry after it:
 
 ```js

@@ -38,6 +38,8 @@ Public diagnostic fields, the meanings of `code` and `kind`, position convention
 
 ## Runtime contract
 
+Rollup's `runtime: "ponyfill"` rewrites the standard API references specified in [build-time compatibility](build-compatibility.md#ponyfill-mode) to bundle-local implementations without modifying the host. It suppresses `/runtime` imports in that bundle while preserving the installation contract when the option is omitted. The linked document defines dynamic-reference and external-code limitations.
+
 Explicitly import `/runtime` before application and dependency initialization. It affects other scripts in the same engine but does not change previously saved function references. The root and `/rollup` entries do not install the runtime automatically; merely importing `/number` or `/unit-value` does not replace host classes or functions.
 
 Reloading the same version does not repeatedly wrap functions. Existing polyfilled APIs that pass the supported checks are retained; the four known-broken functions are replaced as described in [runtime compatibility](../runtime/README.md). Later overwrites by other libraries are not automatically undone. Coexistence with older releases is verified only under the conditions recorded in host evidence.

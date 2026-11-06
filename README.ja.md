@@ -77,6 +77,8 @@ parseInt("a?", 16); // 10
 
 この入口は組み込み機能を追加・置換し、同じエンジンを使う他のスクリプトにも影響します。`UnitValue`の演算や比較は自動では補正されないため、`subtractUnitValues`と`isNull`を該当箇所で使ってください。読み込み順と制限は[実行時の互換補正](runtime/README.ja.md)を参照してください。
 
+ホストの組み込みを変更せずに同じ書き方を使う場合は、Rollupを`extendscriptCompat({ runtime: "ponyfill" })`に切り替えます。`map`・`filter`・`reduce`・`bind`などのES5補完も自動変換し、既存の`/runtime`読み込みもホストへ適用しません。設定を省略すると従来の動作に戻ります。[変換する書き方と制限](docs/build-compatibility.ja.md#ponyfillモード)を参照してください。
+
 ## 対応範囲と文書
 
 入力は通常のJavaScriptとして生成されたコードです。TypeScriptからJavaScriptへの変換や、ES3互換の構文への変換は別途必要です。E4Xや未展開のプリプロセッサー指示を含む生のJSXは対象外です。

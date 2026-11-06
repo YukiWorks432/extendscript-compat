@@ -50,6 +50,40 @@ export default {
 
 The plugin corrects and checks each output chunk and updates an existing valid source map for inserted parentheses and semicolons and replaced regular-expression text. External, inline, and hidden source maps are supported. Inline URLs are updated only in actual line comments; mapping-like text inside strings and block comments added by earlier include expansion is preserved. It cannot recover mapping information lost when an earlier plugin changed code without updating the map. Handle CEP-specific include expansion in the consuming build.
 
+## Ponyfill mode
+
+`runtime: "ponyfill"` rewrites standard API references, including ES5 methods, to bundle-local implementations. Application code keeps ordinary method syntax:
+
+```js
+// Rollup configuration
+extendscriptCompat({ runtime: "ponyfill" });
+
+// Application code; no helper imports are needed.
+var names = items.filter(isEnabled).map(getName);
+var keys = Object.keys(data);
+var handler = callback.bind(context);
+var text = JSON.stringify(data);
+```
+
+The option can be omitted or set to `"ponyfill"`. When omitted, explicitly importing `extendscript-compat/runtime` continues to install host polyfills and corrections. In ponyfill mode the same import becomes an empty module, so switching requires only a Rollup configuration change.
+
+Coverage includes ES5 Array iteration, search and reduction, Function `bind`, `Array.isArray`, `Object.keys`, ES5 Date/Number/String corrections, JSON, and the ES2015 and later methods in the [runtime API matrix](../runtime/API-COMPATIBILITY.md). `Object.defineProperty`, `setPrototypeOf`, and Reflect descriptor/prototype operations depend on host facilities. Unsupported features such as Promise and Symbol are not added.
+
+Method references, borrowing, and constant bracket notation are also rewritten:
+
+```js
+Array.prototype.map.call(arrayLike, callback);
+var map = Array.prototype.map;
+var keys = Object.keys;
+items["map"](callback);
+```
+
+Local bindings that shadow built-in names and custom instance/prototype methods are retained. Receiver evaluation, method lookup, argument evaluation order, and `this` are preserved. Implementations and caches stay inside the bundle: no host globals, constructors, prototypes, or installation markers are modified. JSON handles dates internally without adding `Date.prototype.toJSON`. Operations such as `fill` and `Reflect.set` still mutate their inputs as specified. This is not a sandbox for host writes made explicitly by application code or other libraries.
+
+Like Number conversion, this runs during module processing after TypeScript and syntax transpilation, including bundled dependency modules. Subsequent minification, compatibility protection, BOM handling, ES3 validation, and source maps remain supported. TypeScript consumers can keep `/runtime` declarations or use standard `lib` settings.
+
+Dynamic `object[methodName]`, aliases of entire built-in objects (`var O = Object; O.keys(...)`), destructuring, strings passed to `eval` or the Function constructor, external JSX, and code added after module transformation by include processing are not rewritten. `new Date(...)`, implicit coercion, prototype enumeration, and feature tests using `in` retain host behavior. Values from other engines and host-specific objects need environment-specific validation.
+
 ## Scope
 
 `protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03, EC-06, EC-20, and Unicode characters as described below.

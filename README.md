@@ -77,6 +77,8 @@ For example, `parseInt("a?", 16)` returns `175` in uncorrected After Effects. Af
 
 This entry adds and replaces built-in functions and also affects other scripts in the same engine. `UnitValue` arithmetic and comparisons are not corrected automatically; use `subtractUnitValues` and `isNull` at the affected sites. See [runtime compatibility](runtime/README.md) for load order and limitations.
 
+To keep the same standard API syntax without modifying host built-ins, use `extendscriptCompat({ runtime: "ponyfill" })` in Rollup. This also rewrites ES5 methods such as `map`, `filter`, `reduce`, and `bind`, and suppresses an existing `/runtime` import. Omitting the option restores the existing behavior. See [supported forms and limitations](docs/build-compatibility.md#ponyfill-mode).
+
 ## Scope and documentation
 
 Input must be code generated as ordinary JavaScript. Transpiling TypeScript to JavaScript and targeting ES3 syntax require separate build steps. Raw JSX containing E4X or unexpanded preprocessor directives is not supported.

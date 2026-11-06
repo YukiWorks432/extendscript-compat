@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { runInNewContext } from "node:vm";
+import { fileURLToPath } from "node:url";
 import { rollup } from "rollup";
 import terser from "@rollup/plugin-terser";
 
@@ -49,6 +50,43 @@ for (const minified of [false, true]) {
     assert.equal(result.number, 5);
     assert(chunk.map.sources.some((name) => name.endsWith("consumer.js")));
     assert(chunk.map.sourcesContent.includes(source));
+  } finally {
+    await bundle.close();
+  }
+}
+
+// 同じ/runtime読み込みを残したまま、配布物の設定だけで切り替えられることを確認する。
+for (const pure of [false, true]) {
+  const bundle = await rollup({
+    input: "runtime-consumer.js",
+    plugins: [
+      {
+        name: "runtime-consumer-input",
+        resolveId: (id) =>
+          id === "runtime-consumer.js"
+            ? id
+            : id === "extendscript-compat/runtime" && !pure
+              ? fileURLToPath(import.meta.resolve(id))
+              : null,
+        load: (id) =>
+          id === "runtime-consumer.js"
+            ? 'import "extendscript-compat/runtime"; export function run(){return [Object.keys({a:1})[0],[1,2].map(function(x){return x*2;}).join(","),JSON.parse("[3]")[0]];}'
+            : null,
+      },
+      terser({ ie8: true }),
+      extendscriptCompat(pure ? { runtime: "ponyfill" } : {}),
+    ],
+  });
+  try {
+    const { output } = await bundle.generate({ format: "iife", name: "compiled" });
+    const result = runInNewContext(
+      "delete Array.prototype.map;delete Object.keys;JSON=undefined;" +
+        output[0].code +
+        ";({values:compiled.run(),map:typeof Array.prototype.map,json:typeof JSON})",
+    );
+    assert.deepEqual(Array.from(result.values), ["a", "2,4", 3]);
+    assert.equal(result.map, pure ? "undefined" : "function");
+    assert.equal(result.json, pure ? "undefined" : "object");
   } finally {
     await bundle.close();
   }
