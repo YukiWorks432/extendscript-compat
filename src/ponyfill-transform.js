@@ -73,12 +73,24 @@ export function transformPonyfills(code, id, inputSourceMap) {
         changed = true;
         const namespace = t.cloneNode(helper);
         if (kind && group) {
-          path.replaceWith(
-            t.callExpression(t.memberExpression(namespace, t.identifier(kind)), [
-              t.stringLiteral(group),
-              t.stringLiteral(key),
-            ]),
-          );
+          const lookup = t.callExpression(t.memberExpression(namespace, t.identifier(kind)), [
+            t.stringLiteral(group),
+            t.stringLiteral(key),
+          ]);
+          const parent = path.parentPath;
+          if (
+            kind === "getPrototypeMethod" &&
+            parent.isCallExpression() &&
+            parent.node.callee === path.node
+          ) {
+            parent.replaceWith(
+              t.callExpression(
+                t.memberExpression(t.cloneNode(helper), t.identifier("callMethod")),
+                [object, lookup, ...parent.node.arguments],
+              ),
+            );
+            parent.skip();
+          } else path.replaceWith(lookup);
           path.skip();
           return;
         }

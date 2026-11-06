@@ -14,6 +14,7 @@ const names = [
   "string-modern",
   "json-parse",
   "json-stringify",
+  "ponyfill-boundaries",
 ];
 const checks = names.map((name) => {
   let code = readFileSync(new URL(`../test/contracts/${name}-contract.js`, import.meta.url), "utf8")

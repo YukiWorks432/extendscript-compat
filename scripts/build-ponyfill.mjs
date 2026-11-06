@@ -125,7 +125,32 @@ function extract(file, selections, es5) {
     const start = path.node.start;
     const s = new MagicString(code.slice(start, path.node.end));
     const edits = [];
+    // 元のshimの条件付き補正を単独で使っても、無効な日付を文字列化できるようにする。
+    if (
+      ["toString", "toUTCString", "toDateString"].some(
+        (name) => path === values.get("Date.prototype." + name),
+      )
+    )
+      edits.push([
+        path.node.body.start + 1,
+        path.node.body.start + 1,
+        '\nif (isNaN(Date.prototype.getTime.call(this))) return "Invalid Date";\n',
+      ]);
     const visitors = {
+      IfStatement(p) {
+        // ゼロでも指定桁数を保持する。元のshimはここでfを0へ上書きしてしまう。
+        if (
+          path === values.get("NumberPrototype.toExponential") &&
+          code.slice(p.node.test.start, p.node.test.end) === "x === 0"
+        ) {
+          edits.push([
+            p.node.consequent.start,
+            p.node.consequent.end,
+            '{ e = 0; m = new Array(f + 2).join("0"); }',
+          ]);
+          p.skip();
+        }
+      },
       FunctionExpression(p) {
         if (
           !es5 &&
@@ -147,6 +172,29 @@ if (p === __iteratorKey && !(p in Object(o))) {
       },
       CallExpression(p) {
         const callee = p.node.callee;
+        // 桁数省略時も、AEが返すゼロの指数「+00」を標準の「+0」へ揃える。
+        if (
+          path === values.get("NumberPrototype.toExponential") &&
+          callee.type === "Identifier" &&
+          callee.name === "originalToExponential" &&
+          p.node.arguments.length === 1
+        ) {
+          edits.push([p.node.start, p.node.end, 'x === 0 ? "0e+0" : originalToExponential(x)']);
+          p.skip();
+          return;
+        }
+        // ExtendScriptの単項+はオブジェクトのvalueOfを扱えないため、桁数を先に変換する。
+        if (
+          path === values.get("NumberPrototype.toExponential") &&
+          code.slice(callee.start, callee.end) === "ES.ToInteger"
+        ) {
+          const argument = p.node.arguments[0];
+          edits.push([
+            argument.start,
+            argument.end,
+            `toNumber(${code.slice(argument.start, argument.end)})`,
+          ]);
+        }
         if (callee.type === "Identifier" && callee.name === "Number")
           edits.push([callee.start, callee.end, "toNumber"]);
         if (

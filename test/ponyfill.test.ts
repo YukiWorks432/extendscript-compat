@@ -57,6 +57,7 @@ const contracts = [
   "string-modern",
   "json-parse",
   "json-stringify",
+  "ponyfill-boundaries",
 ].map((name) =>
   readFileSync(new URL(`./contracts/${name}-contract.js`, import.meta.url), "utf8")
     .trim()

@@ -873,6 +873,7 @@ function __createPonyfills() {
                 return date;
             },
             date_toString: function toString() {
+                if (isNaN(Date.prototype.getTime.call(this))) return "Invalid Date";
                 if (!this || !(this instanceof Date)) {
                     throw new TypeError("this is not a Date object.");
                 }
@@ -889,6 +890,7 @@ function __createPonyfills() {
                 return dayName[day] + " " + monthName[month] + " " + (date < 10 ? "0" + date : date) + " " + year + " " + (hour < 10 ? "0" + hour : hour) + ":" + (minute < 10 ? "0" + minute : minute) + ":" + (second < 10 ? "0" + second : second) + " GMT" + (timezoneOffset > 0 ? "-" : "+") + (hoursOffset < 10 ? "0" + hoursOffset : hoursOffset) + (minutesOffset < 10 ? "0" + minutesOffset : minutesOffset);
             },
             date_toUTCString: function toUTCString() {
+                if (isNaN(Date.prototype.getTime.call(this))) return "Invalid Date";
                 if (!this || !(this instanceof Date)) {
                     throw new TypeError("this is not a Date object.");
                 }
@@ -902,6 +904,7 @@ function __createPonyfills() {
                 return dayName[day] + ", " + (date < 10 ? "0" + date : date) + " " + monthName[month] + " " + year + " " + (hour < 10 ? "0" + hour : hour) + ":" + (minute < 10 ? "0" + minute : minute) + ":" + (second < 10 ? "0" + second : second) + " GMT";
             },
             date_toDateString: function toDateString() {
+                if (isNaN(Date.prototype.getTime.call(this))) return "Invalid Date";
                 if (!this || !(this instanceof Date)) {
                     throw new TypeError("this is not a Date object.");
                 }
@@ -942,9 +945,9 @@ function __createPonyfills() {
             toExponential: function toExponential(fractionDigits) {
                 var x = numberValueOf(this);
                 if (typeof fractionDigits === "undefined") {
-                    return originalToExponential(x);
+                    return x === 0 ? "0e+0" : originalToExponential(x);
                 }
-                var f = ES.ToInteger(fractionDigits);
+                var f = ES.ToInteger(toNumber(fractionDigits));
                 if (isActualNaN(x)) {
                     return "NaN";
                 }
@@ -971,8 +974,7 @@ function __createPonyfills() {
                 var d = "";
                 if (x === 0) {
                     e = 0;
-                    f = 0;
-                    m = "0";
+                    m = new Array(f + 2).join("0");
                 } else {
                     var L = log10(x);
                     e = floor(L);
