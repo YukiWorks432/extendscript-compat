@@ -49,8 +49,12 @@ function __createPonyfills() {
       values: __compatValues,
       hasOwn: __compatHasOwn,
       create: typeof Object.create === "function" ? Object.create : __compatCreate,
-      defineProperty: __compatObjectDefine,
-      getOwnPropertyDescriptor: __compatObjectDescriptor,
+      defineProperty:
+        typeof __compatNativeDefine === "function" ? __compatNativeDefine : __compatDefineProperty,
+      getOwnPropertyDescriptor:
+        typeof __compatNativeDescriptor === "function"
+          ? __compatNativeDescriptor
+          : __compatGetOwnPropertyDescriptor,
       setPrototypeOf: Object.setPrototypeOf,
     },
     String: { fromCodePoint: __es6.fromCodePoint, raw: __es6.raw },

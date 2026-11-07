@@ -20,6 +20,83 @@ const compressedRuntime = protectCompatibility(
 const missing =
   "delete Object.create;delete Object.defineProperty;delete Object.getOwnPropertyDescriptor;";
 
+it.each(["delete d.b", 'nativeDefine(d,"b",{enumerable:false})'])(
+  "createは記述子取得中の後続キーの変更を反映する %s",
+  async (change) => {
+    for (const pure of [false, true]) {
+      const ctx = createContext({});
+      runInContext(
+        'var nativeDefine=Object.defineProperty;var d={};nativeDefine(d,"a",{enumerable:true,get:function(){' +
+          change +
+          ";return {value:1};}});d.b={value:2};delete Object.create;",
+        ctx,
+      );
+      runInContext(
+        pure ? await build("export function run(d){return Object.create({},d);}") : runtime,
+        ctx,
+      );
+      runInContext(pure ? "var result=compiled.run(d)" : "var result=Object.create({},d)", ctx);
+      expect(runInContext("result.a", ctx)).toBe(1);
+      expect(runInContext('Object.prototype.hasOwnProperty.call(result,"b")', ctx)).toBe(false);
+    }
+  },
+);
+
+it.each([false, true])(
+  "標準の記述子取得だけで検出できるアクセサーも実行しない 継承=%s",
+  async (inherited) => {
+    for (const pure of [false, true]) {
+      const ctx = createContext({});
+      runInContext(
+        'var calls=0;var parent={};Object.defineProperty(parent,"x",{get:function(){calls++;return 7;},set:function(){calls++;}});var target=' +
+          (inherited ? "Object.create(parent)" : "parent") +
+          ";delete Object.defineProperty;delete Object.prototype.__lookupGetter__;delete Object.prototype.__lookupSetter__;",
+        ctx,
+      );
+      runInContext(
+        pure
+          ? await build('export function run(o){return Object.defineProperty(o,"x",{value:7});}')
+          : runtime,
+        ctx,
+      );
+      expect(() =>
+        runInContext(
+          pure ? "compiled.run(target)" : 'Object.defineProperty(target,"x",{value:7})',
+          ctx,
+        ),
+      ).toThrow(/Accessor/);
+      expect(runInContext("calls", ctx)).toBe(0);
+    }
+  },
+);
+
+it("属性の書き込みがなくても既存の記述子読み取り能力を維持する", async () => {
+  for (const pure of [false, true]) {
+    const ctx = createContext({});
+    runInContext(
+      'var nativeDefine=Object.defineProperty;function sample(){var o={};nativeDefine(o,"a",{enumerable:true,get:function(){nativeDefine(o,"b",{enumerable:true});return 1;}});nativeDefine(o,"b",{value:2,configurable:true});return o;}delete Object.defineProperty;delete Object.values;delete Object.entries;Reflect=undefined;',
+      ctx,
+    );
+    runInContext(
+      pure
+        ? await build("export function run(o){return [Object.values(o()),Object.entries(o())];}")
+        : runtime,
+      ctx,
+    );
+    const result = runInContext(
+      pure ? "compiled.run(sample)" : "[Object.values(sample()),Object.entries(sample())]",
+      ctx,
+    );
+    expect(JSON.parse(JSON.stringify(result))).toEqual([
+      [1, 2],
+      [
+        ["a", 1],
+        ["b", 2],
+      ],
+    ]);
+  }
+});
+
 it.each([1, 2, 3, 4, 5, 6, 7])(
   "3 APIが部分的に存在する環境でも補完する 欠落=%s",
   async (mask) => {

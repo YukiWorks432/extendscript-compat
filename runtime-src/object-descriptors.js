@@ -5,6 +5,19 @@ var __compatLookupGetter = Object.prototype.__lookupGetter__;
 var __compatLookupSetter = Object.prototype.__lookupSetter__;
 var __compatDescriptorsSupported = false;
 var __compatAccessorsSupported = false;
+var __compatDescriptorReadSupported = false;
+if (typeof __compatNativeDescriptor === "function") {
+  try {
+    var __compatReadProbe = __compatNativeDescriptor([], "length");
+    __compatDescriptorReadSupported =
+      __compatReadProbe.value === 0 &&
+      __compatReadProbe.writable === true &&
+      __compatReadProbe.enumerable === false &&
+      __compatReadProbe.configurable === false;
+  }
+  // oxlint-disable-next-line no-unused-vars -- ES3ではcatch変数が必須。
+  catch (__compatReadError) {}
+}
 if (typeof __compatNativeDefine === "function") {
   try {
     var __compatDescriptorProbe = {};
@@ -17,7 +30,7 @@ if (typeof __compatNativeDefine === "function") {
     __compatAccessorsSupported = __compatDescriptorProbe.x === 7;
     __compatDescriptorsSupported =
       __compatAccessorsSupported &&
-      typeof __compatNativeDescriptor === "function" &&
+      __compatDescriptorReadSupported &&
       typeof __compatNativeDescriptor(__compatDescriptorProbe, "x").get === "function";
   }
   // oxlint-disable-next-line no-unused-vars -- ES3ではcatch変数が必須。
@@ -60,6 +73,18 @@ function __compatDefineData(object, key, record) {
     (typeof __compatLookupSetter === "function" && __compatLookupSetter.call(object, key))
   )
     throw new TypeError("Accessor properties are not supported by this host");
+  if (typeof __compatNativeDescriptor === "function") {
+    var current = object;
+    do {
+      var existing = __compatNativeDescriptor(current, key);
+      if (existing) {
+        if (own.call(existing, "get") || own.call(existing, "set"))
+          throw new TypeError("Accessor properties are not supported by this host");
+        break;
+      }
+      current = typeof Object.getPrototypeOf === "function" ? Object.getPrototypeOf(current) : null;
+    } while (current !== null);
+  }
   // 継承の変更を、データプロパティの作成として成功扱いにしない。
   if (
     key === "__proto__" &&
@@ -111,13 +136,6 @@ function __compatGetOwnPropertyDescriptor(object, property) {
   };
 }
 
-var __compatObjectDefine =
-  typeof __compatNativeDefine === "function" ? __compatNativeDefine : __compatDefineProperty;
-var __compatObjectDescriptor =
-  typeof __compatNativeDescriptor === "function"
-    ? __compatNativeDescriptor
-    : __compatGetOwnPropertyDescriptor;
-
 function __compatCreate(prototype, properties) {
   if (prototype !== null && typeof prototype !== "object" && typeof prototype !== "function")
     throw new TypeError("Object prototype must be an object or null");
@@ -149,12 +167,16 @@ function __compatCreate(prototype, properties) {
           keys.push(symbols[i]);
     }
     // 全記述子を先に変換し、後続の不正記述子で部分的に定義しない。
-    for (i = 0; i < keys.length; i++)
-      records.push(__compatDescriptorRecord(descriptors[keys[i]], __compatAccessorsSupported));
     for (i = 0; i < keys.length; i++) {
       key = keys[i];
-      if (typeof __compatNativeDefine === "function") __compatNativeDefine(object, key, records[i]);
-      else __compatDefineData(object, key, records[i]);
+      if (Object.prototype.propertyIsEnumerable.call(descriptors, key))
+        records.push([key, __compatDescriptorRecord(descriptors[key], __compatAccessorsSupported)]);
+    }
+    for (i = 0; i < records.length; i++) {
+      key = records[i][0];
+      if (typeof __compatNativeDefine === "function")
+        __compatNativeDefine(object, key, records[i][1]);
+      else __compatDefineData(object, key, records[i][1]);
     }
   }
   return object;
