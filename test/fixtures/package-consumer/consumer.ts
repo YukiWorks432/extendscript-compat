@@ -7,8 +7,9 @@ import type { Plugin } from "rollup";
 
 const code: string = protectCompatibility("var result = a || b && c;").code;
 const plugin: Plugin = extendscriptCompat();
+const ponyfill: Plugin = extendscriptCompat({ runtime: "ponyfill" });
 const number: number = toNumber("0b101");
 const difference: number = subtractUnitValues(8, 3);
 const missing: boolean = isNull(null);
 const sorted: number[] = [3, 1, 2].toSorted();
-void [code, plugin, number, difference, missing, sorted];
+void [code, plugin, ponyfill, number, difference, missing, sorted];

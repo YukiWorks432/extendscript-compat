@@ -50,6 +50,40 @@ export default {
 
 各出力チャンクへ補正と検査を行い、既存の有効なソースマップを括弧・セミコロンの挿入と正規表現の置換に合わせて更新します。外部ファイル、inline、hiddenの形式に対応します。 inlineのURLは実際の行コメントだけを更新し、先行するinclude展開で追加された文字列やブロックコメント内の`sourceMappingURL`は保持します。先行プラグインがコードを変更したのにソースマップを更新していない場合、その情報の復元はできません。CEP固有のinclude処理への対応は利用側の組み込み処理で行ってください。
 
+## ponyfillモード
+
+`runtime: "ponyfill"`を指定すると、ES5を含む標準APIへの参照をバンドル内の補完処理へ変換します。利用側は従来どおりのメソッド呼び出しを書けます。
+
+```js
+// Rollupの設定
+extendscriptCompat({ runtime: "ponyfill" });
+
+// 利用側のコード。補助APIの読み込みは不要です。
+var names = items.filter(isEnabled).map(getName);
+var keys = Object.keys(data);
+var handler = callback.bind(context);
+var text = JSON.stringify(data);
+```
+
+設定は省略または`"ponyfill"`です。省略時は従来どおり、明示的な`extendscript-compat/runtime`の読み込みがホストへ補完・補正を適用します。ponyfillモードでは同じ読み込みを空のモジュールとして扱うため、利用側のコードを変えずにRollupの設定だけで切り替えられます。
+
+対象はArrayのES5走査・検索・集約、Functionの`bind`、`Array.isArray`、`Object.keys`、Date・Number・StringのES5補正、JSON、および[実行時API対応表](../runtime/API-COMPATIBILITY.ja.md)のES2015・後年のメソッドです。`Object.defineProperty`・`setPrototypeOf`とReflectの属性・プロトタイプ操作は、ホストが提供する基礎機能の範囲で利用できます。未対応のPromise・Symbolなどを追加するモードではありません。
+
+次の参照も変換します。ローカル変数や引数が組み込み名を隠している場合は、その束縛を保持します。インスタンス自身や独自のプロトタイプに定義されたメソッドも保持し、対象とメソッドの取得、引数の評価順序、`this`を維持します。
+
+```js
+Array.prototype.map.call(arrayLike, callback);
+var map = Array.prototype.map;
+var keys = Object.keys;
+items["map"](callback);
+```
+
+補完コードはバンドル内に保持し、グローバル、組み込みコンストラクターやプロトタイプ、導入済み印を書き換えません。JSONの日付出力も内部で扱い、`Date.prototype.toJSON`などを追加しません。入力を変更する`fill`や`Reflect.set`などの操作は、その仕様どおり入力を変更します。利用側や他ライブラリが明示的に行うホストの変更を防ぐ隔離機能はありません。
+
+変換はNumberと同じモジュール処理段階で、TypeScript・構文変換の後に行います。バンドルへ取り込む依存モジュールも対象です。生成後の圧縮・互換補正・BOM・ES3検査とソースマップは引き続き有効です。TypeScriptでは既存の`/runtime`の型宣言や標準の`lib`設定を使用できます。
+
+実行時に決まる`object[methodName]`、組み込みオブジェクト自体の別名（`var O = Object; O.keys(...)`など）、分割代入、`eval`・Functionコンストラクター内の文字列、外部JSX、モジュール変換後にinclude処理などで追加するコードは変換しません。`new Date(...)`や暗黙の型変換、プロトタイプの列挙や`in`演算子による機能判定もホストの挙動を維持します。別エンジン由来の値やホスト固有オブジェクトは利用環境ごとに確認してください。
+
 ## 対応範囲
 
 protectPrecedenceは従来どおり括弧だけを挿入します。protectCompatibilityとRollup用のextendscriptCompatは、下記のEC-03・EC-06・EC-20とUnicode文字も扱います。

@@ -101,3 +101,4 @@ if (process.argv.includes("--check")) {
 } else {
   writeFileSync(path, output);
 }
+await import("./build-ponyfill.mjs");

@@ -1,6 +1,9 @@
 import type { Plugin } from "rollup";
 
 export interface CompatibilityOptions {
+  /** Rewrite standard API references to bundle-local ponyfills, including ES5 methods.
+   * ES5を含む標準APIの参照をバンドル内の補完処理へ変換する。既存の/runtime読み込みもホストへ適用しない。 */
+  runtime?: "ponyfill";
   /** Potential EC-18/19 warnings: off by default; warn or error to enable.
    * EC-18・19の可能性の通知。既定はoff。warnまたはerrorで有効にする。 */
   regexpDiagnostics?: "off" | "warn" | "error";
