@@ -11,6 +11,7 @@ import {
 } from "./index.js";
 import { numberPonyfillImport, transformNumberCalls } from "./number-transform.js";
 import { ponyfillImport, transformPonyfills } from "./ponyfill-transform.js";
+import { findFreezeEdits } from "./freeze-transform.js";
 
 /** @param {string} source */
 const lineStarts = (source) => {
@@ -226,6 +227,14 @@ export function extendscriptCompat(options = {}) {
           }
         }
         const result = protectCompatibility(source);
+        const freezeEdits = findFreezeEdits(result.code);
+        let freezeSource = "",
+          cursor = 0;
+        for (const edit of freezeEdits) {
+          freezeSource += result.code.slice(cursor, edit.start) + edit.text;
+          cursor = edit.end;
+        }
+        freezeSource += result.code.slice(cursor);
         if (diagnostics !== "off") {
           for (const diagnostic of result.diagnostics) {
             const warning = {
@@ -237,8 +246,8 @@ export function extendscriptCompat(options = {}) {
             else this.warn(warning);
           }
         }
-        assertPrecedenceProtected(result.code);
-        const unsafeInitializer = findCompatibilityIssues(result.code).find(
+        assertPrecedenceProtected(freezeSource);
+        const unsafeInitializer = findCompatibilityIssues(freezeSource).find(
           ({ kind }) => kind === "for-initializer-in",
         );
         if (unsafeInitializer)
@@ -251,9 +260,9 @@ export function extendscriptCompat(options = {}) {
               column: unsafeInitializer.column,
             },
           });
-        const hasBom = result.code.startsWith("\uFEFF");
+        const hasBom = freezeSource.startsWith("\uFEFF");
         const addBom = bom && !hasBom;
-        if (!bom && !hasBom && /[^\p{ASCII}]/u.test(result.code)) {
+        if (!bom && !hasBom && /[^\p{ASCII}]/u.test(freezeSource)) {
           this.warn({
             code: "MISSING_BOM",
             message:
@@ -261,20 +270,26 @@ export function extendscriptCompat(options = {}) {
             loc: { file: chunk.fileName, line: 1, column: 0 },
           });
         }
-        chunk.code = addBom ? "\uFEFF" + result.code : result.code;
+        chunk.code = addBom ? "\uFEFF" + freezeSource : freezeSource;
         parseES3(chunk.code, {
           ecmaVersion: 3,
           sourceType: "script",
           // AcornはES3指定だけでは予約語を許可するため、プロパティ名も含めて拒否する。
           allowReserved: "never",
         });
-        if (!options.sourcemap || (result.edits.length === 0 && !addBom)) continue;
+        if (
+          !options.sourcemap ||
+          (freezeEdits.length === 0 && result.edits.length === 0 && !addBom)
+        )
+          continue;
         if (!chunk.map)
           this.error("ExtendScript compatibility pass requires the preceding source map");
         let map = shiftSourceMap(source, result.code, result.edits, chunk.map, chunk.fileName);
+        if (freezeEdits.length)
+          map = shiftSourceMap(result.code, freezeSource, freezeEdits, map, chunk.fileName);
         if (addBom) {
           map = shiftSourceMap(
-            result.code,
+            freezeSource,
             chunk.code,
             [{ start: 0, end: 0, text: "\uFEFF" }],
             map,

@@ -52,6 +52,10 @@ export default {
 
 ## ponyfillモード
 
+Rollupの`extendscriptCompat()`は、設定を省略した場合も、最終出力にあるグローバルの`Object.freeze(...)`を補正します。Rollupが`import * as library`の名前空間に追加する呼び出しや、先行するinclude処理の直接呼び出しも対象です。既存の`freeze`関数があれば使い、関数がない場合は最初の引数をそのまま返します。ホストへ関数は追加せず、プロパティの凍結も行いません。`Object.freeze || customFreeze`のような単なる参照は、この最終出力の補正では変更しません。動的なメソッド名や`Object`自体の別名は対象外です。
+
+この補正はRollupプラグインの機能です。`protectCompatibility()`単体には含まれません。`output.freeze: false`を強制せず、凍結できるホストの動作を維持します。
+
 `runtime: "ponyfill"`を指定すると、ES5を含む標準APIへの参照をバンドル内の補完処理へ変換します。利用側は従来どおりのメソッド呼び出しを書けます。
 
 ```js

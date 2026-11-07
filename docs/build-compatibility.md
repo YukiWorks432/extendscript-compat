@@ -52,6 +52,10 @@ The plugin corrects and checks each output chunk and updates an existing valid s
 
 ## Ponyfill mode
 
+The Rollup `extendscriptCompat()` plugin also corrects direct calls to global `Object.freeze(...)` in final chunks, including when no runtime option is set. This covers namespace objects generated for `import * as library` and direct calls added by preceding include processing. An existing freeze function is used; otherwise the first argument is returned unchanged. No host function is installed and no property is frozen by the fallback. This final pass leaves references such as `Object.freeze || customFreeze` unchanged. Dynamic method names and aliases of the Object constructor are not covered.
+
+This correction belongs to the Rollup plugin, not standalone `protectCompatibility()`. It does not force `output.freeze: false`, so freezing remains enabled on capable hosts.
+
 `runtime: "ponyfill"` rewrites standard API references, including ES5 methods, to bundle-local implementations. Application code keeps ordinary method syntax:
 
 ```js

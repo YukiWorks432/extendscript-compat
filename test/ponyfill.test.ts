@@ -48,6 +48,7 @@ for (i = 0; i < stringNames.length; i++) delete String.prototype[stringNames[i]]
 delete Math.trunc;
 `;
 const contracts = [
+  "freeze",
   "polyfill",
   "runtime",
   "includes-padding-trimming",

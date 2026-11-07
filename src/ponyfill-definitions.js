@@ -2,6 +2,7 @@
 export const staticMethods = {
   Array: ["isArray", "from", "of"],
   Object: [
+    "freeze",
     "keys",
     "assign",
     "is",

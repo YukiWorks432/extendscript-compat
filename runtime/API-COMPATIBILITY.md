@@ -2,7 +2,7 @@
 
 [日本語（正本）](API-COMPATIBILITY.ja.md) | English
 
-This matrix describes the built-in APIs handled by `extendscript-compat/runtime`, based on the bundled implementation as of November 4, 2026. Import `/runtime` before using its features. A standard library type alone does not mean that an API exists at runtime.
+This matrix describes the built-in APIs handled by `extendscript-compat/runtime`, based on the bundled implementation as of November 7, 2026. Import `/runtime` before using its features. A standard library type alone does not mean that an API exists at runtime.
 
 “Polyfilled” means the runtime attempts to add a missing API or replace an incomplete implementation; it does not guarantee conformance for every host or input. “Conditional” means an underlying feature, such as host property descriptors, is required. Do not assume APIs absent from this matrix are available. Check the scope and load order of any other polyfills separately.
 
@@ -20,6 +20,8 @@ This matrix describes the built-in APIs handled by `extendscript-compat/runtime`
 | `UnitValue` subtraction and null comparison   | Not automatically corrected                 | Use `subtractUnitValues` and `isNull` from `extendscript-compat/unit-value` when needed                       |
 
 ## ES5 and ES2015 polyfills and conditions
+
+When `Object.freeze` is not a function, an identity fallback is installed. It does not freeze property descriptors. Existing functions are retained. Status methods such as `Object.isFrozen` are not added and the fallback does not represent the object as frozen.
 
 The ported compatibility code adds or corrects these APIs. A row does not imply that every listed API was tested on a host; see the validation scope below.
 

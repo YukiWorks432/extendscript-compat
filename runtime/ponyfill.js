@@ -39,6 +39,16 @@ function isNumberWhitespace(code) {
     return (code >= 9 && code <= 13) || code === 32 || code === 160 || code === 5760 || (code >= 8192 && code <= 8202) || code === 8232 || code === 8233 || code === 8239 || code === 8287 || code === 12288 || code === 65279;
 }
 
+function getFreeze(object) {
+    var method = object.freeze;
+    if (typeof method === "function") return function() {
+        return Function.prototype.apply.call(method, object, arguments);
+    };
+    return function(value) {
+        return value;
+    };
+}
+
 var __ponyfillCache;
 
 function __createPonyfills() {
@@ -3126,7 +3136,7 @@ function __createPonyfills() {
     })();
     var __staticNames = {
         Array: [ "isArray", "from", "of" ],
-        Object: [ "keys", "assign", "is", "entries", "values", "hasOwn", "defineProperty", "setPrototypeOf" ],
+        Object: [ "freeze", "keys", "assign", "is", "entries", "values", "hasOwn", "defineProperty", "setPrototypeOf" ],
         Number: [ "isFinite", "isNaN", "isInteger", "isSafeInteger", "parseInt", "parseFloat", "EPSILON", "MAX_SAFE_INTEGER", "MIN_SAFE_INTEGER" ],
         String: [ "fromCodePoint", "raw" ],
         Date: [ "now", "parse" ],
@@ -3148,6 +3158,7 @@ function __createPonyfills() {
             of: __es6.of
         },
         Object: {
+            freeze: typeof Object.freeze === "function" ? Object.freeze : getFreeze(Object),
             keys: __es5.keys,
             assign: __es6.assign,
             is: __es6.is,

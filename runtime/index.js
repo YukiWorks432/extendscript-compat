@@ -4590,6 +4590,15 @@
     function isNumberWhitespace(code) {
         return (code >= 9 && code <= 13) || code === 32 || code === 160 || code === 5760 || (code >= 8192 && code <= 8202) || code === 8232 || code === 8233 || code === 8239 || code === 8287 || code === 12288 || code === 65279;
     }
+    function getFreeze(object) {
+        var method = object.freeze;
+        if (typeof method === "function") return function() {
+            return Function.prototype.apply.call(method, object, arguments);
+        };
+        return function(value) {
+            return value;
+        };
+    }
     function __compatInteger(value) {
         var number = toNumber(value);
         if (number !== number || number === 0) return 0;
@@ -5171,6 +5180,7 @@
         }
     }
     var __compatOwn, __compatStringOwnBroken, __compatArrayLengthBroken, __compatStringLengthBroken, __compatFunctionLengthBroken, __compatFunctionNameBroken;
+    if (typeof Object.freeze !== "function") __compatInstall(Object, "freeze", getFreeze(Object));
     if (root.__extendscriptCompatESNext1__ !== 1) {
         if (!__compatIncludesWorks(Array.prototype.includes)) __compatInstall(Array.prototype, "includes", __compatIncludes);
         if (!__compatPadWorks(String.prototype.padStart, true)) __compatInstall(String.prototype, "padStart", __compatPadStart);
