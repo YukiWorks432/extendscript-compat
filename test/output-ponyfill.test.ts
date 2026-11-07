@@ -5,6 +5,60 @@ import { expect, it } from "vitest";
 import { extendscriptCompat } from "../src/rollup.js";
 import { fileURLToPath } from "node:url";
 
+function readRegistration(code: string) {
+  const exported: Record<string, unknown> = {};
+  const define = (deps: string[], factory: (...args: unknown[]) => void) => {
+    expect(Array.from(deps)).toEqual(["exports"]);
+    factory(exported);
+  };
+  const register = (
+    deps: string[],
+    factory: (publish: (name: string, value: unknown) => unknown) => { execute: () => void },
+  ) => {
+    expect(Array.from(deps)).toEqual([]);
+    factory((name, value) => (exported[name] = value)).execute();
+  };
+  runInContext(
+    code,
+    createContext({
+      define,
+      registerAMD: define,
+      custom: { registerAMD: define },
+      System: { register },
+    }),
+  );
+  return exported;
+}
+
+it.each([false, true])(
+  "System登録のsetterと利用者のsettersデータを区別する 圧縮=%s",
+  async (compressed) => {
+    const chunks = await build(
+      { a: "export var value={setters:[17,25]};", b: "export var value={setters:[17,25]};" },
+      compressed,
+      { format: "system", name: undefined },
+    );
+    expect(chunks).toHaveLength(2);
+    for (const chunk of chunks)
+      expect(JSON.stringify(readRegistration(chunk.code).value)).toBe('{"setters":[17,25]}');
+  },
+);
+it.each(["registerAMD", "custom.registerAMD"])(
+  "AMDの登録名%sでも依存を除去する",
+  async (define) => {
+    for (const compressed of [false, true]) {
+      const chunks = await build(
+        { a: "export var value=42;", b: "export var value=42;" },
+        compressed,
+        { format: "amd", name: undefined, amd: { define } },
+      );
+      expect(chunks).toHaveLength(2);
+      for (const chunk of chunks) expect(readRegistration(chunk.code).value).toBe(42);
+    }
+  },
+  30000,
+);
+
 it.each(["amd", "system"] as const)(
   "未使用の分割%s出力でも依存を除去する",
   async (format) => {

@@ -228,7 +228,7 @@ export function createOutputPonyfill() {
               if (changed)
                 throw new Error("補完が必要なチャンクに接続がありません: " + chunk.fileName);
               if (!omitAll) return false;
-              removeRuntimeImports(program, chunk, meta.chunks, runtimeId);
+              removeRuntimeImports(program, chunk, meta.chunks, runtimeId, _options);
               return;
             }
             traverse(program, {
@@ -243,8 +243,8 @@ export function createOutputPonyfill() {
                 }
               },
             });
-            const omit = omitAll;
-            if (omit) {
+
+            if (omitAll) {
               /** @type {import("@babel/core").NodePath[]} */ const removals = [];
               traverse(program, {
                 CallExpression(path) {
@@ -270,7 +270,7 @@ export function createOutputPonyfill() {
                   path.remove();
                 }
               }
-              removeRuntimeImports(program, chunk, meta.chunks, runtimeId);
+              removeRuntimeImports(program, chunk, meta.chunks, runtimeId, _options);
               return;
             }
             traverse(program, {

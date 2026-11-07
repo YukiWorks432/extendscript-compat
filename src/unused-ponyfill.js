@@ -1,8 +1,13 @@
 import { posix } from "node:path";
-import { traverse, types as t } from "@babel/core";
+import { parse, traverse, types as t } from "@babel/core";
 
-/** @param {import('@babel/core').types.File} program @param {import('rollup').RenderedChunk} chunk @param {Record<string,import('rollup').RenderedChunk>} chunks @param {string} runtimeId */
-export function removeRuntimeImports(program, chunk, chunks, runtimeId) {
+/** @param {import('@babel/core').types.File} program @param {import('rollup').RenderedChunk} chunk @param {Record<string,import('rollup').RenderedChunk>} chunks @param {string} runtimeId @param {import('rollup').NormalizedOutputOptions} options */
+export function removeRuntimeImports(program, chunk, chunks, runtimeId, options) {
+  const configured = options.format === "amd" ? parse("(" + options.amd.define + ")") : null;
+  const amdName =
+    configured && t.isExpressionStatement(configured.program.body[0])
+      ? referenceName(configured.program.body[0].expression)
+      : undefined;
   const unused = new Set(
     Object.values(chunks)
       .filter((c) => c.moduleIds.length === 1 && c.moduleIds[0] === runtimeId)
@@ -24,9 +29,9 @@ export function removeRuntimeImports(program, chunk, chunks, runtimeId) {
         else path.replaceWith(t.unaryExpression("void", t.numericLiteral(0)));
         return;
       }
+      const isAmd = options.format === "amd" && referenceName(callee) === amdName;
       const registration =
-        t.isIdentifier(callee, { name: "define" }) ||
-        (t.isMemberExpression(callee) && t.isIdentifier(callee.property, { name: "register" }));
+        isAmd || (options.format === "system" && referenceName(callee) === "System.register");
       if (!registration) return;
       const deps = args.find(t.isArrayExpression),
         factory = args.find(t.isFunctionExpression);
@@ -34,24 +39,43 @@ export function removeRuntimeImports(program, chunk, chunks, runtimeId) {
       for (let index = deps.elements.length - 1; index >= 0; index--) {
         if (!targetsRuntime(deps.elements[index])) continue;
         deps.elements.splice(index, 1);
-        if (t.isIdentifier(callee, { name: "define" })) factory.params.splice(index, 1);
+        if (isAmd) factory.params.splice(index, 1);
         else {
           // System.registerの依存とsetterは同じ添字で対応する。
-          traverse(t.file(t.program([t.expressionStatement(factory)])), {
-            ObjectProperty(property) {
+          const returned = factory.body.body.find((statement) => t.isReturnStatement(statement));
+          let descriptor = returned?.argument;
+          if (t.isSequenceExpression(descriptor)) descriptor = descriptor.expressions.at(-1);
+          if (t.isObjectExpression(descriptor)) {
+            for (const property of descriptor.properties) {
               if (
-                t.isIdentifier(property.node.key, { name: "setters" }) &&
-                t.isArrayExpression(property.node.value)
+                t.isObjectProperty(property) &&
+                (t.isIdentifier(property.key, { name: "setters" }) ||
+                  t.isStringLiteral(property.key, { value: "setters" })) &&
+                t.isArrayExpression(property.value)
               )
-                property.node.value.elements.splice(index, 1);
-            },
-          });
+                property.value.elements.splice(index, 1);
+            }
+          }
         }
       }
     },
   });
   chunk.imports = chunk.imports.filter((id) => !unused.has(id));
   for (const id of unused) delete chunk.importedBindings[id];
+}
+
+/** @param {import('@babel/core').types.Node} node @returns {string | undefined} */
+function referenceName(node) {
+  if (t.isIdentifier(node)) return node.name;
+  if (!t.isMemberExpression(node)) return undefined;
+  const parent = referenceName(node.object);
+  const key =
+    !node.computed && t.isIdentifier(node.property)
+      ? node.property.name
+      : t.isStringLiteral(node.property)
+        ? node.property.value
+        : undefined;
+  return parent && key ? parent + "." + key : undefined;
 }
 
 /** @param {import('@babel/core').NodePath} owner @param {import('rollup').RenderedChunk} chunk */
