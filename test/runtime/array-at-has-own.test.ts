@@ -151,24 +151,29 @@ it("AEで取得できない文字列と配列の所有属性を補う", () => {
   expect(runInContext(contract, context).failures).toEqual([]);
 });
 
-it.each([false, true])("配布入口を圧縮=%sで利用した場合に契約を満たす", async (minified) => {
-  const bundle = await rollup({
-    input: runtimePath,
-    plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
-  });
-  try {
-    const result = await bundle.generate({ format: "iife" });
-    const chunk = result.output[0];
-    if (chunk.type !== "chunk") throw new Error("生成チャンクがない");
-    const context = createContext({});
-    runInContext(missing, context);
-    runInContext(chunk.code, context);
-    expect(runInContext(contract, context).failures).toEqual([]);
-    expect(runInContext(previous, context).failures).toEqual([]);
-  } finally {
-    await bundle.close();
-  }
-});
+// Windows CIではランタイム全体の圧縮が既定の5秒を超える場合がある。
+it.each([false, true])(
+  "配布入口を圧縮=%sで利用した場合に契約を満たす",
+  async (minified) => {
+    const bundle = await rollup({
+      input: runtimePath,
+      plugins: [...(minified ? [terser({ ie8: true })] : []), extendscriptCompat()],
+    });
+    try {
+      const result = await bundle.generate({ format: "iife" });
+      const chunk = result.output[0];
+      if (chunk.type !== "chunk") throw new Error("生成チャンクがない");
+      const context = createContext({});
+      runInContext(missing, context);
+      runInContext(chunk.code, context);
+      expect(runInContext(contract, context).failures).toEqual([]);
+      expect(runInContext(previous, context).failures).toEqual([]);
+    } finally {
+      await bundle.close();
+    }
+  },
+  30000,
+);
 
 it("追加した型はES5とES2022の標準型と共存する", () => {
   const fixture = fileURLToPath(new URL("../types/array-at-has-own-types.ts", import.meta.url));
