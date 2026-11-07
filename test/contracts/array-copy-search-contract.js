@@ -167,7 +167,20 @@
     },
     TypeError
   );
-  if (typeof Object.defineProperty === "function") {
+  var descriptorsSupported = false;
+  try {
+    var descriptorProbe = {};
+    Object.defineProperty(descriptorProbe, "x", {
+      get: function () {
+        return 7;
+      }
+    });
+    descriptorsSupported =
+      descriptorProbe.x === 7 && !Object.prototype.propertyIsEnumerable.call(descriptorProbe, "x");
+  }
+  // oxlint-disable-next-line no-unused-vars -- ES3ではcatch変数が必須。
+  catch (descriptorError) {}
+  if (descriptorsSupported) {
     var obj = { length: 2, 1: 2 },
       read = 0;
     Object.defineProperty(obj, "0", {

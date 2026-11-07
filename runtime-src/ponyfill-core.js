@@ -48,7 +48,13 @@ function __createPonyfills() {
       entries: __compatEntries,
       values: __compatValues,
       hasOwn: __compatHasOwn,
-      defineProperty: Object.defineProperty,
+      create: typeof Object.create === "function" ? Object.create : __compatCreate,
+      defineProperty:
+        typeof __compatNativeDefine === "function" ? __compatNativeDefine : __compatDefineProperty,
+      getOwnPropertyDescriptor:
+        typeof __compatNativeDescriptor === "function"
+          ? __compatNativeDescriptor
+          : __compatGetOwnPropertyDescriptor,
       setPrototypeOf: Object.setPrototypeOf,
     },
     String: { fromCodePoint: __es6.fromCodePoint, raw: __es6.raw },
@@ -124,9 +130,7 @@ function __createPonyfills() {
       key === "get" ||
       key === "set"
     )
-      supported =
-        typeof Object.defineProperty === "function" &&
-        typeof Object.getOwnPropertyDescriptor === "function";
+      supported = __compatDescriptorsSupported;
     if (supported) __static.Reflect[key] = __es6["reflect_" + key];
   }
   var modernArray = {

@@ -10,6 +10,8 @@ export const staticMethods = {
     "values",
     "hasOwn",
     "defineProperty",
+    "create",
+    "getOwnPropertyDescriptor",
     "setPrototypeOf",
   ],
   Number: [

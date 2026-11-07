@@ -6,6 +6,18 @@
 
 See the [runtime API compatibility matrix](API-COMPATIBILITY.md) for per-API polyfills, conditional behavior, exclusions, and host validation scope.
 
+## Limited Object support
+
+`Object.create`, `Object.defineProperty`, and `Object.getOwnPropertyDescriptor` retain existing functions and fill only missing methods. Ponyfill mode uses the same implementations locally.
+
+- `create` accepts object, function, or null prototypes, preserves inheritance, and handles the second descriptor argument. A real null prototype is required; unsupported hosts throw TypeError.
+- The `defineProperty` fallback assigns data values and returns the target. It ignores writable/enumerable/configurable flags, preserves existing own values when value is omitted, and creates undefined for a new property. Getter/setter descriptors throw TypeError without executing the accessor.
+- The descriptor fallback covers ordinary own data properties. Missing or inherited properties return undefined; own undefined values have descriptors. It reads value/enumerability and approximates writable/configurable as true for assignment-created properties. Detectable accessors are rejected. Array length, function length/name/prototype, other built-in attributes, and host-specific objects are outside this guarantee.
+
+The fallback rejects unsafe `__proto__` definitions instead of changing inheritance. Existing own data keys and null-prototype dictionaries can store it safely. Undetectable accessors and arbitrary host properties are not guaranteed to behave like ordinary data.
+
+Partial methods do not enable full Reflect descriptor operations. Actual descriptor capabilities are checked. Rollup external namespaces requiring getters still fail on hosts without accessor support. Users may explicitly choose `output.externalLiveBindings: false` for snapshot semantics; the plugin never forces that setting.
+
 ## Installation and load order
 
 If `Object.freeze` is not a function, the runtime installs a fallback returning its argument unchanged. It permits calls on hosts without descriptor support but does not prevent modification, deletion, or extension. Existing functions are retained. In ponyfill mode the fallback stays inside the bundle.
@@ -50,7 +62,7 @@ In AE 26.5, an omitted element in `[1,,3]` is created as an `undefined` element.
 
 Importing `/runtime` from TypeScript also supplies declarations for these methods. They work with `lib: ["ES5"]` and do not add declarations for unsupported features such as `Promise`. Syntax transformation remains the consumer's responsibility.
 
-The runtime defines non-enumerable methods where possible. AE 26.5 lacks `Object.defineProperty`, so methods are added by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. The [second-stage investigation and verification](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json) is recorded separately. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json).
+The runtime defines non-enumerable methods where possible. AE 26.5 lacks native descriptor support, so even the limited fallback adds methods by assignment and appear during `for...in` enumeration of prototypes. Check for own properties when enumerating. Host verification covered loading the new runtime after the previous version and re-evaluation. The [second-stage investigation and verification](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json) is recorded separately. See the [verification record](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json).
 
 ## Array copying and searching from the end
 

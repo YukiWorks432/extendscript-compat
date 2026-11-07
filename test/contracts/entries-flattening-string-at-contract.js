@@ -157,7 +157,20 @@
     };
   check("at conversion", "abc".at(ix), "b");
   check("at conversion once", coercions, 1);
-  if (typeof Object.defineProperty === "function") {
+  var descriptorsSupported = false;
+  try {
+    var descriptorProbe = {};
+    Object.defineProperty(descriptorProbe, "x", {
+      get: function () {
+        return 7;
+      }
+    });
+    descriptorsSupported =
+      descriptorProbe.x === 7 && !Object.prototype.propertyIsEnumerable.call(descriptorProbe, "x");
+  }
+  // oxlint-disable-next-line no-unused-vars -- ES3ではcatch変数が必須。
+  catch (descriptorError) {}
+  if (descriptorsSupported) {
     var hidden = { visible: 1 };
     Object.defineProperty(hidden, "hidden", { value: 2, enumerable: false });
     check("entries excludes hidden", Object.entries(hidden).length, 1);

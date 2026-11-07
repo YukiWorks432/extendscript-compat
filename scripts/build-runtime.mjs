@@ -84,6 +84,7 @@ const assembled = [
   numberHelper,
   freezeHelper,
   source("polyfill-helpers.js"),
+  source("object-descriptors.js"),
   source("polyfills/array.js"),
   source("polyfills/string.js"),
   source("polyfills/object.js"),

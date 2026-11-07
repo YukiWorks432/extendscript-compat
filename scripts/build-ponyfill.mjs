@@ -371,6 +371,7 @@ let corrections = source("builtin-corrections.js")
   .replace('})(typeof $ === "undefined" ? globalThis : $.global);', "})(__parseCorrections);");
 const helpers = [
   "polyfill-helpers.js",
+  "object-descriptors.js",
   "polyfills/array.js",
   "polyfills/string.js",
   "polyfills/object.js",

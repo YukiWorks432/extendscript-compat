@@ -19,6 +19,12 @@ type ExtendScriptCompatFlatArray<Arr, Depth extends number> = {
 
 declare global {
   interface ObjectConstructor {
+    /** 不足時の代替処理。nullプロトタイプを作れないホストではTypeError。属性指定はホストの能力に依存します。 */
+    create(o: object | null, properties?: PropertyDescriptorMap): any;
+    /** 不足時は値の代入に限定し、属性指定を反映せずgetter・setterを拒否します。 */
+    defineProperty<T extends object>(o: T, p: PropertyKey, attributes: PropertyDescriptor): T;
+    /** 不足時は代入で作った通常の自身のデータへ限定し、書換・削除属性はtrueとして近似します。 */
+    getOwnPropertyDescriptor(o: object, p: PropertyKey): PropertyDescriptor | undefined;
     /**
      * Determines whether an object has a property with the specified name.
      * @param o An object.
