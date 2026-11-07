@@ -50,6 +50,8 @@ JSONの補完版はJSON文法に従い、不正な入力を`SyntaxError`とし�
 
 APIごとの補完範囲とホスト依存の制約は[実行時API対応表](../runtime/API-COMPATIBILITY.ja.md)に従います。ES5・ES2015以降の全面的な再現、Symbol・Promise、正規表現エンジン全体、UnitValueの通常の演算子の自動補正は保証しません。
 
+Object.create・Object.defineProperty・Object.getOwnPropertyDescriptorの不足時は[Objectの限定補完](../runtime/README.ja.md#objectの限定補完)を適用します。値の代入を優先し、属性制御やgetter・setterを完全に再現しません。ネイティブ関数の保持、実際のnullプロトタイプ、未対応操作のエラーを契約とします。
+
 ## 実行環境と出荷確認
 
 ビルド側はNode.js 22以降とRollup 4を対象とします。CIで確認する組み合わせはUbuntu・WindowsとNode.js 22・24です。ホスト側の確認基準はWindowsのAfter Effects 26.5x89 / ExtendScript 4.5.6です。Illustrator・Photoshop・Premiereの確認は、[1.0.0の検証記録](release-1.0.0.ja.md)に記載した版・機能・導入状態に限ります。未検証の機能、古い製品、macOSを対応確認済みとして表示しません。

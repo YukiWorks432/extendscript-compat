@@ -71,7 +71,7 @@ var text = JSON.stringify(data);
 
 設定は省略または`"ponyfill"`です。省略時は従来どおり、明示的な`extendscript-compat/runtime`の読み込みがホストへ補完・補正を適用します。ponyfillモードでは同じ読み込みを空のモジュールとして扱うため、利用側のコードを変えずにRollupの設定だけで切り替えられます。
 
-対象はArrayのES5走査・検索・集約、Functionの`bind`、`Array.isArray`、`Object.keys`、Date・Number・StringのES5補正、JSON、および[実行時API対応表](../runtime/API-COMPATIBILITY.ja.md)のES2015・後年のメソッドです。`Object.defineProperty`・`setPrototypeOf`とReflectの属性・プロトタイプ操作は、ホストが提供する基礎機能の範囲で利用できます。未対応のPromise・Symbolなどを追加するモードではありません。
+対象はArrayのES5走査・検索・集約、Functionの`bind`、`Array.isArray`、`Object.keys`、Date・Number・StringのES5補正、JSON、および[実行時API対応表](../runtime/API-COMPATIBILITY.ja.md)のES2015・後年のメソッドです。`Object.create`・`Object.defineProperty`・`Object.getOwnPropertyDescriptor`は[限定補完](../runtime/README.ja.md#objectの限定補完)を提供します。`setPrototypeOf`とReflectの属性・プロトタイプ操作はホストの基礎機能に依存します。未対応のPromise・Symbolなどを追加するモードではありません。
 
 次の参照も変換します。ローカル変数や引数が組み込み名を隠している場合は、その束縛を保持します。インスタンス自身や独自のプロトタイプに定義されたメソッドも保持し、対象とメソッドの取得、引数の評価順序、`this`を維持します。
 
@@ -238,4 +238,4 @@ pnpm pack --pack-destination artifacts
 
 MIT License。
 
-ponyfillを含むinclude展開は、モジュール処理か先行するrenderChunkで、補完を参照できるスコープ内へ済ませてください。generateBundleで追加する補完対象やIIFEの外側の呼び出しは、未変換のまま成功扱いにせずエラーにします。Object.createと属性APIの補完範囲はこの変更では拡張しません。
+ponyfillを含むinclude展開は、モジュール処理か先行するrenderChunkで、補完を参照できるスコープ内へ済ませてください。generateBundleで追加する補完対象やIIFEの外側の呼び出しは、未変換のまま成功扱いにせずエラーにします。

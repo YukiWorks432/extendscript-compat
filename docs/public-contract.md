@@ -50,6 +50,8 @@ The JSON fallback follows the JSON grammar and rejects invalid input with `Synta
 
 The [runtime API matrix](../runtime/API-COMPATIBILITY.md) defines individual polyfills and host-dependent limitations. Complete ES5/ES2015+ emulation, Symbol, Promise, replacement of the regular-expression engine, and automatic repair of ordinary UnitValue operators are not guaranteed.
 
+Missing Object.create, Object.defineProperty, and Object.getOwnPropertyDescriptor use [limited fallbacks](../runtime/README.md#limited-object-support). Value assignment is supported without full attributes or accessors. Retaining native functions, real null prototypes, and explicit errors for unsupported operations are contractual.
+
 ## Environments and release validation
 
 Build tools target Node.js 22 or later and Rollup 4. CI checks Ubuntu and Windows with Node.js 22 and 24. The host-validation baseline is After Effects 26.5x89 / ExtendScript 4.5.6 on Windows. Illustrator, Photoshop and Premiere checks are limited to the versions, features and installation states in the [1.0.0 evidence](release-1.0.0.md). Unverified features, older releases and macOS must not be described as host-verified.

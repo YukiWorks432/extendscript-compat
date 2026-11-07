@@ -96,7 +96,20 @@
   assertThrows("hasOwn undefined", function () {
     Object.hasOwn(undefined, "x");
   });
-  if (typeof Object.defineProperty === "function") {
+  var descriptorsSupported = false;
+  try {
+    var descriptorProbe = {};
+    Object.defineProperty(descriptorProbe, "x", {
+      get: function () {
+        return 7;
+      }
+    });
+    descriptorsSupported =
+      descriptorProbe.x === 7 && !Object.prototype.propertyIsEnumerable.call(descriptorProbe, "x");
+  }
+  // oxlint-disable-next-line no-unused-vars -- ES3ではcatch変数が必須。
+  catch (descriptorError) {}
+  if (descriptorsSupported) {
     var hidden = {};
     Object.defineProperty(hidden, "x", { value: 1 });
     check("hasOwn nonenumerable", Object.hasOwn(hidden, "x"), true);

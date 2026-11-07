@@ -1078,10 +1078,16 @@ function __createPonyfills() {
             }
         };
         var arePropertyDescriptorsSupported = function() {
+            if (typeof Object.getOwnPropertyDescriptor !== "function") return false;
             return !throwsError(function() {
-                return Object.defineProperty({}, "x", {
-                    get: function() {}
+                var object = {};
+                Object.defineProperty(object, "x", {
+                    get: function() {
+                        return 7;
+                    }
                 });
+                var descriptor = Object.getOwnPropertyDescriptor(object, "x");
+                if (object.x !== 7 || !descriptor || typeof descriptor.get !== "function" || descriptor.enumerable !== false || descriptor.configurable !== false) throw new TypeError("Incomplete descriptor support");
             });
         };
         var supportsDescriptors = !!Object.defineProperty && arePropertyDescriptorsSupported();
@@ -2433,6 +2439,100 @@ function __createPonyfills() {
         var length = __compatInteger(value);
         return length <= 0 ? 0 : Math.min(length, 9007199254740991);
     }
+    var __compatNativeDefine = Object.defineProperty;
+    var __compatNativeDescriptor = Object.getOwnPropertyDescriptor;
+    var __compatLookupGetter = Object.prototype.__lookupGetter__;
+    var __compatLookupSetter = Object.prototype.__lookupSetter__;
+    var __compatDescriptorsSupported = false;
+    var __compatAccessorsSupported = false;
+    if (typeof __compatNativeDefine === "function") {
+        try {
+            var __compatDescriptorProbe = {};
+            __compatNativeDefine(__compatDescriptorProbe, "x", {
+                get: function() {
+                    return 7;
+                },
+                configurable: true
+            });
+            __compatAccessorsSupported = __compatDescriptorProbe.x === 7;
+            __compatDescriptorsSupported = __compatAccessorsSupported && typeof __compatNativeDescriptor === "function" && typeof __compatNativeDescriptor(__compatDescriptorProbe, "x").get === "function";
+        } catch (__compatDescriptorError) {}
+    }
+    function __compatDescriptorRecord(attributes, accessors) {
+        if (attributes === null || (typeof attributes !== "object" && typeof attributes !== "function")) throw new TypeError("Property descriptor must be an object");
+        var record = {}, name, method;
+        var flags = [ "enumerable", "configurable", "value", "writable", "get", "set" ];
+        for (var i = 0; i < flags.length; i++) {
+            name = flags[i];
+            if (!(name in attributes)) continue;
+            method = attributes[name];
+            if (name === "get" || name === "set") {
+                if (!accessors) throw new TypeError("Accessor properties are not supported by this host");
+                if (typeof method !== "undefined" && typeof method !== "function") throw new TypeError("Invalid accessor");
+            }
+            record[name] = name === "enumerable" || name === "configurable" || name === "writable" ? !!method : method;
+        }
+        if ((Object.prototype.hasOwnProperty.call(record, "get") || Object.prototype.hasOwnProperty.call(record, "set")) && (Object.prototype.hasOwnProperty.call(record, "value") || Object.prototype.hasOwnProperty.call(record, "writable"))) throw new TypeError("Invalid mixed property descriptor");
+        return record;
+    }
+    function __compatDefineData(object, key, record) {
+        var own = Object.prototype.hasOwnProperty;
+        if ((typeof __compatLookupGetter === "function" && __compatLookupGetter.call(object, key)) || (typeof __compatLookupSetter === "function" && __compatLookupSetter.call(object, key))) throw new TypeError("Accessor properties are not supported by this host");
+        if (key === "__proto__" && !own.call(object, key) && (key in object || Object.prototype.isPrototypeOf.call(Object.prototype, object))) throw new TypeError("Cannot define __proto__ as data on this object");
+        if (!own.call(record, "value") && own.call(object, key)) return object;
+        var value = own.call(record, "value") ? record.value : undefined;
+        object[key] = value;
+        var actual = object[key];
+        if (!own.call(object, key) || (actual === value ? actual === 0 && 1 / actual !== 1 / value : !(actual !== actual && value !== value))) throw new TypeError("Host did not assign the property value");
+        return object;
+    }
+    function __compatDefineProperty(object, property, attributes) {
+        if (object === null || (typeof object !== "object" && typeof object !== "function")) throw new TypeError("Property target must be an object");
+        var key = __compatPropertyKey(property);
+        return __compatDefineData(object, key, __compatDescriptorRecord(attributes, false));
+    }
+    function __compatGetOwnPropertyDescriptor(object, property) {
+        if (object === null || (typeof object !== "object" && typeof object !== "function")) throw new TypeError("Descriptor target must be an object");
+        var key = __compatPropertyKey(property);
+        if ((typeof object === "function" && (key === "length" || key === "name" || key === "prototype")) || (__es5.isArray(object) && key === "length")) throw new TypeError("Built-in property attributes are not supported by this host");
+        if (!Object.prototype.hasOwnProperty.call(object, key)) return undefined;
+        if ((typeof __compatLookupGetter === "function" && __compatLookupGetter.call(object, key)) || (typeof __compatLookupSetter === "function" && __compatLookupSetter.call(object, key))) throw new TypeError("Accessor descriptors are not supported by this host");
+        return {
+            value: object[key],
+            writable: true,
+            enumerable: Object.prototype.propertyIsEnumerable.call(object, key),
+            configurable: true
+        };
+    }
+    var __compatObjectDefine = typeof __compatNativeDefine === "function" ? __compatNativeDefine : __compatDefineProperty;
+    var __compatObjectDescriptor = typeof __compatNativeDescriptor === "function" ? __compatNativeDescriptor : __compatGetOwnPropertyDescriptor;
+    function __compatCreate(prototype, properties) {
+        if (prototype !== null && typeof prototype !== "object" && typeof prototype !== "function") throw new TypeError("Object prototype must be an object or null");
+        var object;
+        if (prototype === null) {
+            object = {};
+            object["__proto__"] = null;
+            if (Object.prototype.isPrototypeOf.call(Object.prototype, object) || Object.prototype.hasOwnProperty.call(object, "__proto__")) throw new TypeError("Null prototypes are not supported by this host");
+        } else {
+            var Temporary = function() {};
+            Temporary.prototype = prototype;
+            object = new Temporary;
+        }
+        if (typeof properties !== "undefined") {
+            if (properties === null) throw new TypeError("Property descriptors require a value");
+            var descriptors = Object(properties), keys = __es5.keys(descriptors), records = [], i, key;
+            if (typeof Object.getOwnPropertySymbols === "function") {
+                var symbols = Object.getOwnPropertySymbols(descriptors);
+                for (i = 0; i < symbols.length; i++) if (Object.prototype.propertyIsEnumerable.call(descriptors, symbols[i])) keys.push(symbols[i]);
+            }
+            for (i = 0; i < keys.length; i++) records.push(__compatDescriptorRecord(descriptors[keys[i]], __compatAccessorsSupported));
+            for (i = 0; i < keys.length; i++) {
+                key = keys[i];
+                if (typeof __compatNativeDefine === "function") __compatNativeDefine(object, key, records[i]); else __compatDefineData(object, key, records[i]);
+            }
+        }
+        return object;
+    }
     function __compatIncludes(search, fromIndex) {
         if (this === null || this === void 0) throw new TypeError("includes requires an object");
         var object = Object(this);
@@ -2724,7 +2824,7 @@ function __createPonyfills() {
     function __compatObjectValues(value, entries) {
         if (value === null || typeof value === "undefined") throw new TypeError("Object conversion requires a value");
         var object = Object(value);
-        var descriptors = typeof Object.getOwnPropertyNames === "function" && typeof Object.getOwnPropertyDescriptor === "function";
+        var descriptors = typeof Object.getOwnPropertyNames === "function" && __compatDescriptorsSupported;
         var keys = descriptors ? Object.getOwnPropertyNames(object) : __es5.keys(object);
         var indexes = [], others = [], result = [];
         var i, key, number;
@@ -3136,7 +3236,7 @@ function __createPonyfills() {
     })();
     var __staticNames = {
         Array: [ "isArray", "from", "of" ],
-        Object: [ "freeze", "keys", "assign", "is", "entries", "values", "hasOwn", "defineProperty", "setPrototypeOf" ],
+        Object: [ "freeze", "keys", "assign", "is", "entries", "values", "hasOwn", "defineProperty", "create", "getOwnPropertyDescriptor", "setPrototypeOf" ],
         Number: [ "isFinite", "isNaN", "isInteger", "isSafeInteger", "parseInt", "parseFloat", "EPSILON", "MAX_SAFE_INTEGER", "MIN_SAFE_INTEGER" ],
         String: [ "fromCodePoint", "raw" ],
         Date: [ "now", "parse" ],
@@ -3165,7 +3265,9 @@ function __createPonyfills() {
             entries: __compatEntries,
             values: __compatValues,
             hasOwn: __compatHasOwn,
-            defineProperty: Object.defineProperty,
+            create: typeof Object.create === "function" ? Object.create : __compatCreate,
+            defineProperty: __compatObjectDefine,
+            getOwnPropertyDescriptor: __compatObjectDescriptor,
             setPrototypeOf: Object.setPrototypeOf
         },
         String: {
@@ -3231,7 +3333,7 @@ function __createPonyfills() {
     for (i = 0; i < __staticNames.Reflect.length; i++) {
         key = __staticNames.Reflect[i];
         var supported = true;
-        if (key === "ownKeys") supported = typeof Object.getOwnPropertyNames === "function"; else if (key === "isExtensible" || key === "preventExtensions") supported = typeof Object.preventExtensions === "function"; else if (key === "getPrototypeOf") supported = typeof Object.getPrototypeOf === "function"; else if (key === "setPrototypeOf") supported = typeof Object.setPrototypeOf === "function" && typeof Object.getPrototypeOf === "function"; else if (key === "defineProperty" || key === "getOwnPropertyDescriptor" || key === "get" || key === "set") supported = typeof Object.defineProperty === "function" && typeof Object.getOwnPropertyDescriptor === "function";
+        if (key === "ownKeys") supported = typeof Object.getOwnPropertyNames === "function"; else if (key === "isExtensible" || key === "preventExtensions") supported = typeof Object.preventExtensions === "function"; else if (key === "getPrototypeOf") supported = typeof Object.getPrototypeOf === "function"; else if (key === "setPrototypeOf") supported = typeof Object.setPrototypeOf === "function" && typeof Object.getPrototypeOf === "function"; else if (key === "defineProperty" || key === "getOwnPropertyDescriptor" || key === "get" || key === "set") supported = __compatDescriptorsSupported;
         if (supported) __static.Reflect[key] = __es6["reflect_" + key];
     }
     var modernArray = {

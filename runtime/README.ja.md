@@ -6,6 +6,20 @@
 
 APIごとの補完、条件付きの処理、対象外と実機確認の範囲は[実行時API対応表](API-COMPATIBILITY.ja.md)を参照してください。
 
+## Objectの限定補完
+
+`Object.create`・`Object.defineProperty`・`Object.getOwnPropertyDescriptor`は、既存の関数を優先し、不足したものだけを補完します。ponyfillも同じ実装をバンドル内で使い、ホストへ導入しません。
+
+- `Object.create`: オブジェクト・関数・nullを受け入れます。継承元の変更に追従し、第2引数の記述子も処理します。nullでは実際にプロトタイプを除去し、その能力がないホストではTypeErrorにします。
+- `Object.defineProperty`: 代替処理はデータの値を代入して対象を返します。writable・enumerable・configurableは反映できず、非列挙化や書き換え禁止を保証しません。value省略時は自身の既存値を保持し、新規プロパティにはundefinedを設定します。getter・setterは実行せずTypeErrorで拒否します。
+- `Object.getOwnPropertyDescriptor`: 代替処理は通常の自身のデータプロパティへ限定します。不存在・継承はundefined、自身のundefinedには記述子を返します。valueと列挙性を読み、writable・configurableは代入で作られたプロパティの既定値であるtrueとして近似します。検出できるアクセサーは実行せず拒否します。配列のlength、関数のlength・name・prototype、その他の組み込みやホスト固有プロパティの属性は保証対象外です。
+
+`__proto__`を代入して継承を変更することは、データの定義として扱いません。代替処理では、既に自身のデータである場合やnullプロトタイプ辞書など、安全に格納できる対象へ限定します。通常のオブジェクトで安全に定義できない場合はTypeErrorです。任意のホスト固有オブジェクトや検出できないアクセサーを、通常データとして扱えるとは保証しません。
+
+限定版が存在するだけでは完全な属性操作に対応したとは判定しません。Reflectの属性関連の補完は実際の能力を必要とします。
+
+Rollupの外部名前空間がgetterを必要とする場合、getterのないAEではエラーになります。外部値を固定してよい用途に限り、利用者が`output.externalLiveBindings: false`を選択できます。ライブラリはこの設定を自動で変更しません。
+
 ## 導入と読み込み順
 
 `Object.freeze`が関数として存在しない場合は、引数をそのまま返す代替関数を追加します。属性を変更できないホストで呼び出しを成立させるためのもので、変更・削除・追加を防ぐ凍結は実現しません。既存の関数は維持します。ponyfillモードではこの代替処理もバンドル内だけで扱います。
@@ -50,7 +64,7 @@ AE 26.5では`[1,,3]`の省略部分が`undefined`の要素として生成され
 
 `/runtime`をTypeScriptから読み込むと、上記メソッドの型も追加されます。`lib: ["ES5"]`でも利用でき、未対応の`Promise`の型は追加しません。構文の変換は引き続き利用側で必要です。
 
-非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5では`Object.defineProperty`がないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
+非列挙プロパティを定義できる場合はその方法で追加します。AE 26.5ではネイティブの属性操作がなく、限定版でも非列挙化できないため代入によって追加され、`for...in`でプロトタイプのメソッドが列挙されます。既存の`for...in`処理では自身のプロパティか確認してください。実機では旧版の`/runtime`読込後に新しい版を読み込む場合と再評価を確認しています。第2段階の調査・検証は[別の記録](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage2/esnext-stage2-ae-26.5.json)を参照してください。[検証結果](https://github.com/YukiWorks432/extendscript-compat/blob/c313a4c5305f947bfcf996d5ff743858aa4c6487/docs/evidence/2026-10-29/ae-26.5/esnext-stage1/esnext-stage1-ae-26.5.json)
 
 ## 配列のコピー操作と末尾検索
 

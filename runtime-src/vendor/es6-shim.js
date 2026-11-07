@@ -68,9 +68,13 @@
 
   var isCallableWithoutNew = not(throwsError);
   var arePropertyDescriptorsSupported = function () {
+    if (typeof Object.getOwnPropertyDescriptor !== "function") return false;
     // if Object.defineProperty exists but throws, it's IE 8
     return !throwsError(function () {
-      return Object.defineProperty({}, "x", { get: function () {} }); // eslint-disable-line getter-return
+      var object = {};
+      Object.defineProperty(object, "x", { get: function () { return 7; } });
+      var descriptor = Object.getOwnPropertyDescriptor(object, "x");
+      if (object.x !== 7 || !descriptor || typeof descriptor.get !== "function" || descriptor.enumerable !== false || descriptor.configurable !== false) throw new TypeError("Incomplete descriptor support");
     });
   };
   var supportsDescriptors =
@@ -2843,7 +2847,8 @@
       );
     }
   }
-  if (globals.Reflect.defineProperty) {
+  // 属性操作を提供できない場合、未定義の代替処理で既存のReflectを上書きしない。
+  if (supportsDescriptors && globals.Reflect.defineProperty) {
     if (
       !valueOrFalseIfThrows(function () {
         var basic = !globals.Reflect.defineProperty(1, "test", { value: 1 });

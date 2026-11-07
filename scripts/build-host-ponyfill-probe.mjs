@@ -16,6 +16,7 @@ const names = [
   "json-parse",
   "json-stringify",
   "ponyfill-boundaries",
+  "object-descriptors",
 ];
 const checks = names.map((name) => {
   let code = readFileSync(new URL(`../test/contracts/${name}-contract.js`, import.meta.url), "utf8")
@@ -23,16 +24,17 @@ const checks = names.map((name) => {
     .replace(/;$/, "");
   // プロトタイプを一時変更する境界試験はNodeだけで行い、実機では実行しない。
   if (name === "array-copy-search")
-    code = code.replace('if (typeof Object.defineProperty === "function") {', "if (false) {");
+    code = code.replace("if (descriptorsSupported) {", "if (false) {");
   return `${JSON.stringify(name)}: (\n${code}\n)`;
 });
-const source = `import "extendscript-compat/runtime"; import * as library from "namespace-probe"; export function run(){var key="value",value=library[key];return {"rollup-generated":{total:1,passed:__generatedEach[0]==="generated"?1:0,failures:__generatedEach[0]==="generated"?[]:["generated keys/forEach"]},"rollup-namespace":{total:1,passed:value===42?1:0,failures:value===42?[]:["namespace value"]},${checks.join(",\n")}};}`;
+const source = `import "extendscript-compat/runtime"; import * as library from "namespace-probe"; import * as externalNamespace from "external-probe"; export function run(){var key="value",value=library[key];return {"rollup-external":{total:1,passed:externalNamespace["answer"]===42?1:0,failures:externalNamespace["answer"]===42?[]:["external namespace"]},"rollup-generated":{total:1,passed:__generatedEach[0]==="generated"?1:0,failures:__generatedEach[0]==="generated"?[]:["generated keys/forEach"]},"rollup-namespace":{total:1,passed:value===42?1:0,failures:value===42?[]:["namespace value"]},${checks.join(",\n")}};}`;
 const directory = new URL("../tmp/ponyfill-host/", import.meta.url);
 mkdirSync(directory, { recursive: true });
 const manifest = [];
 for (const compressed of [false, true]) {
   const bundle = await rollup({
     input: "ponyfill-probe",
+    external: ["external-probe"],
     plugins: [
       {
         name: "probe-input",
@@ -52,7 +54,10 @@ for (const compressed of [false, true]) {
     const chunk = (
       await bundle.generate({
         format: "iife",
+        generatedCode: { preset: "es5", reservedNamesAsProps: false },
         name: "probe",
+        globals: { "external-probe": "__objectExternal" },
+        externalLiveBindings: false,
         intro:
           "var __generatedEach=[]; Object.keys({generated:1}).forEach(function(key){__generatedEach.push(key);});",
       })
@@ -64,6 +69,9 @@ var targetNames=["global","Object","Object.prototype","Array","Array.prototype",
 function snapshot(){var result=[];for(var i=0;i<targets.length;i++){var keys=[],values=[];for(var k in targets[i]){if(Object.prototype.hasOwnProperty.call(targets[i],k)){keys.push(k);}}keys.sort();for(var j=0;j<keys.length;j++)values.push(targets[i][keys[j]]);result.push({keys:keys.join("|"),values:values});}return result;}
 var before=snapshot(),parseRef=parseInt,charRef=String.prototype.charAt,splitRef=String.prototype.split,replaceRef=String.prototype.replace;
 var initial={map:typeof Array.prototype.map,json:typeof JSON,bind:typeof Function.prototype.bind,stringPrototypeThis:Object.prototype.hasOwnProperty.call(String.prototype,"this")};
+initial.objectAPIs=[typeof Object.create,typeof Object.defineProperty,typeof Object.getOwnPropertyDescriptor];
+var limitedObjectDescriptors=true,__objectExternal={answer:42};
+if(typeof Object.defineProperty==="function"&&typeof Object.getOwnPropertyDescriptor==="function"){try{var descriptorProbe={};Object.defineProperty(descriptorProbe,"x",{get:function(){return 7;}});limitedObjectDescriptors=descriptorProbe.x!==7;}catch(descriptorError){}}
 ${chunk.code}
 var reports=probe.run(),after=snapshot(),unchanged=parseRef===parseInt&&charRef===String.prototype.charAt&&splitRef===String.prototype.split&&replaceRef===String.prototype.replace;
 var differences=[];

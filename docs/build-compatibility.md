@@ -71,7 +71,7 @@ var text = JSON.stringify(data);
 
 The option can be omitted or set to `"ponyfill"`. When omitted, explicitly importing `extendscript-compat/runtime` continues to install host polyfills and corrections. In ponyfill mode the same import becomes an empty module, so switching requires only a Rollup configuration change.
 
-Coverage includes ES5 Array iteration, search and reduction, Function `bind`, `Array.isArray`, `Object.keys`, ES5 Date/Number/String corrections, JSON, and the ES2015 and later methods in the [runtime API matrix](../runtime/API-COMPATIBILITY.md). `Object.defineProperty`, `setPrototypeOf`, and Reflect descriptor/prototype operations depend on host facilities. Unsupported features such as Promise and Symbol are not added.
+Coverage includes ES5 Array iteration, search and reduction, Function `bind`, `Array.isArray`, `Object.keys`, ES5 Date/Number/String corrections, JSON, and the ES2015 and later methods in the [runtime API matrix](../runtime/API-COMPATIBILITY.md). `Object.create`, `Object.defineProperty`, and `Object.getOwnPropertyDescriptor` provide [limited fallbacks](../runtime/README.md#limited-object-support). `setPrototypeOf` and Reflect descriptor/prototype operations depend on host facilities. Unsupported features such as Promise and Symbol are not added.
 
 Method references, borrowing, and constant bracket notation are also rewritten:
 
@@ -238,4 +238,4 @@ The tests cover boolean combinations, side-effect order and count, existing pare
 
 MIT License.
 
-Expand includes during module processing or an earlier renderChunk, within the helper scope. Ponyfill targets added in generateBundle or outside an IIFE are rejected rather than left silently unconverted. This change does not add Object.create or descriptor fallbacks.
+Expand includes during module processing or an earlier renderChunk, within the helper scope. Ponyfill targets added in generateBundle or outside an IIFE are rejected rather than left silently unconverted.

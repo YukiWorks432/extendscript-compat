@@ -5,6 +5,13 @@ var __compatOwn,
   __compatFunctionLengthBroken,
   __compatFunctionNameBroken;
 
+// vendorの能力判定を終えてから限定版を導入し、再読み込みでも既存関数を保つ。
+if (typeof Object.create !== "function") __compatInstall(Object, "create", __compatCreate);
+if (typeof Object.defineProperty !== "function")
+  __compatInstall(Object, "defineProperty", __compatDefineProperty);
+if (typeof Object.getOwnPropertyDescriptor !== "function")
+  __compatInstall(Object, "getOwnPropertyDescriptor", __compatGetOwnPropertyDescriptor);
+
 // 属性による凍結は行わず、未対応時の呼び出しだけを成立させる。
 if (typeof Object.freeze !== "function") __compatInstall(Object, "freeze", getFreeze(Object));
 

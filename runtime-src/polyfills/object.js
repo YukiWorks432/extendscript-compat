@@ -4,8 +4,7 @@ function __compatObjectValues(value, entries) {
     throw new TypeError("Object conversion requires a value");
   var object = Object(value);
   var descriptors =
-    typeof Object.getOwnPropertyNames === "function" &&
-    typeof Object.getOwnPropertyDescriptor === "function";
+    typeof Object.getOwnPropertyNames === "function" && __compatDescriptorsSupported;
   var keys = descriptors ? Object.getOwnPropertyNames(object) : Object.keys(object);
   var indexes = [],
     others = [],
