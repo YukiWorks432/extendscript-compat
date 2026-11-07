@@ -15,19 +15,23 @@ function propertyName(node) {
       : undefined;
 }
 
-/** @param {string} code @param {string} id @param {import("@babel/core").TransformOptions["inputSourceMap"]} [inputSourceMap] */
-export function transformPonyfills(code, id, inputSourceMap) {
+/** @typedef {{prepare: (path: import('@babel/core').NodePath<import('@babel/core').types.Program>) => import('@babel/core').types.Expression, skip: (path: import('@babel/core').NodePath) => boolean, assertScope: (path: import('@babel/core').NodePath) => void, finish: (program: import('@babel/core').types.File, changed: boolean) => boolean | void}} OutputHooks */
+/** @param {OutputHooks} hooks
+ * @param {string} code @param {string} id @param {import("@babel/core").TransformOptions["inputSourceMap"]} inputSourceMap */
+export function transformPonyfills(code, id, inputSourceMap, hooks) {
   const program = parse(code, { babelrc: false, configFile: false, sourceType: "module" });
   if (!program) throw new Error("Ponyfill conversion received an empty AST");
   let changed = false;
-  /** @type {import("@babel/core").types.Identifier | undefined} */
+  /** @type {import("@babel/core").types.Expression | undefined} */
   let helper;
   traverse(program, {
     Program(path) {
-      helper = path.scope.generateUidIdentifier("extendscriptPonyfill");
+      helper = hooks.prepare(path);
     },
     ReferencedIdentifier(path) {
+      if (hooks.skip(path)) return;
       if (path.node.name !== "parseInt" || path.scope.getBinding("parseInt")) return;
+      hooks.assertScope(path);
       if (!helper) throw new Error("Ponyfill namespace was not initialized");
       path.replaceWith(
         t.callExpression(t.memberExpression(t.cloneNode(helper), t.identifier("getParseInt")), []),
@@ -37,6 +41,7 @@ export function transformPonyfills(code, id, inputSourceMap) {
     },
     MemberExpression: {
       exit(path) {
+        if (hooks.skip(path)) return;
         const key = propertyName(path.node);
         if (!key || !helper || !path.isReferenced()) return;
         if (
@@ -78,6 +83,7 @@ export function transformPonyfills(code, id, inputSourceMap) {
           path.parentPath.node.callee === path.node
         )
           return;
+        hooks.assertScope(path);
         changed = true;
         const namespace = t.cloneNode(helper);
         if (kind && group) {
@@ -130,14 +136,12 @@ export function transformPonyfills(code, id, inputSourceMap) {
       },
     },
   });
-  if (!changed || !helper) return null;
-  program.program.body.unshift(
-    t.importDeclaration([t.importNamespaceSpecifier(helper)], t.stringLiteral(ponyfillImport)),
-  );
+  if (hooks.finish(program, changed) === false) return null;
   const result = transformFromAstSync(program, code, {
     babelrc: false,
     configFile: false,
     sourceMaps: true,
+    compact: true,
     sourceFileName: id,
     cloneInputAst: false,
     inputSourceMap,

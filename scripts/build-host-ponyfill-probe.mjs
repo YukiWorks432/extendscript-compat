@@ -26,7 +26,7 @@ const checks = names.map((name) => {
     code = code.replace('if (typeof Object.defineProperty === "function") {', "if (false) {");
   return `${JSON.stringify(name)}: (\n${code}\n)`;
 });
-const source = `import "extendscript-compat/runtime"; import * as library from "namespace-probe"; export function run(){var key="value",value=library[key];return {"rollup-namespace":{total:1,passed:value===42?1:0,failures:value===42?[]:["namespace value"]},${checks.join(",\n")}};}`;
+const source = `import "extendscript-compat/runtime"; import * as library from "namespace-probe"; export function run(){var key="value",value=library[key];return {"rollup-generated":{total:1,passed:__generatedEach[0]==="generated"?1:0,failures:__generatedEach[0]==="generated"?[]:["generated keys/forEach"]},"rollup-namespace":{total:1,passed:value===42?1:0,failures:value===42?[]:["namespace value"]},${checks.join(",\n")}};}`;
 const directory = new URL("../tmp/ponyfill-host/", import.meta.url);
 mkdirSync(directory, { recursive: true });
 const manifest = [];
@@ -49,9 +49,14 @@ for (const compressed of [false, true]) {
     ],
   });
   try {
-    const chunk = (await bundle.generate({ format: "iife", name: "probe" })).output.find(
-      (item) => item.type === "chunk",
-    );
+    const chunk = (
+      await bundle.generate({
+        format: "iife",
+        name: "probe",
+        intro:
+          "var __generatedEach=[]; Object.keys({generated:1}).forEach(function(key){__generatedEach.push(key);});",
+      })
+    ).output.find((item) => item.type === "chunk");
     if (!chunk) throw new Error("検証用チャンクがありません");
     const code = `(function(){
 var targets=[$.global,Object,Object.prototype,Array,Array.prototype,String,String.prototype,Function,Function.prototype,Number,Number.prototype,Date,Date.prototype,Math];

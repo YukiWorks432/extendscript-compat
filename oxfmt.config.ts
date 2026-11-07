@@ -27,6 +27,7 @@ export default defineConfig({
     "runtime-src/vendor/json2.js",
     "runtime/index.js",
     "runtime/ponyfill.js",
+    "runtime/ponyfill-factory.js",
     "test/fixtures/runtime-0.2.js",
     "test/fixtures/json2-legacy.js",
     "test/fixtures/template-polyfills.ts",
