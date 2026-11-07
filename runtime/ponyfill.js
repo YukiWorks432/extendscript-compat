@@ -42,7 +42,7 @@ function isNumberWhitespace(code) {
 function getFreeze(object) {
     var method = object.freeze;
     if (typeof method === "function") return function() {
-        return Function.prototype.apply.call(method, object, arguments);
+        return function() {}.apply.call(method, object, arguments);
     };
     return function(value) {
         return value;

@@ -133,3 +133,18 @@ it("freeze補正の前後でも利用側のソース位置を追跡できる", a
   expect(position.line).toBe(2);
   expect(position.column).toBe(22);
 });
+
+it.each([false, true])("利用側のFunctionという引数を捕捉しない ponyfill=%s", async (pure) => {
+  const chunk = await build(
+    pure,
+    false,
+    "export function run(Function){return Object.freeze({value:42}).value;}",
+  );
+  const context = createContext({});
+  runInContext(chunk.code, context);
+  expect(runInContext("compiled.run({})", context)).toBe(42);
+  const missing = createContext({});
+  runInContext("delete Object.freeze", missing);
+  runInContext(chunk.code, missing);
+  expect(runInContext("compiled.run({})", missing)).toBe(42);
+});

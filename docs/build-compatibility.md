@@ -90,6 +90,8 @@ Dynamic `object[methodName]`, aliases of entire built-in objects (`var O = Objec
 
 ## Scope
 
+Direct `Object.freeze(...)` calls in final output are handled by the final correction described above, even when that code was added after module transformation. Other APIs are not automatically polyfilled at that stage.
+
 `protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03, EC-06, EC-20, and Unicode characters as described below.
 
 The input must be code already generated as ordinary JavaScript. Leave TypeScript and ES3 syntax conversion to an existing build step such as Babel. Raw JSX containing ExtendScript-specific E4X or unexpanded preprocessor directives is not supported. A parse failure throws rather than silently returning unmodified code.

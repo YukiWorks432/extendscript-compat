@@ -4,7 +4,7 @@ export function getFreeze(object) {
   var method = object.freeze;
   if (typeof method === "function")
     return function () {
-      return Function.prototype.apply.call(/** @type {Function} */ (method), object, arguments);
+      return /** @type {Function} */ (function () {}.apply).call(method, object, arguments);
     };
   return function (/** @type {unknown} */ value) {
     return value;

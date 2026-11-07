@@ -90,6 +90,8 @@ items["map"](callback);
 
 ## 対応範囲
 
+上記のモジュール変換の対象外となるコードでも、最終出力に含まれる`Object.freeze(...)`の直接呼び出しは、前述の最終出力の補正で扱います。ほかのAPIをこの段階で自動補完する機能はありません。
+
 protectPrecedenceは従来どおり括弧だけを挿入します。protectCompatibilityとRollup用のextendscriptCompatは、下記のEC-03・EC-06・EC-20とUnicode文字も扱います。
 
 入力は通常のJavaScriptとして生成されたコードです。TypeScriptの変換やES3構文への変換は、Babelなど既存のビルド処理へ委ねます。ExtendScript固有のE4Xや未展開のプリプロセッサー指示を含む生のJSXファイルは対象にしません。構文解析に失敗した場合は例外を返し、無変換のまま成功扱いにはしません。

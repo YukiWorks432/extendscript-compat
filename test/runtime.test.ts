@@ -113,7 +113,8 @@ it("実際に圧縮・補正したバンドルでも4関数の契約と再評価
   } finally {
     await bundle.close();
   }
-});
+  // 全ランタイムの圧縮を含むため、Windows CIの既定5秒では不足する。
+}, 30000);
 
 it("AEが省略するglobal置換の末尾空一致を一度だけ補う", () => {
   const context = createContext({});
