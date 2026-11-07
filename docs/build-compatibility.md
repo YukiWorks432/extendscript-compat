@@ -84,9 +84,9 @@ items["map"](callback);
 
 Local bindings that shadow built-in names and custom instance/prototype methods are retained. Receiver evaluation, method lookup, argument evaluation order, and `this` are preserved. Implementations and caches stay inside the bundle: no host globals, constructors, prototypes, or installation markers are modified. JSON handles dates internally without adding `Date.prototype.toJSON`. Operations such as `fill` and `Reflect.set` still mutate their inputs as specified. This is not a sandbox for host writes made explicitly by application code or other libraries.
 
-Like Number conversion, this runs during module processing after TypeScript and syntax transpilation, including bundled dependency modules. Subsequent minification, compatibility protection, BOM handling, ES3 validation, and source maps remain supported. TypeScript consumers can keep `/runtime` declarations or use standard `lib` settings.
+Number conversion remains in module processing. Ponyfill conversion runs in renderChunk after minification, covering application code, bundled dependencies, and Rollup-generated namespace and re-export helpers. The runtime is inserted after conversion and shared through Rollup dependencies across chunks. Compatibility protection, BOM handling, ES3 validation, and source maps remain supported. TypeScript consumers can keep `/runtime` declarations or use standard `lib` settings.
 
-Dynamic `object[methodName]`, aliases of entire built-in objects (`var O = Object; O.keys(...)`), destructuring, strings passed to `eval` or the Function constructor, external JSX, and code added after module transformation by include processing are not rewritten. `new Date(...)`, implicit coercion, prototype enumeration, and feature tests using `in` retain host behavior. Values from other engines and host-specific objects need environment-specific validation.
+Dynamic `object[methodName]`, aliases of entire built-in objects (`var O = Object; O.keys(...)`), destructuring, strings passed to `eval` or the Function constructor, external JSX, and code added after the renderChunk conversion are not rewritten. `new Date(...)`, implicit coercion, prototype enumeration, and feature tests using `in` retain host behavior. Values from other engines and host-specific objects need environment-specific validation.
 
 ## Scope
 
@@ -237,3 +237,5 @@ pnpm pack --pack-destination artifacts
 The tests cover boolean combinations, side-effect order and count, existing parentheses, repeated application, minified output, and source maps. Host coverage and generated-output evidence are recorded with the PR validation results.
 
 MIT License.
+
+Expand includes during module processing or an earlier renderChunk, within the helper scope. Ponyfill targets added in generateBundle or outside an IIFE are rejected rather than left silently unconverted. This change does not add Object.create or descriptor fallbacks.

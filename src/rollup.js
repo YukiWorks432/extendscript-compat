@@ -1,3 +1,4 @@
+import { createOutputPonyfill } from "./output-ponyfill.js";
 import { fileURLToPath } from "node:url";
 import { parse } from "@babel/core";
 import { parse as parseES3 } from "acorn";
@@ -10,7 +11,7 @@ import {
   findRegExpRisks,
 } from "./index.js";
 import { numberPonyfillImport, transformNumberCalls } from "./number-transform.js";
-import { ponyfillImport, transformPonyfills } from "./ponyfill-transform.js";
+import { ponyfillImport } from "./ponyfill-transform.js";
 import { findFreezeEdits } from "./freeze-transform.js";
 
 /** @param {string} source */
@@ -163,23 +164,28 @@ export function extendscriptCompat(options = {}) {
     /\\/g,
     "/",
   );
+  const pure = options.runtime === "ponyfill" ? createOutputPonyfill() : undefined;
   return {
     name: "extendscript-compat",
     resolveId(source) {
+      const resolved = pure?.resolveId(source);
+      if (resolved) return resolved;
       if (source === numberPonyfillImport) return numberPonyfillPath;
       if (source === ponyfillImport) return purePath;
-      if (options.runtime === "ponyfill" && source === "extendscript-compat/runtime")
-        return "\0extendscript-compat/empty-runtime";
       return null;
     },
     load(id) {
-      if (id === "\0extendscript-compat/empty-runtime") return "";
+      const loaded = pure?.load(id);
+      if (loaded !== null && loaded !== undefined) return loaded;
       return null;
     },
     transform(code, id) {
+      if (id.startsWith("\0extendscript-compat:output:")) return null;
       const normalizedId = id.replace(/\\/g, "/");
       if (options.runtime === "ponyfill" && normalizedId === runtimePath)
         return { code: "", map: { mappings: "" } };
+      if (pure && normalizedId === numberPonyfillPath)
+        return { code: pure.numberBridge, map: { mappings: "" } };
       if (
         normalizedId === numberPonyfillPath ||
         normalizedId === runtimePath ||
@@ -198,20 +204,21 @@ export function extendscriptCompat(options = {}) {
           else this.warn(warning);
         }
       }
-      if (options.runtime === "ponyfill") {
-        const pure = transformPonyfills(
+      if (pure)
+        return pure.prepareModule(
           result?.code ?? code,
           id,
           result?.map ? JSON.parse(result.map.toString()) : undefined,
         );
-        if (pure) return pure;
-      }
       return result?.code === undefined ? null : { code: result.code, map: result.map };
     },
+    renderStart: pure?.renderStart,
+    renderChunk: pure?.renderChunk,
     augmentChunkHash() {
       return bom ? "extendscript-compat-utf8-bom" : undefined;
     },
     generateBundle(options, bundle) {
+      pure?.checkBundle(options, bundle);
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;
         const source = chunk.code;
