@@ -44,5 +44,29 @@
     "0.00e+0",
   );
   check("digits coerced once", calls, 1);
+  function receiverCheck(name, method, receiver, args, expected) {
+    var own = Object.prototype.hasOwnProperty;
+    var before = own.call(receiver, "this"),
+      previous = receiver["this"];
+    check(name + " result", method.apply(receiver, args), expected);
+    check(name + " own this", own.call(receiver, "this"), before);
+    check(name + " this value", receiver["this"], previous);
+  }
+  for (var existing = 0; existing < 2; existing++) {
+    var text = {
+      toString: function () {
+        return " x ";
+      },
+    };
+    var array = { 0: "x", length: 1 };
+    if (existing) {
+      text["this"] = 7;
+      array["this"] = 7;
+    }
+    receiverCheck("trim " + existing, String.prototype.trim, text, [], "x");
+    receiverCheck("padStart " + existing, String.prototype.padStart, text, [4, "0"], "0 x ");
+    receiverCheck("substr " + existing, String.prototype.substr, text, [1, 1], "x");
+    receiverCheck("includes " + existing, Array.prototype.includes, array, ["x"], true);
+  }
   return { total: total, passed: total - failures.length, failures: failures };
 })();

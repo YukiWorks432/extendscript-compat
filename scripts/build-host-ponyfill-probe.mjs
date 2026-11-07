@@ -49,13 +49,28 @@ for (const compressed of [false, true]) {
     if (!chunk) throw new Error("検証用チャンクがありません");
     const code = `(function(){
 var targets=[$.global,Object,Object.prototype,Array,Array.prototype,String,String.prototype,Function,Function.prototype,Number,Number.prototype,Date,Date.prototype,Math];
+var targetNames=["global","Object","Object.prototype","Array","Array.prototype","String","String.prototype","Function","Function.prototype","Number","Number.prototype","Date","Date.prototype","Math"];
 function snapshot(){var result=[];for(var i=0;i<targets.length;i++){var keys=[],values=[];for(var k in targets[i]){if(Object.prototype.hasOwnProperty.call(targets[i],k)){keys.push(k);}}keys.sort();for(var j=0;j<keys.length;j++)values.push(targets[i][keys[j]]);result.push({keys:keys.join("|"),values:values});}return result;}
 var before=snapshot(),parseRef=parseInt,charRef=String.prototype.charAt,splitRef=String.prototype.split,replaceRef=String.prototype.replace;
-var initial={map:typeof Array.prototype.map,json:typeof JSON,bind:typeof Function.prototype.bind};
+var initial={map:typeof Array.prototype.map,json:typeof JSON,bind:typeof Function.prototype.bind,stringPrototypeThis:Object.prototype.hasOwnProperty.call(String.prototype,"this")};
 ${chunk.code}
 var reports=probe.run(),after=snapshot(),unchanged=parseRef===parseInt&&charRef===String.prototype.charAt&&splitRef===String.prototype.split&&replaceRef===String.prototype.replace;
-for(var i=0;i<before.length;i++){if(before[i].keys!==after[i].keys)unchanged=false;for(var j=0;j<before[i].values.length;j++)if(before[i].values[j]!==after[i].values[j])unchanged=false;}
-return {version:app.version,engine:$.version,initial:initial,unchanged:unchanged,reports:reports};
+var differences=[];
+for(var i=0;i<before.length;i++){
+ var oldKeys=before[i].keys?before[i].keys.split("|"):[],newKeys=after[i].keys?after[i].keys.split("|"):[];
+ for(var side=0;side<2;side++){
+  var keys=side?newKeys:oldKeys,other=side?oldKeys:newKeys;
+  for(var j=0;j<keys.length;j++){
+   var match=-1;for(var k=0;k<other.length;k++)if(keys[j]===other[k]){match=k;break;}
+   if(match<0)differences.push({target:targetNames[i],key:keys[j],kind:side?"added":"removed"});
+   else if(!side){var a=before[i].values[j],b=after[i].values[match];if(a!==b&&!(a!==a&&b!==b))differences.push({target:targetNames[i],key:keys[j],kind:"changed",beforeType:typeof a,afterType:typeof b});}
+  }
+ }
+}
+var refs=[parseRef===parseInt,charRef===String.prototype.charAt,splitRef===String.prototype.split,replaceRef===String.prototype.replace],refNames=["parseInt","String.prototype.charAt","String.prototype.split","String.prototype.replace"];
+for(var i=0;i<refs.length;i++)if(!refs[i])differences.push({target:refNames[i],kind:"reference"});
+unchanged=differences.length===0;
+return {version:app.version,engine:$.version,initial:initial,unchanged:unchanged,differences:differences,reports:reports};
 }());`;
     const name = compressed ? "minified.jsx" : "normal.jsx";
     writeFileSync(new URL(name, directory), code);
