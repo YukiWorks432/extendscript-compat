@@ -156,15 +156,16 @@ function __compatCreate(prototype, properties) {
   if (typeof properties !== "undefined") {
     if (properties === null) throw new TypeError("Property descriptors require a value");
     var descriptors = Object(properties),
-      keys = Object.keys(descriptors),
+      keys =
+        typeof Object.getOwnPropertyNames === "function"
+          ? Object.getOwnPropertyNames(descriptors)
+          : Object.keys(descriptors),
       records = [],
       i,
       key;
     if (typeof Object.getOwnPropertySymbols === "function") {
       var symbols = Object.getOwnPropertySymbols(descriptors);
-      for (i = 0; i < symbols.length; i++)
-        if (Object.prototype.propertyIsEnumerable.call(descriptors, symbols[i]))
-          keys.push(symbols[i]);
+      for (i = 0; i < symbols.length; i++) keys.push(symbols[i]);
     }
     // 全記述子を先に変換し、後続の不正記述子で部分的に定義しない。
     for (i = 0; i < keys.length; i++) {

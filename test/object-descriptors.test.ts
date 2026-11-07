@@ -43,6 +43,28 @@ it.each(["delete d.b", 'nativeDefine(d,"b",{enumerable:false})'])(
 );
 
 it.each([false, true])(
+  "createは記述子取得中に列挙可能になった後続キーも処理する symbol=%s",
+  async (symbol) => {
+    for (const pure of [false, true]) {
+      const ctx = createContext({});
+      runInContext(
+        "var nativeDefine=Object.defineProperty;var key=" +
+          (symbol ? 'Symbol("b")' : '"b"') +
+          ';var d={};nativeDefine(d,"a",{enumerable:true,get:function(){nativeDefine(d,key,{enumerable:true});return {value:1};}});nativeDefine(d,key,{value:{value:2},configurable:true});delete Object.create;',
+        ctx,
+      );
+      runInContext(
+        pure ? await build("export function run(d){return Object.create({},d);}") : runtime,
+        ctx,
+      );
+      runInContext(pure ? "var result=compiled.run(d)" : "var result=Object.create({},d)", ctx);
+      expect(runInContext("result.a", ctx)).toBe(1);
+      expect(runInContext("result[key]", ctx)).toBe(2);
+    }
+  },
+);
+
+it.each([false, true])(
   "標準の記述子取得だけで検出できるアクセサーも実行しない 継承=%s",
   async (inherited) => {
     for (const pure of [false, true]) {

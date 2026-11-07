@@ -2536,10 +2536,10 @@ function __createPonyfills() {
         }
         if (typeof properties !== "undefined") {
             if (properties === null) throw new TypeError("Property descriptors require a value");
-            var descriptors = Object(properties), keys = __es5.keys(descriptors), records = [], i, key;
+            var descriptors = Object(properties), keys = typeof Object.getOwnPropertyNames === "function" ? Object.getOwnPropertyNames(descriptors) : __es5.keys(descriptors), records = [], i, key;
             if (typeof Object.getOwnPropertySymbols === "function") {
                 var symbols = Object.getOwnPropertySymbols(descriptors);
-                for (i = 0; i < symbols.length; i++) if (Object.prototype.propertyIsEnumerable.call(descriptors, symbols[i])) keys.push(symbols[i]);
+                for (i = 0; i < symbols.length; i++) keys.push(symbols[i]);
             }
             for (i = 0; i < keys.length; i++) {
                 key = keys[i];
