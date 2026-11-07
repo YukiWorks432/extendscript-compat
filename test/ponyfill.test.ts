@@ -91,26 +91,31 @@ function expectUnchanged(before: ReturnType<typeof snapshot>, after: ReturnType<
   }
 }
 
-it.each([false, true])("ES5以降の契約を補完し、ホストを変更しない 圧縮=%s", async (compressed) => {
-  // コピー操作の既存契約はArray.prototype[0]を一時定義するため、配列長も復元する。
-  const checks = contracts.map(
-    (contract) =>
-      `(function(){var length=Array.prototype.length;try{return (\n${contract}\n);}finally{Array.prototype.length=length;}})()`,
-  );
-  const chunk = await build(
-    `import "extendscript-compat/runtime"; export function run() { return [${checks.join(",\n")}]; }`,
-    compressed,
-  );
-  const context = createContext({});
-  runInContext(missing, context);
-  const before = snapshot(context);
-  runInContext(chunk.code, context);
-  const reports = runInContext("compiled.run()", context);
-  for (const report of reports) expect(report.failures).toEqual([]);
-  expectUnchanged(before, snapshot(context));
-  runInContext("compiled.run()", context);
-  expectUnchanged(before, snapshot(context));
-});
+it.each([false, true])(
+  "ES5以降の契約を補完し、ホストを変更しない 圧縮=%s",
+  async (compressed) => {
+    // コピー操作の既存契約はArray.prototype[0]を一時定義するため、配列長も復元する。
+    const checks = contracts.map(
+      (contract) =>
+        `(function(){var length=Array.prototype.length;try{return (\n${contract}\n);}finally{Array.prototype.length=length;}})()`,
+    );
+    const chunk = await build(
+      `import "extendscript-compat/runtime"; export function run() { return [${checks.join(",\n")}]; }`,
+      compressed,
+    );
+    const context = createContext({});
+    runInContext(missing, context);
+    const before = snapshot(context);
+    runInContext(chunk.code, context);
+    const reports = runInContext("compiled.run()", context);
+    for (const report of reports) expect(report.failures).toEqual([]);
+    expectUnchanged(before, snapshot(context));
+    runInContext("compiled.run()", context);
+    expectUnchanged(before, snapshot(context));
+    // Windows CIでは全契約のバンドル生成・圧縮も含めると既定の5秒を超える。
+  },
+  30000,
+);
 
 it("メソッド取得・引数の順序とthisを保ち、独自メソッドとローカルの組み込み名を保持する", async () => {
   const chunk = await build(`export function run() {
