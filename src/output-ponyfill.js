@@ -1,3 +1,4 @@
+import { removeRuntimeImports, removeRuntimeExports } from "./unused-ponyfill.js";
 // Rollupの出力側で補完を供給する。
 import { fileURLToPath } from "node:url";
 import { parse, traverse, transformFromAstSync, types as t } from "@babel/core";
@@ -11,7 +12,10 @@ const factoryName = "__extendscriptCompatOutputFactory__";
 const useName = "__extendscriptCompatOutputUse__";
 const runtimeId = "\0extendscript-compat:output:runtime";
 const numberId = "\0extendscript-compat:output:number";
-const numberPath = fileURLToPath(new URL("../runtime/number.js", import.meta.url));
+const numberPath = fileURLToPath(new URL("../runtime/number.js", import.meta.url)).replace(
+  /\\/g,
+  "/",
+);
 
 const bridge = `var cache; export function runtime() { return cache || (cache = ${factoryName}(${JSON.stringify(tag)},${globals.map((name) => `typeof ${name} === "undefined" ? void 0 : ${name}`).join(",")})); }`;
 const numberBridge =
@@ -24,17 +28,37 @@ function expression(source) {
     throw new Error("補完式を解析できません");
   return ast.program.body[0].expression;
 }
-const factoryExpression = expression("(" + factorySource + ")");
+
 /** @param {import("@babel/core").types.Node} node @param {string} name */
 const isMarker = (node, name) =>
   t.isCallExpression(node) &&
-  t.isIdentifier(node.callee, { name }) &&
+  (t.isIdentifier(node.callee, { name }) ||
+    (name === useName &&
+      t.isMemberExpression(node.callee) &&
+      t.isFunctionExpression(node.callee.object))) &&
   t.isStringLiteral(node.arguments[0], { value: tag });
 
 export function createOutputPonyfill() {
-  const rendered = new Map();
+  const factoryExpression = expression("(" + factorySource + ")");
+  /** @type {WeakMap<import('rollup').NormalizedOutputOptions,{arrived:number,needed:boolean,release:()=>void,scanned:Promise<void>,removed:Set<string>,rendered:Map<string,string>}>} */
+  const outputs = new WeakMap();
   return {
     numberBridge,
+    /** @param {import('rollup').NormalizedOutputOptions} options */
+    renderStart(options) {
+      /** @type {()=>void} */ let release = () => {};
+      /** @type {Promise<void>} */ const scanned = new Promise((resolve) => {
+        release = resolve;
+      });
+      outputs.set(options, {
+        arrived: 0,
+        needed: false,
+        release,
+        scanned,
+        removed: new Set(),
+        rendered: new Map(),
+      });
+    },
     /** @param {string} source */
     resolveId(source) {
       if (source === "extendscript-compat:output:runtime") return runtimeId;
@@ -61,7 +85,7 @@ export function createOutputPonyfill() {
       });
       const prefix = /** @type {import("@babel/core").types.File} */ (
         parse(
-          `import {runtime as ${alias}} from "extendscript-compat:output:runtime";\n${useName}(${JSON.stringify(tag)},${alias},${alias});`,
+          `import {runtime as ${alias}} from "extendscript-compat:output:runtime";\n(function(){}).${useName}(${JSON.stringify(tag)},${alias},${alias});`,
           { sourceType: "module" },
         )
       ).program.body;
@@ -79,7 +103,39 @@ export function createOutputPonyfill() {
     renderChunk: {
       order: /** @type {const} */ ("post"),
       /** @param {string} code @param {import("rollup").RenderedChunk} chunk @param {import("rollup").NormalizedOutputOptions} _options @param {{chunks:Record<string,import("rollup").RenderedChunk>}} meta */
-      handler(code, chunk, _options, meta) {
+      async handler(code, chunk, _options, meta) {
+        const state = outputs.get(_options);
+        if (!state) throw new Error("出力の補完状態が未初期化です");
+        const owners = new Set();
+        transformOutput(code, chunk.fileName, undefined, {
+          prepare(path) {
+            path.traverse({
+              CallExpression(call) {
+                if (isMarker(call.node, factoryName))
+                  owners.add(call.findParent((parent) => parent.isFunction())?.node);
+              },
+            });
+            return t.identifier("__analysisOnly");
+          },
+          skip(path) {
+            return !!path.findParent((parent) => owners.has(parent.node));
+          },
+          assertScope() {},
+          finish(_program, changed) {
+            state.needed ||= changed;
+            return false;
+          },
+        });
+        state.needed ||= Object.entries(chunk.modules).some(
+          ([id, module]) =>
+            module.renderedLength > 0 && (id === numberId || id.replace(/\\/g, "/") === numberPath),
+        );
+        state.arrived++;
+        if (state.arrived === Object.keys(meta.chunks).length) state.release();
+        await state.scanned;
+        const omitAll = !state.needed;
+        if (omitAll && chunk.moduleIds.length === 1 && chunk.moduleIds[0] === runtimeId)
+          state.removed.add(chunk.fileName);
         /** @type {any[][]} */ const skipped = [];
         let connected = false;
         /** @type {any} */ let helperBinding;
@@ -171,7 +227,9 @@ export function createOutputPonyfill() {
             if (!connected) {
               if (changed)
                 throw new Error("補完が必要なチャンクに接続がありません: " + chunk.fileName);
-              return false;
+              if (!omitAll) return false;
+              removeRuntimeImports(program, chunk, meta.chunks, runtimeId);
+              return;
             }
             traverse(program, {
               CallExpression(path) {
@@ -185,11 +243,7 @@ export function createOutputPonyfill() {
                 }
               },
             });
-            const omit =
-              !changed &&
-              !chunk.moduleIds.includes(numberId) &&
-              !chunk.moduleIds.includes(numberPath) &&
-              Object.keys(meta.chunks).length === 1;
+            const omit = omitAll;
             if (omit) {
               /** @type {import("@babel/core").NodePath[]} */ const removals = [];
               traverse(program, {
@@ -210,7 +264,13 @@ export function createOutputPonyfill() {
                   }
                 },
               });
-              for (const path of removals) if (!path.removed) path.remove();
+              for (const path of removals) {
+                if (!path.removed) {
+                  removeRuntimeExports(path, chunk);
+                  path.remove();
+                }
+              }
+              removeRuntimeImports(program, chunk, meta.chunks, runtimeId);
               return;
             }
             traverse(program, {
@@ -234,16 +294,27 @@ export function createOutputPonyfill() {
             });
           },
         });
-        rendered.set(chunk.fileName, result?.code ?? code);
+        state.rendered.set(chunk.fileName, result?.code ?? code);
         return result;
       },
     },
-    /** @param {import("rollup").OutputBundle} bundle */
-    checkBundle(bundle) {
+    /** @param {import("rollup").NormalizedOutputOptions} options @param {import("rollup").OutputBundle} bundle */
+    checkBundle(options, bundle) {
+      const state = outputs.get(options);
+      if (!state) throw new Error("出力の補完状態が未初期化です");
+      for (const chunk of Object.values(bundle)) {
+        if (
+          chunk.type === "chunk" &&
+          state.removed.has(chunk.preliminaryFileName ?? chunk.fileName)
+        ) {
+          delete bundle[chunk.fileName];
+          if (chunk.sourcemapFileName) delete bundle[chunk.sourcemapFileName];
+        }
+      }
       for (const chunk of Object.values(bundle)) {
         if (
           chunk.type !== "chunk" ||
-          chunk.code === rendered.get(chunk.preliminaryFileName ?? chunk.fileName)
+          chunk.code === state.rendered.get(chunk.preliminaryFileName ?? chunk.fileName)
         )
           continue;
         // 遅い展開を黙って通さないため、挿入済みの本体だけ構造で除外して再検査する。

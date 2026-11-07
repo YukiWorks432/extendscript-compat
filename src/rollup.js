@@ -172,14 +172,11 @@ export function extendscriptCompat(options = {}) {
       if (resolved) return resolved;
       if (source === numberPonyfillImport) return numberPonyfillPath;
       if (source === ponyfillImport) return purePath;
-      if (options.runtime === "ponyfill" && source === "extendscript-compat/runtime")
-        return "\0extendscript-compat/empty-runtime";
       return null;
     },
     load(id) {
       const loaded = pure?.load(id);
       if (loaded !== null && loaded !== undefined) return loaded;
-      if (id === "\0extendscript-compat/empty-runtime") return "";
       return null;
     },
     transform(code, id) {
@@ -215,12 +212,13 @@ export function extendscriptCompat(options = {}) {
         );
       return result?.code === undefined ? null : { code: result.code, map: result.map };
     },
+    renderStart: pure?.renderStart,
     renderChunk: pure?.renderChunk,
     augmentChunkHash() {
       return bom ? "extendscript-compat-utf8-bom" : undefined;
     },
     generateBundle(options, bundle) {
-      pure?.checkBundle(bundle);
+      pure?.checkBundle(options, bundle);
       for (const chunk of Object.values(bundle)) {
         if (chunk.type !== "chunk") continue;
         const source = chunk.code;
