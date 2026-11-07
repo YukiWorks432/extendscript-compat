@@ -473,7 +473,7 @@ function __createPonyfills() {
         var numberValueOf = __bind.call(call, NumberPrototype.valueOf);
         var originalToPrecision = __bind.call(call, NumberPrototype.toPrecision);
         var hasNegativeSubstrBug = "".substr && "0b".substr(-1) !== "b";
-        var string_substr = hasNegativeSubstrBug && __bind.call(call, StringPrototype.substr);
+        var string_substr = __bind.call(call, StringPrototype.substr);
         return {
             bind: function bind(that) {
                 var target = this;
@@ -1033,7 +1033,7 @@ function __createPonyfills() {
                 return string_substr(this, normalizedStart, length);
             },
             lastIndexOfString: function lastIndexOf(searchString) {
-                if (typeof this === "undefined" || this === null) {
+                if (this === void 0 || this === null) {
                     throw new TypeError("can't convert " + this + " to object");
                 }
                 var S = $String(this);
@@ -2424,7 +2424,7 @@ function __createPonyfills() {
         return length <= 0 ? 0 : Math.min(length, 9007199254740991);
     }
     function __compatIncludes(search, fromIndex) {
-        if (this === null || typeof this === "undefined") throw new TypeError("includes requires an object");
+        if (this === null || this === void 0) throw new TypeError("includes requires an object");
         var object = Object(this);
         var length = __compatLength(object.length);
         if (length === 0) return false;
@@ -2452,7 +2452,7 @@ function __createPonyfills() {
         return targetIndex;
     }
     function __compatFlat(depth) {
-        if (this === null || typeof this === "undefined") throw new TypeError("flat requires an object");
+        if (this === null || this === void 0) throw new TypeError("flat requires an object");
         var source = Object(this), length = __compatLength(source.length);
         var level = typeof depth === "undefined" ? 1 : __compatInteger(depth);
         var result = [];
@@ -2460,7 +2460,7 @@ function __createPonyfills() {
         return result;
     }
     function __compatFlatMap(mapper, thisArg) {
-        if (this === null || typeof this === "undefined") throw new TypeError("flatMap requires an object");
+        if (this === null || this === void 0) throw new TypeError("flatMap requires an object");
         var source = Object(this), length = __compatLength(source.length);
         if (typeof mapper !== "function") throw new TypeError("flatMap requires a function");
         var result = [];
@@ -2468,21 +2468,21 @@ function __createPonyfills() {
         return result;
     }
     function __compatArrayAt(index) {
-        if (this === null || typeof this === "undefined") throw new TypeError("at requires an object");
+        if (this === null || this === void 0) throw new TypeError("at requires an object");
         var object = Object(this), length = __compatLength(object.length);
         var relative = __compatInteger(index);
         var actual = relative >= 0 ? relative : length + relative;
         return actual < 0 || actual >= length ? undefined : object[actual];
     }
     function __compatToReversed() {
-        if (this === null || typeof this === "undefined") throw new TypeError("toReversed requires an object");
+        if (this === null || this === void 0) throw new TypeError("toReversed requires an object");
         var source = Object(this), length = __compatLength(source.length), result = new Array(length);
         for (var i = 0; i < length; i++) __compatCopyElement(result, i, source[length - i - 1]);
         return result;
     }
     function __compatToSorted(compare) {
         if (typeof compare !== "undefined" && typeof compare !== "function") throw new TypeError("compare must be a function");
-        if (this === null || typeof this === "undefined") throw new TypeError("toSorted requires an object");
+        if (this === null || this === void 0) throw new TypeError("toSorted requires an object");
         var source = Object(this), length = __compatLength(source.length), result = new Array(length);
         var temporary = new Array(length);
         for (var i = 0; i < length; i++) {
@@ -2517,7 +2517,7 @@ function __createPonyfills() {
         return x < y ? -1 : (x > y ? 1 : 0);
     }
     function __compatToSpliced(start, deleteCount) {
-        if (this === null || typeof this === "undefined") throw new TypeError("toSpliced requires an object");
+        if (this === null || this === void 0) throw new TypeError("toSpliced requires an object");
         var source = Object(this), length = __compatLength(source.length), relative = __compatInteger(start);
         var actual = relative < 0 ? Math.max(length + relative, 0) : Math.min(relative, length);
         var inserted = Math.max(arguments.length - 2, 0);
@@ -2572,27 +2572,27 @@ function __createPonyfills() {
         return atStart ? padding + text : text + padding;
     }
     function __compatPadStart(maxLength, filler) {
-        if (this === null || typeof this === "undefined") throw new TypeError("padStart requires an object");
+        if (this === null || this === void 0) throw new TypeError("padStart requires an object");
         return __compatPad(String(this), maxLength, filler, true);
     }
     function __compatPadEnd(maxLength, filler) {
-        if (this === null || typeof this === "undefined") throw new TypeError("padEnd requires an object");
+        if (this === null || this === void 0) throw new TypeError("padEnd requires an object");
         return __compatPad(String(this), maxLength, filler, false);
     }
     function __compatTrimStart() {
-        if (this === null || typeof this === "undefined") throw new TypeError("trimStart requires an object");
+        if (this === null || this === void 0) throw new TypeError("trimStart requires an object");
         var text = String(this), index = 0;
         while (index < text.length && isNumberWhitespace(text.charCodeAt(index))) index++;
         return text.slice(index);
     }
     function __compatTrimEnd() {
-        if (this === null || typeof this === "undefined") throw new TypeError("trimEnd requires an object");
+        if (this === null || this === void 0) throw new TypeError("trimEnd requires an object");
         var text = String(this), index = text.length;
         while (index > 0 && isNumberWhitespace(text.charCodeAt(index - 1))) index--;
         return text.slice(0, index);
     }
     function __compatStringAt(index) {
-        if (this === null || typeof this === "undefined") throw new TypeError("at requires an object");
+        if (this === null || this === void 0) throw new TypeError("at requires an object");
         var text = String(this), length = text.length, relative = __compatInteger(index);
         var actual = relative >= 0 ? relative : length + relative;
         return actual < 0 || actual >= length ? undefined : __stringCorrections.charAt.call(text, actual);
@@ -2602,7 +2602,7 @@ function __createPonyfills() {
         return String(value);
     }
     function __compatReplaceAll(searchValue, replaceValue) {
-        if (this === null || typeof this === "undefined") throw new TypeError("replaceAll requires a value");
+        if (this === null || this === void 0) throw new TypeError("replaceAll requires a value");
         var hasReplaceSymbol = typeof Symbol === "function" && Symbol.replace;
         if (searchValue !== null && typeof searchValue !== "undefined") {
             var actualRegex = __compatRegExpBrand(searchValue);
@@ -2690,11 +2690,11 @@ function __createPonyfills() {
         return repair ? result + text.slice(cursor) : true;
     }
     function __compatIsWellFormed() {
-        if (this === null || typeof this === "undefined") throw new TypeError("isWellFormed requires a value");
+        if (this === null || this === void 0) throw new TypeError("isWellFormed requires a value");
         return __compatWellFormed(__compatStringValue(this), false);
     }
     function __compatToWellFormed() {
-        if (this === null || typeof this === "undefined") throw new TypeError("toWellFormed requires a value");
+        if (this === null || this === void 0) throw new TypeError("toWellFormed requires a value");
         return __compatWellFormed(__compatStringValue(this), true);
     }
     function __compatRegExpBrand(value) {
@@ -2805,7 +2805,7 @@ function __createPonyfills() {
         return text.slice(start, end);
     }
     function __extendscriptCompatTrimMethod() {
-        if (this === null || typeof this === "undefined") throw new TypeError("trim requires an object");
+        if (this === null || this === void 0) throw new TypeError("trim requires an object");
         return __extendscriptCompatTrim(String(this));
     }
     var __compatOwn = Object.prototype.hasOwnProperty;

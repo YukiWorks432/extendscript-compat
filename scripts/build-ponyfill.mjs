@@ -122,6 +122,8 @@ function extract(file, selections, es5) {
     selected.push([name, value]);
   }
   function print(path) {
+    // substr本体を常用するponyfillでは、元の条件付きネイティブ参照も常に確保する。
+    if (es5 && path === values.get("string_substr")) path = path.get("right");
     const start = path.node.start;
     const s = new MagicString(code.slice(start, path.node.end));
     const edits = [];
@@ -436,8 +438,24 @@ const result = await minify(
     format: { ecma: 5, ie8: true, beautify: true, ascii_only: true, comments: /^!/ },
   },
 );
+// ExtendScriptではtypeof thisが受け手へthisプロパティを追加してしまう。
+const safeCode = new MagicString(result.code);
+traverse(parse(result.code, { babelrc: false, configFile: false }), {
+  UnaryExpression(path) {
+    if (path.node.operator !== "typeof" || path.node.argument.type !== "ThisExpression") return;
+    const parent = path.parentPath;
+    if (
+      !parent.isBinaryExpression({ operator: "===" }) ||
+      parent.node.left !== path.node ||
+      parent.node.right.type !== "StringLiteral" ||
+      parent.node.right.value !== "undefined"
+    )
+      throw new Error("Unsupported typeof this in ponyfill implementation");
+    safeCode.overwrite(parent.node.start, parent.node.end, "this === void 0");
+  },
+});
 const output =
-  protectCompatibility(result.code).code +
+  protectCompatibility(safeCode.toString()).code +
   "\nexport { getStatic, getPrototypeMethod, getMethod, getParseInt, callMethod };\n";
 const path = new URL("../runtime/ponyfill.js", import.meta.url);
 if (process.argv.includes("--check")) {
