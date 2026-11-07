@@ -7,6 +7,7 @@ A library providing build-time bug corrections and runtime compatibility for Ado
 - Corrects expression precedence, `continue` across `switch` statements, regular-expression hyphens, and `in` operators in `for` initializers at build time.
 - Rollup's `extendscriptCompat()` automatically validates ES3 syntax after correction and stops the build on invalid output.
 - Provides JSON, selected ES5, ES6, and later polyfills, and corrections for `parseInt` and three string methods when explicitly imported.
+- Rollup's ponyfill mode supplies supported APIs inside the bundle without installing them into the host.
 - Provides explicit helpers for `UnitValue` subtraction and `null` comparison.
 
 In this example, an expression that returns `true` in ordinary JavaScript returns `false` in After Effects ExtendScript. Adding parentheses to the generated code preserves the intended evaluation order.
@@ -31,7 +32,7 @@ var enabled = isAdmin || (isOwner && isReady);
 
 </details>
 
-See [1.1.0 changes](docs/releases/1.1.0.md) and [1.0.0 migration and validation](docs/release-1.0.0.md).
+See [1.2.0 changes](docs/releases/1.2.0.md), [1.1.0 changes](docs/releases/1.1.0.md), and [1.0.0 migration and validation](docs/release-1.0.0.md).
 
 ## Installation
 
