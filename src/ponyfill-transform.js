@@ -70,6 +70,14 @@ export function transformPonyfills(code, id, inputSourceMap) {
         }
         if (!kind && !instanceNames.has(key)) return;
         if (t.isSuper(object)) return;
+        // 直接呼び出しは、Rollupが追加する呼び出しと同じ最終出力の補正へ委ねる。
+        if (
+          group === "Object" &&
+          key === "freeze" &&
+          path.parentPath.isCallExpression() &&
+          path.parentPath.node.callee === path.node
+        )
+          return;
         changed = true;
         const namespace = t.cloneNode(helper);
         if (kind && group) {

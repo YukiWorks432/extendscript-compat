@@ -52,6 +52,10 @@ The plugin corrects and checks each output chunk and updates an existing valid s
 
 ## Ponyfill mode
 
+The Rollup `extendscriptCompat()` plugin also corrects direct calls to global `Object.freeze(...)` in final chunks, including when no runtime option is set. This covers namespace objects generated for `import * as library` and direct calls added by preceding include processing. An existing freeze function is used; otherwise the first argument is returned unchanged. No host function is installed and no property is frozen by the fallback. This final pass leaves references such as `Object.freeze || customFreeze` unchanged. Dynamic method names and aliases of the Object constructor are not covered.
+
+This correction belongs to the Rollup plugin, not standalone `protectCompatibility()`. It does not force `output.freeze: false`, so freezing remains enabled on capable hosts.
+
 `runtime: "ponyfill"` rewrites standard API references, including ES5 methods, to bundle-local implementations. Application code keeps ordinary method syntax:
 
 ```js
@@ -85,6 +89,8 @@ Like Number conversion, this runs during module processing after TypeScript and 
 Dynamic `object[methodName]`, aliases of entire built-in objects (`var O = Object; O.keys(...)`), destructuring, strings passed to `eval` or the Function constructor, external JSX, and code added after module transformation by include processing are not rewritten. `new Date(...)`, implicit coercion, prototype enumeration, and feature tests using `in` retain host behavior. Values from other engines and host-specific objects need environment-specific validation.
 
 ## Scope
+
+Direct `Object.freeze(...)` calls in final output are handled by the final correction described above, even when that code was added after module transformation. Other APIs are not automatically polyfilled at that stage.
 
 `protectPrecedence` continues to insert only parentheses. `protectCompatibility` and the Rollup `extendscriptCompat` plugin also handle EC-03, EC-06, EC-20, and Unicode characters as described below.
 

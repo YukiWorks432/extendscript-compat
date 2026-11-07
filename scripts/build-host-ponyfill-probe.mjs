@@ -5,6 +5,7 @@ import terser from "@rollup/plugin-terser";
 import { extendscriptCompat } from "../src/rollup.js";
 
 const names = [
+  "freeze",
   "polyfill",
   "runtime",
   "includes-padding-trimming",
@@ -25,7 +26,7 @@ const checks = names.map((name) => {
     code = code.replace('if (typeof Object.defineProperty === "function") {', "if (false) {");
   return `${JSON.stringify(name)}: (\n${code}\n)`;
 });
-const source = `import "extendscript-compat/runtime"; export function run(){return {${checks.join(",\n")}};}`;
+const source = `import "extendscript-compat/runtime"; import * as library from "namespace-probe"; export function run(){var key="value",value=library[key];return {"rollup-namespace":{total:1,passed:value===42?1:0,failures:value===42?[]:["namespace value"]},${checks.join(",\n")}};}`;
 const directory = new URL("../tmp/ponyfill-host/", import.meta.url);
 mkdirSync(directory, { recursive: true });
 const manifest = [];
@@ -35,8 +36,13 @@ for (const compressed of [false, true]) {
     plugins: [
       {
         name: "probe-input",
-        resolveId: (id) => (id === "ponyfill-probe" ? id : null),
-        load: (id) => (id === "ponyfill-probe" ? source : null),
+        resolveId: (id) => (id === "ponyfill-probe" || id === "namespace-probe" ? id : null),
+        load: (id) =>
+          id === "ponyfill-probe"
+            ? source
+            : id === "namespace-probe"
+              ? "export var value=42;"
+              : null,
       },
       ...(compressed ? [terser({ ie8: true, format: { ascii_only: true, comments: /^!/ } })] : []),
       extendscriptCompat({ runtime: "ponyfill" }),

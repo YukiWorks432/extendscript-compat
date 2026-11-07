@@ -5,6 +5,9 @@ var __compatOwn,
   __compatFunctionLengthBroken,
   __compatFunctionNameBroken;
 
+// 属性による凍結は行わず、未対応時の呼び出しだけを成立させる。
+if (typeof Object.freeze !== "function") __compatInstall(Object, "freeze", getFreeze(Object));
+
 if (root.__extendscriptCompatESNext1__ !== 1) {
   if (!__compatIncludesWorks(Array.prototype.includes))
     __compatInstall(Array.prototype, "includes", __compatIncludes);

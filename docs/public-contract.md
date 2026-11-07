@@ -38,6 +38,8 @@ Public diagnostic fields, the meanings of `code` and `kind`, position convention
 
 ## Runtime contract
 
+The fallback for unsupported `Object.freeze` returns its input unchanged and does not guarantee immutability. `/runtime` installs it when missing; ponyfill mode and the final Rollup output correction use it without modifying the host. Existing functions are retained.
+
 Rollup's `runtime: "ponyfill"` rewrites the standard API references specified in [build-time compatibility](build-compatibility.md#ponyfill-mode) to bundle-local implementations without modifying the host. It suppresses `/runtime` imports in that bundle while preserving the installation contract when the option is omitted. The linked document defines dynamic-reference and external-code limitations.
 
 Explicitly import `/runtime` before application and dependency initialization. It affects other scripts in the same engine but does not change previously saved function references. The root and `/rollup` entries do not install the runtime automatically; merely importing `/number` or `/unit-value` does not replace host classes or functions.

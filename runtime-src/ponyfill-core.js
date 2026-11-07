@@ -41,6 +41,7 @@ function __createPonyfills() {
   var __static = {
     Array: { isArray: __es5.isArray, from: __es6.from, of: __es6.of },
     Object: {
+      freeze: typeof Object.freeze === "function" ? Object.freeze : getFreeze(Object),
       keys: __es5.keys,
       assign: __es6.assign,
       is: __es6.is,
