@@ -473,7 +473,7 @@ function __createPonyfills() {
         var numberValueOf = __bind.call(call, NumberPrototype.valueOf);
         var originalToPrecision = __bind.call(call, NumberPrototype.toPrecision);
         var hasNegativeSubstrBug = "".substr && "0b".substr(-1) !== "b";
-        var string_substr = hasNegativeSubstrBug && __bind.call(call, StringPrototype.substr);
+        var string_substr = __bind.call(call, StringPrototype.substr);
         return {
             bind: function bind(that) {
                 var target = this;

@@ -122,6 +122,8 @@ function extract(file, selections, es5) {
     selected.push([name, value]);
   }
   function print(path) {
+    // substr本体を常用するponyfillでは、元の条件付きネイティブ参照も常に確保する。
+    if (es5 && path === values.get("string_substr")) path = path.get("right");
     const start = path.node.start;
     const s = new MagicString(code.slice(start, path.node.end));
     const edits = [];
