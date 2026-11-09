@@ -68,7 +68,7 @@
     "fmt:check": "oxfmt --check ."
   },
   "dependencies": {
-    "@babel/core": "^7.29.7",
+    "@babel/core": "^8.0.10",
     "@eslint-community/regexpp": "4.12.2",
     "@jridgewell/gen-mapping": "^0.3.13",
     "@jridgewell/trace-mapping": "^0.3.31",
