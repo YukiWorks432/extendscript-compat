@@ -59,7 +59,11 @@ A 404 name lookup does not guarantee that the name can be obtained at publicatio
 
 ## Ongoing publication
 
-Manually run `Publish to npm` in [`publish.yml`](../.github/workflows/publish.yml). Merging into main does not publish a package. The workflow does not update versions, create Git tags, or create GitHub Releases. It publishes stable versions to npm's `latest` tag and rejects prereleases.
+Manually run `Publish to npm` in [`publish.yml`](../.github/workflows/publish.yml). Merging into main does not publish a package; versions are updated in a preparation PR. After publishing and verifying a stable npm version, a separate job creates its `v<version>` tag and GitHub Release at the published source commit. Prereleases are rejected.
+
+To backfill or retry GitHub metadata only, run `Sync GitHub Release` (`github-release.yml`) on main with the published version. It never writes to npm. It compares the downloaded archive's SHA-512 with npm metadata and provenance, verifies the source manifest, and uses release notes from that source commit. This checks consistency with npm's HTTPS provenance API; it does not independently verify cryptographic signatures.
+
+An existing tag pointing to another commit stops synchronization and is never moved or deleted. An existing stable, published Release is preserved. If Release creation fails after tag creation, rerun synchronization to complete it. Historical versions use the provenance commit, not the current main. Versions without provenance or release notes at that commit cannot be backfilled automatically. Only the synchronization jobs receive repository write permission.
 
 ### Initial npm configuration
 
