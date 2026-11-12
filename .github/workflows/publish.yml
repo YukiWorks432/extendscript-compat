@@ -81,3 +81,24 @@ jobs:
           npm publish "$TARBALL" --access public --tag latest --registry=https://registry.npmjs.org/ --ignore-scripts
       - name: 登録された版と配布物を照合
         run: node scripts/npm-release.mjs verify "$TARBALL"
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: npm公開元のタグとReleaseを作成
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: node scripts/github-release.mjs "$RELEASE_VERSION"

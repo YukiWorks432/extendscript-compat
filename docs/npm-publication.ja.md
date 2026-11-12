@@ -59,7 +59,11 @@ pnpm view extendscript-compat@0.1.0 version dist.integrity
 
 ## 継続的な公開方法
 
-[`publish.yml`](../.github/workflows/publish.yml)の`Publish to npm`を手動実行する。mainへの統合だけでは公開せず、版番号の更新、GitタグやGitHub Releaseの作成も自動では行わない。正式版をnpmの`latest`へ登録する用途に限定し、プレリリースは受け付けない。
+[`publish.yml`](../.github/workflows/publish.yml)の`Publish to npm`を手動実行する。mainへの統合だけでは公開せず、版番号は準備PRで更新する。正式版をnpmの`latest`へ登録・照合した後、同じ公開元コミットへ`v<version>`タグとGitHub Releaseを自動作成する。プレリリースは受け付けない。
+
+GitHub側だけを補完・再試行する場合は、mainの`Sync GitHub Release`（`github-release.yml`）を公開済みの版番号で実行する。npmへの書き込みは行わない。npm配布物のSHA-512と出所証明、公開元のpackage.jsonを照合し、そのコミットの変更案内をReleaseへ掲載する。出所証明はnpmのHTTPS APIから取得した内容との整合性を確認するもので、署名の独立した暗号検証は行わない。
+
+既存タグが異なるコミットを指す場合は停止し、移動・削除しない。既存の正式Releaseがあれば変更せず成功とする。タグ作成後にRelease作成だけ失敗した場合も同じ操作で再試行できる。過去版の補完では現在のmainへタグを付けず、npmの出所証明に記録されたコミットを使用する。出所証明やそのコミットの変更案内がない版は自動補完の対象外とする。GitHub側への書き込み権限は同期ジョブだけに与える。
 
 ### npm側の初回設定
 
