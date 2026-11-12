@@ -1,6 +1,20 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 import { synchronizeRelease } from "../scripts/github-release.mjs";
+
+it("公開と復旧を直列化し、既存の待機処理を置き換えない", () => {
+  for (const name of ["publish", "github-release"]) {
+    const workflow = readFileSync(
+      new URL(`../.github/workflows/${name}.yml`, import.meta.url),
+      "utf8",
+    );
+    const concurrency = workflow.split("\nconcurrency:\n")[1].split("\njobs:")[0];
+    expect(concurrency).toMatch(/group: npm-publish/);
+    expect(concurrency).toMatch(/queue: max/);
+    expect(concurrency).toMatch(/cancel-in-progress: false/);
+  }
+});
 
 function fixture() {
   const archive = Buffer.from("published npm archive");
